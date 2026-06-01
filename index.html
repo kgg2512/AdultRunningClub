@@ -414,23 +414,31 @@ function pickRole(r,el){
 }
 
 const FREE=['gmail.com','yahoo.com','hotmail.com','outlook.com','naver.com','daum.net','hanmail.net','icloud.com','me.com','kakao.com'];
-function validEmail(e,r){
+function validEmail(e){
   const d=(e.split('@')[1]||'').toLowerCase();
-  if(!d||!d.includes('.'))return false;
-  if(r==='student')return d.endsWith('.edu')||d.endsWith('.ac.kr');
-  return !FREE.includes(d);
+  return !!(d&&d.includes('.'));
+}
+function isFreeEmail(e,r){
+  const d=(e.split('@')[1]||'').toLowerCase();
+  if(r==='student')return !(d.endsWith('.edu')||d.endsWith('.ac.kr'));
+  return FREE.includes(d);
 }
 
 function sendCode(){
   const e=document.getElementById('e-inp').value.trim();
   const hint=document.getElementById('e-hint');
-  if(!validEmail(e,selRole)){
+  if(!validEmail(e)){
     hint.style.color='#e8604a';
-    hint.textContent=selRole==='student'?'❌ Need .edu or .ac.kr email':'❌ Free email providers not accepted';
+    hint.textContent='❌ Enter a valid email address';
     return;
   }
-  hint.style.color='rgba(200,162,74,0.6)';
-  hint.textContent='✓ Valid domain';
+  if(isFreeEmail(e,selRole)){
+    hint.style.color='rgba(200,162,74,0.45)';
+    hint.textContent='⚠ Demo mode — production will require company/school email';
+  }else{
+    hint.style.color='rgba(200,162,74,0.6)';
+    hint.textContent='✓ Valid domain';
+  }
   const code=String(Math.floor(100000+Math.random()*900000));
   S.code=code; S.pendingEmail=e;
   document.getElementById('code-num').textContent=code;
