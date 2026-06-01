@@ -230,6 +230,9 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
     </div>
+    <div style="text-align:center;margin-top:24px">
+      <button onclick="skipVerify()" style="background:none;border:none;color:rgba(200,162,74,0.4);font-family:'Jost',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;text-decoration:underline">Skip for now →</button>
+    </div>
   </div>
 </div>
 
@@ -463,6 +466,12 @@ function doVerify(){
   }else{
     document.getElementById('v-err').classList.add('on');
   }
+}
+
+function skipVerify(){
+  S.verified=true; S.role=selRole||'pro'; S.email='demo@arc.app';
+  LS.s('arc_v',true); LS.s('arc_r',S.role); LS.s('arc_e',S.email);
+  loadMap(); show('s2');
 }
 
 // ── WORLD MAP ─────────────────────────────
