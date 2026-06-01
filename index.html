@@ -75,6 +75,8 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .code-num{font-family:var(--serif);font-size:2.8rem;color:var(--gold);letter-spacing:.35em;font-weight:300}
 .v-err{font-size:0.62rem;color:#e8604a;margin-top:7px;display:none}
 .v-err.on{display:block}
+.privacy-notice{font-size:0.55rem;color:rgba(232,222,206,0.38);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
+.privacy-notice a{color:rgba(200,162,74,0.7);text-decoration:underline}
 
 /* ══ S2 MAP ══ */
 .m-hd{padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -220,6 +222,12 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <p class="v-hint" id="e-hint"></p>
       </div>
       <button class="v-btn" onclick="sendCode()" id="send-btn">Send Verification Code</button>
+      <p class="privacy-notice">
+        By continuing, you agree to our
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+        and consent to receive a one-time verification email.
+        이메일 주소는 인증 목적으로만 사용되며, 제3자에게 제공되지 않습니다.
+      </p>
     </div>
     <div class="code-box" id="code-box">
       <p>Your verification code</p>
