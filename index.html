@@ -437,7 +437,7 @@ function sendCode(){
   const code=String(Math.floor(100000+Math.random()*900000));
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
-  emailjs.send('service_ayss3t8','template_inz0rw3',{to_email:e,code:code})
+  emailjs.send('service_ayss3t8','inz0rw3',{to_email:e,code:code})
     .then(()=>{
       hint.style.color='rgba(200,162,74,0.7)';
       hint.textContent='✓ Code sent to '+e;
