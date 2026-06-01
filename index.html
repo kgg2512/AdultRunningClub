@@ -1,30 +1,662 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adult Running Club — Members Only</title>
-  <!-- Placeholder: full implementation coming soon -->
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0b;
-      color: #c8a24a;
-      font-family: 'Georgia', serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    h1 { font-size: 2rem; letter-spacing: 0.2em; }
-    p  { font-size: 0.9rem; opacity: 0.5; margin-top: 1rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Adult Running Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;--gold:#c8a24a;--gold-dim:rgba(200,162,74,0.22);
+  --gold-glow:rgba(200,162,74,0.1);--gold-hi:#d4af62;
+  --text:#e8dece;--td:rgba(232,222,206,0.48);--tm:rgba(232,222,206,0.22);
+  --card:rgba(255,255,255,0.025);--border:rgba(200,162,74,0.18);
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+}
+html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);font-weight:300;overflow:hidden}
+#app{
+  width:100%;max-width:480px;height:100dvh;margin:0 auto;
+  position:relative;overflow:hidden;background:var(--bg);
+}
+/* grain */
+#app::before{
+  content:'';position:fixed;inset:0;width:480px;max-width:100%;margin:0 auto;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.045;pointer-events:none;z-index:9999;
+}
+/* vignette */
+#app::after{
+  content:'';position:fixed;inset:0;max-width:480px;margin:0 auto;
+  background:radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(0,0,0,0.72) 100%);
+  pointer-events:none;z-index:9998;
+}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column}
+.screen.active{display:flex}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* ══ S0 GATE ══ */
+#s0{align-items:center;justify-content:center;padding:48px 36px;text-align:center;gap:0}
+.g-mono{font-family:var(--sans);font-size:0.62rem;letter-spacing:0.55em;color:var(--gold);text-transform:uppercase;opacity:.6;margin-bottom:52px}
+.g-title{font-family:var(--serif);font-size:3.2rem;font-weight:300;font-style:italic;line-height:1.05;color:var(--gold);margin-bottom:32px;letter-spacing:0.01em}
+.g-line{width:1px;height:44px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);margin:0 auto 32px}
+.g-warn{font-family:var(--sans);font-size:0.62rem;font-weight:300;letter-spacing:0.14em;line-height:2;color:var(--td);text-transform:uppercase;max-width:300px;margin-bottom:52px}
+.g-btn{display:block;width:100%;max-width:320px;margin:0 auto 14px;padding:17px 32px;font-family:var(--sans);font-size:0.65rem;font-weight:400;letter-spacing:0.28em;text-transform:uppercase;cursor:pointer;border:none;transition:all .25s}
+.g-yes{background:var(--gold);color:var(--bg)}
+.g-yes:hover{background:var(--gold-hi)}
+.g-no{background:transparent;color:var(--td);border:1px solid var(--border)}
+.g-no:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ══ S1 VERIFY ══ */
+.v-hd{padding:56px 32px 28px;border-bottom:1px solid var(--border)}
+.v-back{display:inline-flex;align-items:center;gap:6px;font-size:0.6rem;letter-spacing:.2em;color:var(--td);text-transform:uppercase;cursor:pointer;background:none;border:none;margin-bottom:20px;padding:0;font-family:var(--sans)}
+.v-back:hover{color:var(--gold)}
+.v-title{font-family:var(--serif);font-size:2rem;font-weight:300;font-style:italic;color:var(--gold);margin-bottom:6px}
+.v-sub{font-size:0.6rem;letter-spacing:.22em;color:var(--td);text-transform:uppercase}
+.v-body{padding:28px 32px;flex:1}
+.v-slabel{font-size:0.55rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.6;margin-bottom:14px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px}
+.role-btn{padding:14px 6px;font-family:var(--sans);font-size:0.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--td);background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center}
+.role-btn:hover,.role-btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.v-ig{margin-bottom:18px}
+.v-lbl{font-size:0.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--td);margin-bottom:7px;display:block}
+.v-inp{width:100%;padding:13px 15px;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:0.82rem;font-weight:300;outline:none;transition:border-color .2s}
+.v-inp:focus{border-color:var(--gold)}
+.v-inp::placeholder{color:var(--tm)}
+.v-hint{font-size:0.58rem;color:var(--tm);margin-top:5px;letter-spacing:.04em}
+.v-btn{width:100%;padding:16px;background:var(--gold);color:var(--bg);font-family:var(--sans);font-size:0.65rem;font-weight:400;letter-spacing:.25em;text-transform:uppercase;border:none;cursor:pointer;margin-top:6px;transition:background .2s}
+.v-btn:hover{background:var(--gold-hi)}
+.code-box{margin:18px 0;padding:20px;background:var(--gold-glow);border:1px solid var(--gold-dim);text-align:center;display:none}
+.code-box.on{display:block}
+.code-box p{font-size:0.55rem;letter-spacing:.2em;color:var(--td);text-transform:uppercase;margin-bottom:10px}
+.code-num{font-family:var(--serif);font-size:2.8rem;color:var(--gold);letter-spacing:.35em;font-weight:300}
+.v-err{font-size:0.62rem;color:#e8604a;margin-top:7px;display:none}
+.v-err.on{display:block}
+
+/* ══ S2 MAP ══ */
+.m-hd{padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.m-logo{font-family:var(--serif);font-size:1rem;color:var(--gold);font-style:italic;letter-spacing:.04em}
+.m-bc{font-size:0.55rem;letter-spacing:.14em;color:var(--td);text-transform:uppercase}
+.m-vis{position:relative;height:195px;flex-shrink:0;overflow:hidden;background:linear-gradient(180deg,#0d0d11 0%,#0a0a0b 100%)}
+.m-back{position:absolute;top:11px;left:14px;font-size:0.58rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;cursor:pointer;background:rgba(0,0,0,.55);border:1px solid var(--border);padding:5px 11px;z-index:10;display:none;font-family:var(--sans)}
+.m-back.on{display:block}
+.m-back:hover{border-color:var(--gold)}
+.world-bg{width:100%;height:100%;opacity:.18}
+.pin{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}
+.pin-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;position:relative;z-index:2;transition:transform .2s}
+.pin:hover .pin-dot{transform:scale(1.6)}
+.pin-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border:1px solid var(--gold);border-radius:50%;opacity:.35;animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.35}100%{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
+.pin-lbl{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:0.48rem;letter-spacing:.1em;color:var(--gold);white-space:nowrap;text-transform:uppercase;opacity:.75;font-family:var(--sans)}
+.m-list{flex:1;overflow-y:auto;padding:14px}
+.m-ltitle{font-size:0.55rem;letter-spacing:.28em;color:var(--td);text-transform:uppercase;margin-bottom:10px;padding:0 4px}
+.r-card{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:var(--card);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .2s}
+.r-card:hover{border-color:var(--gold);background:var(--gold-glow)}
+.r-name{font-family:var(--serif);font-size:1.15rem;font-weight:300;color:var(--text)}
+.r-meta{display:flex;align-items:center;gap:14px}
+.r-likes{font-size:0.58rem;letter-spacing:.08em;color:var(--gold)}
+.r-arr{color:var(--td);font-size:0.8rem}
+
+/* ══ S3 FEED ══ */
+.f-hd{padding:18px 18px 0;flex-shrink:0;background:var(--bg)}
+.f-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.f-loc{display:flex;align-items:center;gap:10px}
+.f-bk{background:none;border:none;color:var(--td);font-size:1rem;cursor:pointer;padding:0;line-height:1;font-family:var(--sans)}
+.f-bk:hover{color:var(--gold)}
+.f-lname{font-family:var(--serif);font-size:1.25rem;font-style:italic;color:var(--gold)}
+.f-chat{background:none;border:1px solid var(--border);color:var(--td);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;transition:all .2s;flex-shrink:0}
+.f-chat:hover{border-color:var(--gold);color:var(--gold)}
+.f-filter{display:flex;border-bottom:1px solid var(--border);margin-bottom:0}
+.ftab{padding:8px 14px;font-size:0.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--td);cursor:pointer;border:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;font-family:var(--sans)}
+.ftab:first-child{padding-left:0}
+.ftab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.ftab:hover:not(.on){color:var(--text)}
+.f-list{flex:1;overflow-y:auto;padding:12px 14px 88px}
+.post{display:grid;grid-template-columns:1fr 1fr;height:195px;border:1px solid var(--border);margin-bottom:11px;overflow:hidden}
+.post-photo{background:linear-gradient(135deg,#18181f,#0f0f13);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.post-photo img{width:100%;height:100%;object-fit:cover}
+.ph-ph{text-align:center;color:var(--tm)}
+.ph-ph .ic{font-size:1.4rem;margin-bottom:3px}
+.ph-ph p{font-size:0.46rem;letter-spacing:.1em;text-transform:uppercase}
+.post-run{background:rgba(200,162,74,0.035);padding:12px 11px;display:flex;flex-direction:column;border-left:1px solid var(--border);position:relative}
+.post-user{font-size:0.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.post-course{font-family:var(--serif);font-size:0.82rem;font-style:italic;color:var(--text);margin-bottom:9px;line-height:1.3}
+.post-stats{display:flex;flex-direction:column;gap:5px;flex:1}
+.pstat{display:flex;justify-content:space-between;align-items:baseline}
+.ps-lbl{font-size:0.48rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tm)}
+.ps-val{font-family:var(--serif);font-size:0.95rem;color:var(--text)}
+.ps-u{font-size:0.5rem;color:var(--td);margin-left:1px}
+.like-btn{position:absolute;bottom:9px;right:9px;display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--td);font-size:0.58rem;letter-spacing:.04em;padding:0;transition:color .2s;font-family:var(--sans)}
+.like-btn .h{font-size:0.85rem}
+.like-btn.on{color:var(--gold)}
+.like-btn:hover{color:var(--gold)}
+.fab{position:fixed;bottom:26px;right:16px;width:50px;height:50px;background:var(--gold);color:var(--bg);border:none;display:none;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;z-index:100;box-shadow:0 4px 22px rgba(200,162,74,.38);transition:all .2s}
+.fab.on{display:flex}
+.fab:hover{background:var(--gold-hi);transform:scale(1.06)}
+@media(min-width:480px){.fab{right:calc((100vw - 480px)/2 + 16px)}}
+
+/* ══ CHAT OVERLAY ══ */
+.chat-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;flex-direction:column;max-width:480px;margin:0 auto}
+.chat-ov.on{display:flex}
+.chat-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#0d0d0f}
+.chat-ttl{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--gold)}
+.chat-x{background:none;border:none;color:var(--td);font-size:1.1rem;cursor:pointer;padding:0}
+.chat-x:hover{color:var(--gold)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+.cmsg{display:flex;flex-direction:column;gap:3px}
+.cmsg-u{font-size:0.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.65}
+.cmsg-t{font-size:0.82rem;color:var(--text);line-height:1.5}
+.cmsg.mine{align-items:flex-end}
+.cmsg.mine .cmsg-t{background:var(--gold-glow);border:1px solid var(--gold-dim);padding:7px 11px;color:var(--gold)}
+.chat-ia{padding:14px;border-top:1px solid var(--border);display:flex;gap:9px;flex-shrink:0;background:#0d0d0f}
+.chat-inp{flex:1;padding:11px 13px;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:0.78rem;outline:none}
+.chat-inp:focus{border-color:var(--gold)}
+.chat-inp::placeholder{color:var(--tm)}
+.chat-send{padding:0 16px;background:var(--gold);color:var(--bg);border:none;font-family:var(--sans);font-size:0.62rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.chat-send:hover{background:var(--gold-hi)}
+
+/* ══ POST MODAL ══ */
+.pmodal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;display:none;flex-direction:column;max-width:480px;margin:0 auto}
+.pmodal.on{display:flex}
+.pm-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pm-ttl{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--gold)}
+.pm-x{background:none;border:none;color:var(--td);font-size:1.1rem;cursor:pointer;padding:0}
+.pm-x:hover{color:var(--gold)}
+.pm-body{flex:1;overflow-y:auto;padding:18px}
+.pm-preview{display:grid;grid-template-columns:1fr 1fr;height:175px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden}
+.pm-photo{background:#181820;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
+.pm-ph-hint{text-align:center;color:var(--tm);pointer-events:none}
+.pm-ph-hint .ic{font-size:1.4rem}
+.pm-ph-hint p{font-size:0.48rem;letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+#pm-img{width:100%;height:100%;object-fit:cover;display:none}
+.pm-run{background:rgba(200,162,74,0.04);border-left:1px solid var(--border);padding:11px 10px;display:flex;flex-direction:column;gap:9px}
+.pm-ri{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:0.72rem;padding:4px 0;outline:none;width:100%}
+.pm-ri:focus{border-bottom-color:var(--gold)}
+.pm-ri::placeholder{color:var(--tm);font-size:0.62rem}
+.pm-sub{width:100%;padding:15px;background:var(--gold);color:var(--bg);border:none;font-family:var(--sans);font-size:0.65rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer}
+.pm-sub:hover{background:var(--gold-hi)}
+#pm-canvas{display:none}
+#photo-in{display:none}
+</style>
 </head>
 <body>
-  <div>
-    <h1>MEMBERS ONLY</h1>
-    <p>© 2026 G2 Company Ltd. — Prototype in progress.</p>
+<div id="app">
+
+<!-- S0 GATE -->
+<div id="s0" class="screen active">
+  <div class="g-mono">A · R · C</div>
+  <h1 class="g-title">Members<br>Only.</h1>
+  <div class="g-line"></div>
+  <p class="g-warn">This running club is exclusive only for the hot, sexy, fancy adult. If you are not qualified, please be more better one.</p>
+  <button class="g-btn g-yes" onclick="gateYes()">Yes, I am an adult.</button>
+  <button class="g-btn g-no" onclick="gateNo()">No, I am a kid.</button>
+</div>
+
+<!-- S1 VERIFY -->
+<div id="s1" class="screen">
+  <div class="v-hd">
+    <button class="v-back" onclick="show('s0')">← Back</button>
+    <div class="v-title">Verification</div>
+    <div class="v-sub">Prove your adulthood.</div>
   </div>
+  <div class="v-body">
+    <div class="v-slabel">01 — Who are you?</div>
+    <div class="role-grid">
+      <button class="role-btn" onclick="pickRole('student',this)">Student</button>
+      <button class="role-btn" onclick="pickRole('pro',this)">Worker</button>
+      <button class="role-btn" onclick="pickRole('founder',this)">Founder</button>
+    </div>
+    <div id="email-step" style="display:none">
+      <div class="v-slabel">02 — Your email</div>
+      <div class="v-ig">
+        <label class="v-lbl" id="e-lbl">Email</label>
+        <input class="v-inp" type="email" id="e-inp" placeholder="your@email.com">
+        <p class="v-hint" id="e-hint"></p>
+      </div>
+      <button class="v-btn" onclick="sendCode()">Send Verification Code</button>
+    </div>
+    <div class="code-box" id="code-box">
+      <p>Your verification code</p>
+      <div class="code-num" id="code-num">——</div>
+    </div>
+    <div id="code-step" style="display:none;margin-top:18px">
+      <div class="v-slabel">03 — Enter code</div>
+      <div class="v-ig">
+        <input class="v-inp" type="text" id="c-inp" placeholder="6-digit code" maxlength="6" style="letter-spacing:.3em;font-size:1.2rem;text-align:center">
+        <p class="v-err" id="v-err">Incorrect code. Try again.</p>
+      </div>
+      <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- S2 MAP -->
+<div id="s2" class="screen">
+  <div class="m-hd">
+    <span class="m-logo">Adult Running Club</span>
+    <span class="m-bc" id="m-bc">World</span>
+  </div>
+  <div class="m-vis">
+    <svg class="world-bg" viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1000" height="480" fill="#0a0a0b"/>
+      <!-- continents simplified -->
+      <path fill="#c8a24a" d="M95 75 L185 65 L235 95 L255 145 L235 198 L195 218 L155 208 L125 178 L98 138Z"/>
+      <path fill="#c8a24a" d="M205 248 L248 238 L268 278 L258 342 L238 382 L208 372 L188 322 L193 278Z"/>
+      <path fill="#c8a24a" d="M432 65 L498 60 L518 88 L508 118 L478 128 L448 118 L428 98Z"/>
+      <path fill="#c8a24a" d="M458 148 L522 138 L552 178 L547 258 L512 308 L472 298 L450 248 L448 188Z"/>
+      <path fill="#c8a24a" d="M528 55 L718 48 L798 88 L788 158 L718 198 L638 188 L568 158 L538 118Z"/>
+      <path fill="#c8a24a" d="M718 278 L788 268 L818 308 L798 348 L748 353 L718 323Z"/>
+    </svg>
+    <div id="m-pins"></div>
+    <button class="m-back on" id="m-back" onclick="mapBack()" style="display:none">← Back</button>
+  </div>
+  <div class="m-list">
+    <div class="m-ltitle" id="m-ltitle">Select a region</div>
+    <div id="r-list"></div>
+  </div>
+</div>
+
+<!-- S3 FEED -->
+<div id="s3" class="screen">
+  <div class="f-hd">
+    <div class="f-top">
+      <div class="f-loc">
+        <button class="f-bk" onclick="feedBack()">←</button>
+        <span class="f-lname" id="f-lname">Community</span>
+      </div>
+      <button class="f-chat" onclick="openChat()">💬</button>
+    </div>
+    <div class="f-filter">
+      <button class="ftab on" onclick="setFilter('pop',this)">Popular</button>
+      <button class="ftab" onclick="setFilter('new',this)">Newest</button>
+      <button class="ftab" onclick="setFilter('old',this)">Oldest</button>
+    </div>
+  </div>
+  <div class="f-list" id="f-list"></div>
+</div>
+
+<button class="fab" id="fab" onclick="openPost()">+</button>
+
+<!-- CHAT -->
+<div class="chat-ov" id="chat-ov">
+  <div class="chat-hd">
+    <span class="chat-ttl" id="chat-ttl">Community Chat</span>
+    <button class="chat-x" onclick="closeChat()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-ia">
+    <input class="chat-inp" id="chat-inp" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<!-- POST MODAL -->
+<div class="pmodal" id="pmodal">
+  <div class="pm-hd">
+    <span class="pm-ttl">New Post</span>
+    <button class="pm-x" onclick="closePost()">✕</button>
+  </div>
+  <div class="pm-body">
+    <div class="pm-preview">
+      <div class="pm-photo" onclick="document.getElementById('photo-in').click()">
+        <div class="pm-ph-hint"><div class="ic">📷</div><p>Tap to add photo</p></div>
+        <img id="pm-img" src="" alt="">
+      </div>
+      <div class="pm-run">
+        <input class="pm-ri" id="ri-course" placeholder="Course / Route">
+        <input class="pm-ri" id="ri-km" placeholder="Distance (km)" type="number" step="0.1">
+        <input class="pm-ri" id="ri-min" placeholder="Time (min)" type="number">
+        <input class="pm-ri" id="ri-pace" placeholder="Pace (min/km)">
+      </div>
+    </div>
+    <canvas id="pm-canvas"></canvas>
+    <input type="file" id="photo-in" accept="image/*" onchange="onPhoto(event)">
+    <button class="pm-sub" onclick="submitPost()">Post to Community</button>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ── STORAGE ──────────────────────────────
+const LS={
+  g:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+
+// ── STATE ─────────────────────────────────
+const S={
+  verified:LS.g('arc_v',false),
+  role:LS.g('arc_r',null),
+  email:LS.g('arc_e',null),
+  lvl:0, path:[], district:null,
+  filter:'pop', code:null, pendingEmail:null
+};
+
+// ── WORLD DATA ────────────────────────────
+const WD={
+  'Korea':{likes:247,pin:{x:'77%',y:'30%'},cities:{
+    'Seoul':{likes:183,pin:{x:'76%',y:'28%'},districts:{'Gangnam':{likes:87},'Hongdae':{likes:62},'Itaewon':{likes:34}}},
+    'Busan':{likes:64,pin:{x:'79%',y:'34%'},districts:{'Haeundae':{likes:41},'Gwangalli':{likes:23}}}
+  }},
+  'Japan':{likes:198,pin:{x:'82%',y:'27%'},cities:{
+    'Tokyo':{likes:142,pin:{x:'83%',y:'26%'},districts:{'Shibuya':{likes:56},'Shinjuku':{likes:48},'Ginza':{likes:38}}},
+    'Osaka':{likes:56,pin:{x:'81%',y:'31%'},districts:{'Namba':{likes:32},'Umeda':{likes:24}}}
+  }},
+  'USA':{likes:312,pin:{x:'18%',y:'29%'},cities:{
+    'New York':{likes:187,pin:{x:'21%',y:'26%'},districts:{'Manhattan':{likes:98},'Brooklyn':{likes:89}}},
+    'Los Angeles':{likes:125,pin:{x:'12%',y:'33%'},districts:{'Santa Monica':{likes:74},'Hollywood':{likes:51}}}
+  }},
+  'UK':{likes:156,pin:{x:'46%',y:'21%'},cities:{
+    'London':{likes:156,pin:{x:'46%',y:'22%'},districts:{'Chelsea':{likes:64},'Notting Hill':{likes:52},'Shoreditch':{likes:40}}}
+  }},
+  'France':{likes:134,pin:{x:'49%',y:'26%'},cities:{
+    'Paris':{likes:134,pin:{x:'49%',y:'26%'},districts:{"Le Marais":{likes:67},'Saint-Germain':{likes:67}}}
+  }},
+  'Australia':{likes:88,pin:{x:'76%',y:'68%'},cities:{
+    'Sydney':{likes:88,pin:{x:'80%',y:'70%'},districts:{'Bondi Beach':{likes:53},'Darling Harbour':{likes:35}}}
+  }}
+};
+
+// ── MOCK DATA ─────────────────────────────
+function getPosts(d){
+  const user=LS.g('arc_posts_'+d,[]);
+  const seed=[
+    {id:1,user:'Alex R.',course:'River Circuit',km:8.4,min:42,pace:"5'00\"",likes:31,photo:null,ts:Date.now()-3600e3},
+    {id:2,user:'Mia K.',course:'Morning Loop',km:5.2,min:27,pace:"5'12\"",likes:24,photo:null,ts:Date.now()-86400e3},
+    {id:3,user:'Jin S.',course:'Hill Sprint',km:12.0,min:68,pace:"5'40\"",likes:18,photo:null,ts:Date.now()-172800e3},
+    {id:4,user:'Emma V.',course:'Flat 10K',km:10.0,min:48,pace:"4'48\"",likes:45,photo:null,ts:Date.now()-259200e3},
+    {id:5,user:'Luca B.',course:'Park Run',km:6.8,min:35,pace:"5'09\"",likes:12,photo:null,ts:Date.now()-345600e3},
+  ];
+  return [...user,...seed];
+}
+
+function getChats(d){
+  return LS.g('arc_chats_'+d,[
+    {user:'Alex R.',text:"Anyone running this Sunday at 6am?",mine:false},
+    {user:'Mia K.',text:"I'm in! Meet at the usual spot 🏃",mine:false},
+    {user:'Jin S.',text:"Same bridge as last week?",mine:false},
+    {user:'Alex R.',text:"Yes. See you there.",mine:false},
+  ]);
+}
+
+// ── NAVIGATION ────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('fab').classList.toggle('on',id==='s3');
+}
+
+// ── GATE ──────────────────────────────────
+function gateYes(){
+  if(S.verified){loadMap();show('s2')}else{show('s1')}
+}
+function gateNo(){
+  document.body.innerHTML='<div style="background:#0a0a0b;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(200,162,74,0.35);font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase">Come back when you\'re ready.</div>';
+}
+
+// ── VERIFICATION ──────────────────────────
+let selRole=null;
+function pickRole(r,el){
+  selRole=r;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  const hints={student:'School email required (.edu or .ac.kr)',pro:'Company email required — no free providers',founder:'Company email required — no free providers'};
+  const lbls={student:'School Email',pro:'Company Email',founder:'Company Email'};
+  document.getElementById('e-lbl').textContent=lbls[r];
+  document.getElementById('e-hint').textContent=hints[r];
+  document.getElementById('e-hint').style.color='';
+  document.getElementById('email-step').style.display='block';
+  document.getElementById('code-box').classList.remove('on');
+  document.getElementById('code-step').style.display='none';
+}
+
+const FREE=['gmail.com','yahoo.com','hotmail.com','outlook.com','naver.com','daum.net','hanmail.net','icloud.com','me.com','kakao.com'];
+function validEmail(e,r){
+  const d=(e.split('@')[1]||'').toLowerCase();
+  if(!d||!d.includes('.'))return false;
+  if(r==='student')return d.endsWith('.edu')||d.endsWith('.ac.kr');
+  return !FREE.includes(d);
+}
+
+function sendCode(){
+  const e=document.getElementById('e-inp').value.trim();
+  const hint=document.getElementById('e-hint');
+  if(!validEmail(e,selRole)){
+    hint.style.color='#e8604a';
+    hint.textContent=selRole==='student'?'❌ Need .edu or .ac.kr email':'❌ Free email providers not accepted';
+    return;
+  }
+  hint.style.color='rgba(200,162,74,0.6)';
+  hint.textContent='✓ Valid domain';
+  const code=String(Math.floor(100000+Math.random()*900000));
+  S.code=code; S.pendingEmail=e;
+  document.getElementById('code-num').textContent=code;
+  document.getElementById('code-box').classList.add('on');
+  document.getElementById('code-step').style.display='block';
+  document.getElementById('v-err').classList.remove('on');
+}
+
+function doVerify(){
+  if(document.getElementById('c-inp').value.trim()===S.code){
+    S.verified=true; S.role=selRole; S.email=S.pendingEmail;
+    LS.s('arc_v',true); LS.s('arc_r',selRole); LS.s('arc_e',S.pendingEmail);
+    loadMap(); show('s2');
+  }else{
+    document.getElementById('v-err').classList.add('on');
+  }
+}
+
+// ── WORLD MAP ─────────────────────────────
+function loadMap(){S.lvl=0;S.path=[];renderMap()}
+
+function renderMap(){
+  const lvl=S.lvl,path=S.path;
+  document.getElementById('m-bc').textContent=['World',...path].join(' › ');
+  const back=document.getElementById('m-back');
+  back.style.display=lvl>0?'block':'none';
+
+  const lbls=['Select a country','Select a city','Select a district'];
+  document.getElementById('m-ltitle').textContent=lbls[Math.min(lvl,2)];
+
+  // data at current level
+  let data;
+  if(lvl===0)data=WD;
+  else if(lvl===1)data=WD[path[0]].cities;
+  else data=WD[path[0]].cities[path[1]].districts;
+
+  // pins
+  const pins=document.getElementById('m-pins');
+  pins.innerHTML='';
+  const pinSource=lvl===0?WD:lvl===1?WD[path[0]].cities:null;
+  if(pinSource){
+    Object.entries(pinSource).forEach(([name,d])=>{
+      if(!d.pin)return;
+      const el=document.createElement('div');
+      el.className='pin';
+      el.style.left=d.pin.x; el.style.top=d.pin.y;
+      el.innerHTML=`<div class="pin-dot"></div><div class="pin-ring"></div><div class="pin-lbl">${name}</div>`;
+      el.onclick=()=>drill(name);
+      pins.appendChild(el);
+    });
+  }
+
+  // list
+  const list=document.getElementById('r-list');
+  list.innerHTML='';
+  Object.entries(data).forEach(([name,d])=>{
+    const lk=d.likes||0;
+    const c=document.createElement('div');
+    c.className='r-card';
+    c.innerHTML=`<span class="r-name">${name}</span><div class="r-meta"><span class="r-likes">♥ ${lk}</span><span class="r-arr">›</span></div>`;
+    c.onclick=lvl<2?()=>drill(name):()=>enterDistrict(name);
+    list.appendChild(c);
+  });
+}
+
+function drill(name){
+  S.path.push(name); S.lvl++;
+  if(S.lvl===3){enterDistrict(name);return}
+  renderMap();
+}
+
+function mapBack(){
+  if(S.lvl>0){S.path.pop();S.lvl--;renderMap()}
+}
+
+function enterDistrict(name){
+  S.district=name;
+  loadFeed(); show('s3');
+}
+
+function feedBack(){
+  // back to district list (lvl 2)
+  if(S.lvl===3){S.path.pop();S.lvl=2}
+  renderMap(); show('s2');
+}
+
+// ── FEED ──────────────────────────────────
+function loadFeed(){
+  document.getElementById('f-lname').textContent=S.district||'Community';
+  document.getElementById('chat-ttl').textContent=(S.district||'Community')+' Chat';
+  renderFeed();
+}
+
+function renderFeed(){
+  const posts=getPosts(S.district);
+  const liked=LS.g('arc_lk_'+S.district,{});
+  let sorted=[...posts];
+  if(S.filter==='pop')sorted.sort((a,b)=>(b.likes+(liked[b.id]?1:0))-(a.likes+(liked[a.id]?1:0)));
+  if(S.filter==='new')sorted.sort((a,b)=>b.ts-a.ts);
+  if(S.filter==='old')sorted.sort((a,b)=>a.ts-b.ts);
+
+  const list=document.getElementById('f-list');
+  list.innerHTML='';
+  sorted.forEach(p=>{
+    const isLiked=!!liked[p.id];
+    const cnt=p.likes+(isLiked?1:0);
+    const card=document.createElement('div');
+    card.className='post';
+    card.innerHTML=`
+      <div class="post-photo">
+        ${p.photo?`<img src="${p.photo}" alt="">`:`<div class="ph-ph"><div class="ic">🏃</div><p>Photo</p></div>`}
+      </div>
+      <div class="post-run">
+        <div class="post-user">${p.user}</div>
+        <div class="post-course">${p.course}</div>
+        <div class="post-stats">
+          <div class="pstat"><span class="ps-lbl">Distance</span><span class="ps-val">${p.km}<span class="ps-u">km</span></span></div>
+          <div class="pstat"><span class="ps-lbl">Time</span><span class="ps-val">${p.min}<span class="ps-u">min</span></span></div>
+          <div class="pstat"><span class="ps-lbl">Pace</span><span class="ps-val" style="font-size:.82rem">${p.pace}</span></div>
+        </div>
+        <button class="like-btn${isLiked?' on':''}" onclick="toggleLike(${JSON.stringify(p.id)})">
+          <span class="h">♥</span><span>${cnt}</span>
+        </button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function setFilter(f,el){
+  S.filter=f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderFeed();
+}
+
+function toggleLike(id){
+  const key='arc_lk_'+S.district;
+  const lk=LS.g(key,{});
+  lk[id]=!lk[id];
+  LS.s(key,lk);
+  renderFeed();
+}
+
+// ── CHAT ──────────────────────────────────
+function openChat(){
+  const msgs=getChats(S.district);
+  const el=document.getElementById('chat-msgs');
+  el.innerHTML='';
+  msgs.forEach(m=>{
+    const d=document.createElement('div');
+    d.className='cmsg'+(m.mine?' mine':'');
+    d.innerHTML=`<div class="cmsg-u">${m.user}</div><div class="cmsg-t">${m.text}</div>`;
+    el.appendChild(d);
+  });
+  el.scrollTop=el.scrollHeight;
+  document.getElementById('chat-ov').classList.add('on');
+}
+
+function closeChat(){document.getElementById('chat-ov').classList.remove('on')}
+
+function sendChat(){
+  const inp=document.getElementById('chat-inp');
+  const txt=inp.value.trim(); if(!txt)return;
+  const key='arc_chats_'+S.district;
+  const msgs=getChats(S.district);
+  const uname=S.email?S.email.split('@')[0]:'You';
+  msgs.push({user:uname,text:txt,mine:true});
+  LS.s(key,msgs);
+  inp.value='';
+  openChat();
+}
+
+// ── POST MODAL ────────────────────────────
+let photoData=null;
+
+function openPost(){
+  photoData=null;
+  document.getElementById('pm-img').style.display='none';
+  document.getElementById('pm-img').src='';
+  document.querySelector('.pm-ph-hint').style.display='';
+  ['ri-course','ri-km','ri-min','ri-pace'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pmodal').classList.add('on');
+}
+
+function closePost(){document.getElementById('pmodal').classList.remove('on')}
+
+function onPhoto(e){
+  const f=e.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const cv=document.getElementById('pm-canvas');
+      const mx=400; let w=img.width,h=img.height;
+      if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx}else{w=Math.round(w*mx/h);h=mx}}
+      cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      photoData=cv.toDataURL('image/jpeg',0.72);
+      const pi=document.getElementById('pm-img');
+      pi.src=photoData; pi.style.display='block';
+      document.querySelector('.pm-ph-hint').style.display='none';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+function submitPost(){
+  const course=document.getElementById('ri-course').value.trim()||'My Run';
+  const km=parseFloat(document.getElementById('ri-km').value)||5;
+  const min=parseInt(document.getElementById('ri-min').value)||30;
+  const pm=Math.floor(min/km); const ps=Math.round(((min/km)-pm)*60);
+  const pace=document.getElementById('ri-pace').value.trim()||`${pm}'${String(ps).padStart(2,'0')}"`;
+  const uname=S.email?S.email.split('@')[0]:'Anonymous';
+  const key='arc_posts_'+S.district;
+  const posts=LS.g(key,[]);
+  posts.unshift({id:Date.now(),user:uname,course,km,min,pace,likes:0,photo:photoData,ts:Date.now()});
+  LS.s(key,posts);
+  closePost();
+  renderFeed();
+}
+
+// ── INIT ──────────────────────────────────
+(function(){
+  if(S.verified){loadMap();show('s2')}else{show('s0')}
+})();
+</script>
 </body>
 </html>
