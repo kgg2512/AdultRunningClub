@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Adult Running Club</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -215,7 +216,7 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <input class="v-inp" type="email" id="e-inp" placeholder="your@email.com">
         <p class="v-hint" id="e-hint"></p>
       </div>
-      <button class="v-btn" onclick="sendCode()">Send Verification Code</button>
+      <button class="v-btn" onclick="sendCode()" id="send-btn">Send Verification Code</button>
     </div>
     <div class="code-box" id="code-box">
       <p>Your verification code</p>
@@ -427,24 +428,31 @@ function isFreeEmail(e,r){
 function sendCode(){
   const e=document.getElementById('e-inp').value.trim();
   const hint=document.getElementById('e-hint');
+  const btn=document.getElementById('send-btn');
   if(!validEmail(e)){
     hint.style.color='#e8604a';
     hint.textContent='❌ Enter a valid email address';
     return;
   }
-  if(isFreeEmail(e,selRole)){
-    hint.style.color='rgba(200,162,74,0.45)';
-    hint.textContent='⚠ Demo mode — production will require company/school email';
-  }else{
-    hint.style.color='rgba(200,162,74,0.6)';
-    hint.textContent='✓ Valid domain';
-  }
   const code=String(Math.floor(100000+Math.random()*900000));
   S.code=code; S.pendingEmail=e;
-  document.getElementById('code-num').textContent=code;
-  document.getElementById('code-box').classList.add('on');
-  document.getElementById('code-step').style.display='block';
-  document.getElementById('v-err').classList.remove('on');
+  btn.textContent='Sending...'; btn.disabled=true;
+  emailjs.send('service_ayss3t8','template_inz0rw3',{to_email:e,code:code})
+    .then(()=>{
+      hint.style.color='rgba(200,162,74,0.7)';
+      hint.textContent='✓ Code sent to '+e;
+      btn.textContent='Resend Code'; btn.disabled=false;
+      document.getElementById('code-step').style.display='block';
+      document.getElementById('v-err').classList.remove('on');
+    })
+    .catch(()=>{
+      hint.style.color='#e8604a';
+      hint.textContent='❌ Send failed — showing code here instead';
+      btn.textContent='Send Verification Code'; btn.disabled=false;
+      document.getElementById('code-num').textContent=code;
+      document.getElementById('code-box').classList.add('on');
+      document.getElementById('code-step').style.display='block';
+    });
 }
 
 function doVerify(){
@@ -663,6 +671,7 @@ function submitPost(){
 
 // ── INIT ──────────────────────────────────
 (function(){
+  emailjs.init('xBoQd6PMFec8hCvVD');
   if(S.verified){loadMap();show('s2')}else{show('s0')}
 })();
 </script>
