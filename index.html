@@ -242,7 +242,7 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 <!-- S2 MAP -->
 <div id="s2" class="screen">
   <div class="m-hd">
-    <span class="m-logo">Adult Running Club</span>
+    <span class="m-logo" onclick="goHome()" style="cursor:pointer">Adult Running Club</span>
     <span class="m-bc" id="m-bc">World</span>
   </div>
   <div class="m-vis">
@@ -273,7 +273,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <button class="f-bk" onclick="feedBack()">←</button>
         <span class="f-lname" id="f-lname">Community</span>
       </div>
-      <button class="f-chat" onclick="openChat()">💬</button>
+      <div style="display:flex;gap:8px">
+        <button class="f-chat" onclick="openChat()">💬</button>
+        <button class="f-chat" onclick="goHome()" title="Home">⌂</button>
+      </div>
     </div>
     <div class="f-filter">
       <button class="ftab on" onclick="setFilter('pop',this)">Popular</button>
@@ -469,6 +472,11 @@ function doVerify(){
   }else{
     document.getElementById('v-err').classList.add('on');
   }
+}
+
+function goHome(){
+  LS.s('arc_v',false); S.verified=false;
+  show('s0');
 }
 
 function skipVerify(){
