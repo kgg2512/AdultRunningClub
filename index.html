@@ -77,6 +77,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .v-err.on{display:block}
 .privacy-notice{font-size:0.55rem;color:rgba(232,222,206,0.38);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
 .privacy-notice a{color:rgba(200,162,74,0.7);text-decoration:underline}
+.consent-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0 8px;cursor:pointer}
+.consent-row input[type=checkbox]{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
+.consent-row label{font-size:0.55rem;color:rgba(232,222,206,0.5);letter-spacing:0.06em;line-height:1.7;cursor:pointer}
+.consent-row label a{color:rgba(200,162,74,0.7);text-decoration:underline}
 
 /* ══ S2 MAP ══ */
 .m-hd{padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -221,13 +225,15 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <input class="v-inp" type="email" id="e-inp" placeholder="your@email.com">
         <p class="v-hint" id="e-hint"></p>
       </div>
-      <button class="v-btn" onclick="sendCode()" id="send-btn">Send Verification Code</button>
-      <p class="privacy-notice">
-        By continuing, you agree to our
-        <a href="privacy.html" target="_blank">Privacy Policy</a>
-        and consent to receive a one-time verification email.
-        이메일 주소는 인증 목적으로만 사용되며, 제3자에게 제공되지 않습니다.
-      </p>
+      <div class="consent-row">
+        <input type="checkbox" id="consent-terms">
+        <label for="consent-terms">
+          [필수] <a href="terms.html" target="_blank">이용약관</a> 및
+          <a href="privacy.html" target="_blank">개인정보처리방침</a>에 동의하며,
+          인증 목적으로 이메일 주소 수집에 동의합니다.
+        </label>
+      </div>
+      <button class="v-btn" type="button" onclick="sendCode()" id="send-btn" disabled>Send Verification Code</button>
     </div>
     <div class="code-box" id="code-box">
       <p>Your verification code</p>
@@ -701,6 +707,9 @@ function submitPost(){
 (function(){
   emailjs.init({publicKey:'xBoQd6PMFec8hCvVD'});
   if(S.verified){loadMap();show('s2')}else{show('s0')}
+  const cb=document.getElementById('consent-terms');
+  const btn=document.getElementById('send-btn');
+  if(cb&&btn) cb.addEventListener('change',()=>{btn.disabled=!cb.checked});
 })();
 </script>
 </body>
