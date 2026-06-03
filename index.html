@@ -709,7 +709,10 @@ function submitPost(){
   if(S.verified){loadMap();show('s2')}else{show('s0')}
   const cb=document.getElementById('consent-terms');
   const btn=document.getElementById('send-btn');
-  if(cb&&btn) cb.addEventListener('change',()=>{btn.disabled=!cb.checked});
+  const inp=document.getElementById('e-inp');
+  const updateBtn=()=>{btn.disabled=!(cb&&cb.checked&&inp&&validEmail(inp.value.trim()))};
+  if(cb) cb.addEventListener('change',updateBtn);
+  if(inp) inp.addEventListener('input',updateBtn);
 })();
 </script>
 </body>
