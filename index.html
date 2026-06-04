@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Adult Running Club</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#C9A84C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <!-- EmailJS SDK removed — credentials now handled server-side via CF Worker proxy.
      See cf-worker/email-proxy.js and cf-worker/README.md for deployment. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -397,6 +402,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
           [필수] <a href="terms.html" target="_blank">이용약관</a> 및
           <a href="privacy.html" target="_blank">개인정보처리방침</a>에 동의하며,
           인증 목적으로 이메일 주소 수집에 동의합니다.
+        </label>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="emailConsent">
+        <label for="emailConsent">
+          [선택] 마케팅 및 운영 관련 이메일(런닝 일정, 멤버십 혜택 안내 등) 수신에 동의합니다.
         </label>
       </div>
       <button class="v-btn" type="button" onclick="sendCode()" id="send-btn" disabled>Send Verification Code</button>
@@ -1189,6 +1200,11 @@ function arcSettings(){
   if(cb) cb.addEventListener('change',updateBtn);
   if(inp) inp.addEventListener('input',updateBtn);
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
 </body>
 </html>
