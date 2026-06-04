@@ -215,9 +215,6 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
       <button class="role-btn" onclick="pickRole('pro',this)">Worker</button>
       <button class="role-btn" onclick="pickRole('founder',this)">Founder</button>
     </div>
-    <div style="text-align:center;margin-bottom:20px">
-      <button onclick="skipVerify()" style="background:none;border:1px solid rgba(200,162,74,0.25);color:rgba(200,162,74,0.5);font-family:'Jost',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;padding:10px 24px">Skip for now →</button>
-    </div>
     <div id="email-step" style="display:none">
       <div class="v-slabel">02 — Your email</div>
       <div class="v-ig">
@@ -246,9 +243,6 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
-    </div>
-    <div style="text-align:center;margin-top:24px">
-      <button onclick="skipVerify()" style="background:none;border:none;color:rgba(200,162,74,0.4);font-family:'Jost',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;text-decoration:underline">Skip for now →</button>
     </div>
   </div>
 </div>
@@ -457,7 +451,7 @@ function sendCode(){
     hint.textContent='❌ Enter a valid email address';
     return;
   }
-  const code=String(Math.floor(100000+Math.random()*900000));
+  const arr=new Uint32Array(1);crypto.getRandomValues(arr);const code=String(100000+(arr[0]%900000));
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
   emailjs.send('service_ayss3t8','inz0rw3',{to_email:e,code:code})
@@ -470,11 +464,8 @@ function sendCode(){
     })
     .catch(()=>{
       hint.style.color='#e8604a';
-      hint.textContent='❌ Send failed — showing code here instead';
+      hint.textContent='❌ Send failed — please try again';
       btn.textContent='Send Verification Code'; btn.disabled=false;
-      document.getElementById('code-num').textContent=code;
-      document.getElementById('code-box').classList.add('on');
-      document.getElementById('code-step').style.display='block';
     });
 }
 
@@ -493,11 +484,6 @@ function goHome(){
   show('s0');
 }
 
-function skipVerify(){
-  S.verified=true; S.role=selRole||'pro'; S.email='demo@arc.app';
-  LS.s('arc_v',true); LS.s('arc_r',S.role); LS.s('arc_e',S.email);
-  loadMap(); show('s2');
-}
 
 // ── WORLD MAP ─────────────────────────────
 function loadMap(){S.lvl=0;S.path=[];renderMap()}
