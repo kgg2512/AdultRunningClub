@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Adult Running Club</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- EmailJS SDK removed — credentials now handled server-side via CF Worker proxy.
+     See cf-worker/email-proxy.js and cf-worker/README.md for deployment. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -76,6 +77,8 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .v-err{font-size:0.62rem;color:#e8604a;margin-top:7px;display:none}
 .v-err.on{display:block}
 .privacy-notice{font-size:0.55rem;color:rgba(232,222,206,0.38);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
+.demo-skip-wrap{text-align:center;margin-top:28px}
+.demo-skip-btn{opacity:0.4;font-size:0.52rem;max-width:200px;padding:10px 20px}
 .privacy-notice a{color:rgba(200,162,74,0.7);text-decoration:underline}
 .consent-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0 8px;cursor:pointer}
 .consent-row input[type=checkbox]{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
@@ -243,6 +246,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
+    </div>
+    <!-- Demo bypass — intentionally de-emphasised -->
+    <div class="demo-skip-wrap">
+      <button class="g-btn g-no demo-skip-btn" onclick="demoSkip()">Skip (Demo Only)</button>
     </div>
   </div>
 </div>
@@ -424,7 +431,7 @@ function pickRole(r,el){
   selRole=r;
   document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
-  const hints={student:'School email required (.edu or .ac.kr)',pro:'Company email required — no free providers',founder:'Company email required — no free providers'};
+  const hints={student:'School email required (.edu or .ac.kr)',pro:'Company email required — personal/free email providers not accepted',founder:'Company email required — personal/free email providers not accepted'};
   const lbls={student:'School Email',pro:'Company Email',founder:'Company Email'};
   document.getElementById('e-lbl').textContent=lbls[r];
   document.getElementById('e-hint').textContent=hints[r];
@@ -434,7 +441,22 @@ function pickRole(r,el){
   document.getElementById('code-step').style.display='none';
 }
 
-const FREE=['gmail.com','yahoo.com','hotmail.com','outlook.com','naver.com','daum.net','hanmail.net','icloud.com','me.com','kakao.com'];
+const FREE=[
+  // Major free providers
+  'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','msn.com',
+  'icloud.com','me.com','mac.com',
+  // Korean free providers
+  'naver.com','daum.net','hanmail.net','kakao.com','nate.com',
+  // Privacy/encrypted
+  'protonmail.com','proton.me','tutanota.com','tutamail.com','tuta.io',
+  // Disposable / throwaway
+  'guerrillamail.com','guerrillamail.net','guerrillamail.org','guerrillamail.biz','guerrillamail.de',
+  'mailinator.com','trashmail.com','trashmail.net','sharklasers.com','guerrillamailblock.com',
+  'grr.la','spam4.me','yopmail.com','yopmail.fr','cool.fr.nf',
+  'throwam.com','dispostable.com','maildrop.cc','mailnull.com',
+  // Other common free
+  'aol.com','mail.com','zoho.com','gmx.com','gmx.net','inbox.com'
+];
 function validEmail(e){
   const d=(e.split('@')[1]||'').toLowerCase();
   return !!(d&&d.includes('.'));
@@ -445,6 +467,12 @@ function isFreeEmail(e,r){
   return FREE.includes(d);
 }
 
+// ── CF Worker endpoint (set this after deploying cf-worker/email-proxy.js) ──
+// 1. Deploy cf-worker/email-proxy.js to Cloudflare Workers
+// 2. Replace YOUR_CF_WORKER_URL below with your Worker URL
+//    e.g. 'https://arc-email-proxy.yourname.workers.dev'
+const CF_WORKER_URL = 'YOUR_CF_WORKER_URL';
+
 function sendCode(){
   const e=document.getElementById('e-inp').value.trim();
   const hint=document.getElementById('e-hint');
@@ -454,11 +482,29 @@ function sendCode(){
     hint.textContent='❌ Enter a valid email address';
     return;
   }
+  // Warn on free/personal email before sending
+  if(isFreeEmail(e,selRole)){
+    const confirmed=window.confirm(
+      'Warning: "'+e+'" appears to be a personal or free email provider.\n\n'+
+      (selRole==='student'
+        ? 'A school email (.edu or .ac.kr) is required for Student verification.'
+        : 'A company email is required for Worker / Founder verification. Personal email addresses are not accepted.')+
+      '\n\nSend anyway?'
+    );
+    if(!confirmed)return;
+  }
   const arr=new Uint32Array(1);crypto.getRandomValues(arr);const code=String(100000+(arr[0]%900000));
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
-  emailjs.send('service_ayss3t8','inz0rw3',{to_email:e,code:code})
-    .then(()=>{
+
+  // Use CF Worker proxy so EmailJS credentials stay off client
+  fetch(CF_WORKER_URL+'/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({to_email:e,code:code})
+  })
+    .then(r=>{
+      if(!r.ok)throw new Error('status '+r.status);
       hint.style.color='rgba(200,162,74,0.7)';
       hint.textContent='✓ Code sent to '+e;
       btn.textContent='Resend Code'; btn.disabled=false;
@@ -485,6 +531,13 @@ function doVerify(){
 function goHome(){
   LS.s('arc_v',false); S.verified=false;
   show('s0');
+}
+
+// Demo-only bypass — skips email verification for presentation purposes
+function demoSkip(){
+  S.verified=true; S.role='pro'; S.email='demo@demo.arc';
+  LS.s('arc_v',true); LS.s('arc_r','pro'); LS.s('arc_e','demo@demo.arc');
+  loadMap(); show('s2');
 }
 
 
@@ -721,7 +774,7 @@ function submitPost(){
 
 // ── INIT ──────────────────────────────────
 (function(){
-  emailjs.init({publicKey:'xBoQd6PMFec8hCvVD'});
+  // emailjs.init() removed — credentials managed in CF Worker environment variables
   if(S.verified){loadMap();show('s2')}else{show('s0')}
   const cb=document.getElementById('consent-terms');
   const btn=document.getElementById('send-btn');
