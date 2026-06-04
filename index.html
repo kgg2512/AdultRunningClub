@@ -40,16 +40,31 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--border)}
 
 /* ══ S0 GATE ══ */
-#s0{align-items:center;justify-content:center;padding:48px 36px;text-align:center;gap:0}
-.g-mono{font-family:var(--sans);font-size:0.62rem;letter-spacing:0.55em;color:var(--gold);text-transform:uppercase;opacity:.6;margin-bottom:52px}
-.g-title{font-family:var(--serif);font-size:3.2rem;font-weight:300;font-style:italic;line-height:1.05;color:var(--gold);margin-bottom:32px;letter-spacing:0.01em}
-.g-line{width:1px;height:44px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);margin:0 auto 32px}
-.g-warn{font-family:var(--sans);font-size:0.62rem;font-weight:300;letter-spacing:0.14em;line-height:2;color:var(--td);text-transform:uppercase;max-width:300px;margin-bottom:52px}
-.g-btn{display:block;width:100%;max-width:320px;margin:0 auto 14px;padding:17px 32px;font-family:var(--sans);font-size:0.65rem;font-weight:400;letter-spacing:0.28em;text-transform:uppercase;cursor:pointer;border:none;transition:all .25s}
-.g-yes{background:var(--gold);color:var(--bg)}
-.g-yes:hover{background:var(--gold-hi)}
+#s0{align-items:center;justify-content:center;padding:48px 36px;text-align:center;gap:0;overflow:hidden}
+#gate-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#s0>*:not(#gate-canvas){position:relative;z-index:1}
+.g-eyebrow{font-family:var(--sans);font-size:0.5rem;letter-spacing:.7em;color:var(--gold);text-transform:uppercase;opacity:.45;margin-bottom:18px}
+.g-arc-badge{
+  width:60px;height:60px;border:1px solid var(--gold-dim);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 24px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(200,162,74,0.1),transparent 70%);
+  position:relative;
+}
+.g-arc-badge::before{content:'';position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(200,162,74,0.07)}
+.g-arc-badge-text{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--gold);letter-spacing:.04em}
+.g-title{font-family:var(--serif);font-size:3.6rem;font-weight:300;font-style:italic;line-height:1.0;color:var(--gold);margin-bottom:4px;letter-spacing:0.01em;text-shadow:0 0 60px rgba(200,162,74,0.15)}
+.g-title-sub{font-family:var(--serif);font-size:1.25rem;font-weight:300;font-style:italic;color:rgba(200,162,74,0.42);margin-bottom:28px;letter-spacing:.08em}
+.g-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:24px}
+.g-ornament-line{flex:1;max-width:55px;height:1px;background:linear-gradient(to right,transparent,var(--gold-dim))}
+.g-ornament-line:last-child{background:linear-gradient(to left,transparent,var(--gold-dim))}
+.g-ornament-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.45}
+.g-warn{font-family:var(--sans);font-size:0.58rem;font-weight:300;letter-spacing:0.15em;line-height:2.1;color:var(--td);text-transform:uppercase;max-width:270px;margin:0 auto 40px}
+.g-btn{display:block;width:100%;max-width:300px;margin:0 auto 11px;padding:18px 32px;font-family:var(--sans);font-size:0.62rem;font-weight:400;letter-spacing:0.32em;text-transform:uppercase;cursor:pointer;border:none;transition:all .3s}
+.g-yes{background:linear-gradient(135deg,var(--gold),#b8922a);color:var(--bg);box-shadow:0 4px 28px rgba(200,162,74,0.25)}
+.g-yes:hover{background:linear-gradient(135deg,var(--gold-hi),var(--gold));box-shadow:0 6px 36px rgba(200,162,74,0.4)}
 .g-no{background:transparent;color:var(--td);border:1px solid var(--border)}
 .g-no:hover{border-color:var(--gold);color:var(--gold)}
+.g-footer-cities{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:0.44rem;letter-spacing:.28em;color:rgba(232,222,206,0.18);text-transform:uppercase;z-index:1}
 
 /* ══ S1 VERIFY ══ */
 .v-hd{padding:56px 32px 28px;border-bottom:1px solid var(--border)}
@@ -86,14 +101,19 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .consent-row label a{color:rgba(200,162,74,0.7);text-decoration:underline}
 
 /* ══ S2 MAP ══ */
-.m-hd{padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.m-hd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.m-hd-left{display:flex;flex-direction:column;gap:3px}
 .m-logo{font-family:var(--serif);font-size:1rem;color:var(--gold);font-style:italic;letter-spacing:.04em}
-.m-bc{font-size:0.55rem;letter-spacing:.14em;color:var(--td);text-transform:uppercase}
-.m-vis{position:relative;height:195px;flex-shrink:0;overflow:hidden;background:linear-gradient(180deg,#0d0d11 0%,#0a0a0b 100%)}
+.m-member-badge{display:flex;align-items:center;gap:5px}
+.m-member-role{font-size:0.44rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.55}
+.m-member-sep{color:rgba(200,162,74,0.25);font-size:0.44rem}
+.m-member-name{font-size:0.44rem;letter-spacing:.1em;color:var(--td)}
+.m-bc{font-size:0.52rem;letter-spacing:.12em;color:var(--td);text-transform:uppercase}
+.m-vis{position:relative;height:210px;flex-shrink:0;overflow:hidden;background:linear-gradient(180deg,#0c0c12 0%,#0a0a0b 100%)}
 .m-back{position:absolute;top:11px;left:14px;font-size:0.58rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;cursor:pointer;background:rgba(0,0,0,.55);border:1px solid var(--border);padding:5px 11px;z-index:10;display:none;font-family:var(--sans)}
 .m-back.on{display:block}
 .m-back:hover{border-color:var(--gold)}
-.world-bg{width:100%;height:100%;opacity:.18}
+.world-bg{width:100%;height:100%;opacity:.22}
 .pin{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}
 .pin-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;position:relative;z-index:2;transition:transform .2s}
 .pin:hover .pin-dot{transform:scale(1.6)}
@@ -110,42 +130,69 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .r-arr{color:var(--td);font-size:0.8rem}
 
 /* ══ S3 FEED ══ */
-.f-hd{padding:18px 18px 0;flex-shrink:0;background:var(--bg)}
-.f-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.f-hd{padding:16px 18px 0;flex-shrink:0;background:var(--bg)}
+.f-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .f-loc{display:flex;align-items:center;gap:10px}
 .f-bk{background:none;border:none;color:var(--td);font-size:1rem;cursor:pointer;padding:0;line-height:1;font-family:var(--sans)}
 .f-bk:hover{color:var(--gold)}
-.f-lname{font-family:var(--serif);font-size:1.25rem;font-style:italic;color:var(--gold)}
-.f-chat{background:none;border:1px solid var(--border);color:var(--td);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;transition:all .2s;flex-shrink:0}
+.f-title-wrap{display:flex;flex-direction:column;gap:2px}
+.f-lname{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--gold)}
+.f-profile-line{font-size:0.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--td)}
+.f-chat{background:none;border:1px solid var(--border);color:var(--td);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.85rem;transition:all .2s;flex-shrink:0}
 .f-chat:hover{border-color:var(--gold);color:var(--gold)}
 .f-filter{display:flex;border-bottom:1px solid var(--border);margin-bottom:0}
-.ftab{padding:8px 14px;font-size:0.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--td);cursor:pointer;border:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;font-family:var(--sans)}
+.ftab{padding:8px 14px;font-size:0.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--td);cursor:pointer;border:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;font-family:var(--sans)}
 .ftab:first-child{padding-left:0}
 .ftab.on{color:var(--gold);border-bottom-color:var(--gold)}
 .ftab:hover:not(.on){color:var(--text)}
-.f-list{flex:1;overflow-y:auto;padding:12px 14px 88px}
-.post{display:grid;grid-template-columns:1fr 1fr;height:195px;border:1px solid var(--border);margin-bottom:11px;overflow:hidden}
-.post-photo{background:linear-gradient(135deg,#18181f,#0f0f13);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
+/* Feed cards — vertical single-column */
+.f-list{flex:1;overflow-y:auto;padding:10px 14px 88px}
+.post{border:1px solid var(--border);margin-bottom:14px;overflow:hidden;background:var(--card);transition:border-color .2s}
+.post:hover{border-color:rgba(200,162,74,0.3)}
+.post-photo{width:100%;height:168px;background:linear-gradient(135deg,#18181f,#0f0f13);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .post-photo img{width:100%;height:100%;object-fit:cover}
 .ph-ph{text-align:center;color:var(--tm)}
-.ph-ph .ic{font-size:1.4rem;margin-bottom:3px}
-.ph-ph p{font-size:0.46rem;letter-spacing:.1em;text-transform:uppercase}
-.post-run{background:rgba(200,162,74,0.035);padding:12px 11px;display:flex;flex-direction:column;border-left:1px solid var(--border);position:relative}
-.post-user{font-size:0.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
-.post-course{font-family:var(--serif);font-size:0.82rem;font-style:italic;color:var(--text);margin-bottom:9px;line-height:1.3}
-.post-stats{display:flex;flex-direction:column;gap:5px;flex:1}
-.pstat{display:flex;justify-content:space-between;align-items:baseline}
-.ps-lbl{font-size:0.48rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tm)}
-.ps-val{font-family:var(--serif);font-size:0.95rem;color:var(--text)}
-.ps-u{font-size:0.5rem;color:var(--td);margin-left:1px}
-.like-btn{position:absolute;bottom:9px;right:9px;display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--td);font-size:0.58rem;letter-spacing:.04em;padding:0;transition:color .2s;font-family:var(--sans)}
-.like-btn .h{font-size:0.85rem}
+.ph-ph .ic{font-size:1.8rem;margin-bottom:4px}
+.ph-ph p{font-size:0.44rem;letter-spacing:.14em;text-transform:uppercase}
+.post-run{padding:12px 14px 10px;border-top:1px solid var(--border);position:relative}
+.post-top-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.post-user{font-size:0.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.post-course{font-family:var(--serif);font-size:0.92rem;font-style:italic;color:var(--text);margin-bottom:10px;line-height:1.3}
+.post-stats{display:flex;border-top:1px solid var(--border);padding-top:9px;margin-bottom:8px}
+.pstat{flex:1;display:flex;flex-direction:column;gap:3px;align-items:center}
+.pstat:not(:last-child){border-right:1px solid var(--border)}
+.ps-lbl{font-size:0.42rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tm)}
+.ps-val{font-family:var(--serif);font-size:1.05rem;color:var(--text);line-height:1.1}
+.ps-u{font-size:0.44rem;color:var(--td);margin-left:1px}
+.post-bottom-row{display:flex;align-items:center;justify-content:flex-end}
+.like-btn{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--td);font-size:0.56rem;letter-spacing:.04em;padding:0;transition:color .2s;font-family:var(--sans)}
+.like-btn .h{font-size:0.9rem}
 .like-btn.on{color:var(--gold)}
 .like-btn:hover{color:var(--gold)}
 .fab{position:fixed;bottom:26px;right:16px;width:50px;height:50px;background:var(--gold);color:var(--bg);border:none;display:none;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;z-index:100;box-shadow:0 4px 22px rgba(200,162,74,.38);transition:all .2s}
 .fab.on{display:flex}
 .fab:hover{background:var(--gold-hi);transform:scale(1.06)}
 @media(min-width:480px){.fab{right:calc((100vw - 480px)/2 + 16px)}}
+
+/* ══ WELCOME MODAL ══ */
+.welcome-modal{position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;text-align:center;padding:40px 36px}
+.welcome-modal.on{display:flex}
+.wm-badge{width:70px;height:70px;border:1px solid var(--gold-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:26px;background:radial-gradient(ellipse at 50% 30%,rgba(200,162,74,0.12),transparent 70%);position:relative}
+.wm-badge::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(200,162,74,0.2);animation:wm-glow 2.8s ease-in-out infinite;transform-origin:center;will-change:transform,opacity}
+@keyframes wm-glow{0%,100%{transform:scale(1);opacity:0.2}50%{transform:scale(1.18);opacity:0}}
+.wm-badge-inner{font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--gold)}
+.wm-eyebrow{font-size:0.5rem;letter-spacing:.55em;color:var(--gold);text-transform:uppercase;opacity:.5;margin-bottom:10px}
+.wm-title{font-family:var(--serif);font-size:2.5rem;font-weight:300;font-style:italic;color:var(--gold);line-height:1.05;margin-bottom:6px}
+.wm-name{font-family:var(--serif);font-size:1.35rem;font-weight:300;font-style:italic;color:var(--text);margin-bottom:22px}
+.wm-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:18px}
+.wm-ornament-line{flex:1;max-width:48px;height:1px;background:linear-gradient(to right,transparent,var(--gold-dim))}
+.wm-ornament-line.r{background:linear-gradient(to left,transparent,var(--gold-dim))}
+.wm-ornament-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.45}
+.wm-role-badge{display:inline-block;padding:5px 18px;border:1px solid var(--gold-dim);font-size:0.5rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+.wm-desc{font-size:0.58rem;letter-spacing:.1em;line-height:2.1;color:var(--td);text-transform:uppercase;max-width:255px;margin-bottom:38px}
+.wm-btn{width:100%;max-width:255px;padding:16px 32px;background:var(--gold);color:var(--bg);font-family:var(--sans);font-size:0.62rem;font-weight:400;letter-spacing:.32em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s}
+.wm-btn:hover{background:var(--gold-hi)}
 
 /* ══ CHAT OVERLAY ══ */
 .chat-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;flex-direction:column;max-width:480px;margin:0 auto}
@@ -196,12 +243,22 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 
 <!-- S0 GATE -->
 <div id="s0" class="screen active">
-  <div class="g-mono">A · R · C</div>
+  <canvas id="gate-canvas"></canvas>
+  <div class="g-eyebrow">Est. 2024 &nbsp;·&nbsp; Global</div>
+  <div class="g-arc-badge">
+    <span class="g-arc-badge-text">ARC</span>
+  </div>
   <h1 class="g-title">Members<br>Only.</h1>
-  <div class="g-line"></div>
-  <p class="g-warn">This running club is exclusive only for the hot, sexy, fancy adult. If you are not qualified, please be more better one.</p>
-  <button class="g-btn g-yes" onclick="gateYes()">Yes, I am an adult.</button>
-  <button class="g-btn g-no" onclick="gateNo()">No, I am a kid.</button>
+  <div class="g-title-sub">Running Club</div>
+  <div class="g-ornament">
+    <div class="g-ornament-line"></div>
+    <div class="g-ornament-diamond"></div>
+    <div class="g-ornament-line"></div>
+  </div>
+  <p class="g-warn">Exclusive to the hot, sexy, fancy adult.<br>If you are not qualified,<br>become a better one.</p>
+  <button class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
+  <button class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
+  <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
 </div>
 
 <!-- S1 VERIFY -->
@@ -257,22 +314,64 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 <!-- S2 MAP -->
 <div id="s2" class="screen">
   <div class="m-hd">
-    <span class="m-logo" onclick="goHome()" style="cursor:pointer">Adult Running Club</span>
+    <div class="m-hd-left">
+      <span class="m-logo" onclick="goHome()" style="cursor:pointer">Adult Running Club</span>
+      <div class="m-member-badge">
+        <span class="m-member-role" id="m-member-role"></span>
+        <span class="m-member-sep">·</span>
+        <span class="m-member-name" id="m-member-name"></span>
+      </div>
+    </div>
     <span class="m-bc" id="m-bc">World</span>
   </div>
   <div class="m-vis">
-    <svg class="world-bg" viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1000" height="480" fill="#0a0a0b"/>
-      <!-- continents simplified -->
-      <path fill="#c8a24a" d="M95 75 L185 65 L235 95 L255 145 L235 198 L195 218 L155 208 L125 178 L98 138Z"/>
-      <path fill="#c8a24a" d="M205 248 L248 238 L268 278 L258 342 L238 382 L208 372 L188 322 L193 278Z"/>
-      <path fill="#c8a24a" d="M432 65 L498 60 L518 88 L508 118 L478 128 L448 118 L428 98Z"/>
-      <path fill="#c8a24a" d="M458 148 L522 138 L552 178 L547 258 L512 308 L472 298 L450 248 L448 188Z"/>
-      <path fill="#c8a24a" d="M528 55 L718 48 L798 88 L788 158 L718 198 L638 188 L568 158 L538 118Z"/>
-      <path fill="#c8a24a" d="M718 278 L788 268 L818 308 L798 348 L748 353 L718 323Z"/>
+    <!-- Improved world map: more accurate continent silhouettes -->
+    <svg class="world-bg" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1000" height="500" fill="#0a0a0b"/>
+      <!-- North America -->
+      <path fill="#c8a24a" d="M58,62 L92,54 L128,58 L162,50 L196,58 L218,72 L230,90 L237,116 L233,142 L218,164 L206,180 L192,197 L178,214 L164,226 L150,232 L137,220 L127,202 L117,180 L103,162 L88,150 L74,140 L60,122 L50,101 L48,80 Z"/>
+      <!-- Central America -->
+      <path fill="#c8a24a" d="M176,214 L193,222 L200,242 L188,250 L174,240 L169,228 Z"/>
+      <!-- South America -->
+      <path fill="#c8a24a" d="M194,254 L218,244 L241,252 L259,272 L270,298 L273,328 L268,358 L258,388 L242,410 L222,420 L205,412 L191,392 L181,362 L177,332 L179,302 L187,274 Z"/>
+      <!-- Greenland (faint) -->
+      <path fill="#c8a24a" opacity=".35" d="M195,16 L230,8 L258,17 L263,32 L250,44 L226,48 L198,40 L188,27 Z"/>
+      <!-- Iceland -->
+      <path fill="#c8a24a" opacity=".5" d="M395,32 L408,28 L416,35 L412,45 L400,48 L392,40 Z"/>
+      <!-- Europe -->
+      <path fill="#c8a24a" d="M436,46 L462,42 L490,44 L510,53 L520,68 L515,85 L502,98 L487,104 L471,108 L456,101 L444,88 L436,72 Z"/>
+      <!-- Iberian peninsula -->
+      <path fill="#c8a24a" d="M432,82 L448,78 L456,90 L452,108 L438,112 L428,100 Z"/>
+      <!-- Italian boot hint -->
+      <path fill="#c8a24a" d="M484,96 L496,92 L502,104 L496,120 L484,116 Z"/>
+      <!-- Scandinavia -->
+      <path fill="#c8a24a" d="M466,26 L480,20 L494,24 L500,38 L493,50 L479,55 L466,47 L460,36 Z"/>
+      <!-- British Isles -->
+      <path fill="#c8a24a" d="M428,57 L440,51 L449,57 L447,68 L435,73 L426,66 Z"/>
+      <!-- Africa -->
+      <path fill="#c8a24a" d="M454,150 L479,140 L504,142 L525,154 L540,175 L550,201 L555,231 L552,262 L543,292 L528,318 L510,338 L490,351 L468,355 L447,344 L431,322 L421,293 L417,261 L419,231 L427,202 L437,178 L444,161 Z"/>
+      <!-- Madagascar -->
+      <path fill="#c8a24a" d="M558,262 L566,251 L573,264 L573,285 L564,298 L556,287 L554,271 Z"/>
+      <!-- Asia main + Russia -->
+      <path fill="#c8a24a" d="M518,46 L562,38 L608,34 L654,32 L700,36 L736,46 L768,58 L792,74 L806,95 L808,118 L800,142 L784,160 L762,170 L738,174 L714,170 L690,160 L667,150 L644,140 L620,134 L596,130 L572,132 L551,140 L537,152 L525,140 L519,123 L515,97 L516,70 Z"/>
+      <!-- Arabian Peninsula -->
+      <path fill="#c8a24a" d="M556,152 L578,146 L596,156 L600,178 L592,198 L576,208 L560,200 L552,180 Z"/>
+      <!-- Indian subcontinent -->
+      <path fill="#c8a24a" d="M628,150 L650,144 L668,152 L675,172 L672,194 L659,214 L641,224 L626,215 L616,194 L616,172 Z"/>
+      <!-- Southeast Asia -->
+      <path fill="#c8a24a" d="M710,140 L737,134 L758,142 L769,158 L762,175 L747,180 L730,174 L718,160 Z"/>
+      <!-- Japan (Honshu + Kyushu) -->
+      <path fill="#c8a24a" d="M788,76 L804,70 L814,78 L812,90 L800,96 L789,88 Z"/>
+      <path fill="#c8a24a" d="M806,62 L818,56 L826,64 L821,74 L810,75 Z"/>
+      <!-- Korea peninsula hint -->
+      <path fill="#c8a24a" d="M770,74 L780,68 L787,76 L782,88 L772,88 Z"/>
+      <!-- Australia -->
+      <path fill="#c8a24a" d="M720,300 L760,290 L800,294 L830,310 L847,332 L850,358 L841,382 L822,399 L797,406 L771,405 L747,394 L726,376 L713,351 L710,323 Z"/>
+      <!-- New Zealand -->
+      <path fill="#c8a24a" d="M868,372 L877,361 L884,372 L879,386 L868,390 L862,380 Z"/>
     </svg>
     <div id="m-pins"></div>
-    <button class="m-back on" id="m-back" onclick="mapBack()" style="display:none">← Back</button>
+    <button class="m-back" id="m-back" onclick="mapBack()" style="display:none">← Back</button>
   </div>
   <div class="m-list">
     <div class="m-ltitle" id="m-ltitle">Select a region</div>
@@ -286,7 +385,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
     <div class="f-top">
       <div class="f-loc">
         <button class="f-bk" onclick="feedBack()">←</button>
-        <span class="f-lname" id="f-lname">Community</span>
+        <div class="f-title-wrap">
+          <span class="f-lname" id="f-lname">Community</span>
+          <span class="f-profile-line" id="f-profile-line"></span>
+        </div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="f-chat" onclick="openChat()">💬</button>
