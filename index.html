@@ -412,7 +412,10 @@ function gateYes(){
   if(S.verified){loadMap();show('s2')}else{show('s1')}
 }
 function gateNo(){
-  document.body.innerHTML='<div style="background:#0a0a0b;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(200,162,74,0.35);font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase">Come back when you\'re ready.</div>';
+  const msg=document.createElement('div');
+  msg.style.cssText='background:#0a0a0b;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(200,162,74,0.35);font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase';
+  msg.textContent="Come back when you're ready.";
+  document.body.replaceChildren(msg);
 }
 
 // ── VERIFICATION ──────────────────────────
@@ -513,7 +516,10 @@ function renderMap(){
       const el=document.createElement('div');
       el.className='pin';
       el.style.left=d.pin.x; el.style.top=d.pin.y;
-      el.innerHTML=`<div class="pin-dot"></div><div class="pin-ring"></div><div class="pin-lbl">${name}</div>`;
+      const dot=document.createElement('div'); dot.className='pin-dot';
+      const ring=document.createElement('div'); ring.className='pin-ring';
+      const lbl=document.createElement('div'); lbl.className='pin-lbl'; lbl.textContent=name;
+      el.append(dot,ring,lbl);
       el.onclick=()=>drill(name);
       pins.appendChild(el);
     });
@@ -526,7 +532,11 @@ function renderMap(){
     const lk=d.likes||0;
     const c=document.createElement('div');
     c.className='r-card';
-    c.innerHTML=`<span class="r-name">${name}</span><div class="r-meta"><span class="r-likes">♥ ${lk}</span><span class="r-arr">›</span></div>`;
+    const rName=document.createElement('span'); rName.className='r-name'; rName.textContent=name;
+    const rMeta=document.createElement('div'); rMeta.className='r-meta';
+    const rLikes=document.createElement('span'); rLikes.className='r-likes'; rLikes.textContent='♥ '+lk;
+    const rArr=document.createElement('span'); rArr.className='r-arr'; rArr.textContent='›';
+    rMeta.append(rLikes,rArr); c.append(rName,rMeta);
     c.onclick=lvl<2?()=>drill(name):()=>enterDistrict(name);
     list.appendChild(c);
   });
@@ -575,22 +585,40 @@ function renderFeed(){
     const cnt=p.likes+(isLiked?1:0);
     const card=document.createElement('div');
     card.className='post';
-    card.innerHTML=`
-      <div class="post-photo">
-        ${p.photo?`<img src="${p.photo}" alt="">`:`<div class="ph-ph"><div class="ic">🏃</div><p>Photo</p></div>`}
-      </div>
-      <div class="post-run">
-        <div class="post-user">${p.user}</div>
-        <div class="post-course">${p.course}</div>
-        <div class="post-stats">
-          <div class="pstat"><span class="ps-lbl">Distance</span><span class="ps-val">${p.km}<span class="ps-u">km</span></span></div>
-          <div class="pstat"><span class="ps-lbl">Time</span><span class="ps-val">${p.min}<span class="ps-u">min</span></span></div>
-          <div class="pstat"><span class="ps-lbl">Pace</span><span class="ps-val" style="font-size:.82rem">${p.pace}</span></div>
-        </div>
-        <button class="like-btn${isLiked?' on':''}" onclick="toggleLike(${JSON.stringify(p.id)})">
-          <span class="h">♥</span><span>${cnt}</span>
-        </button>
-      </div>`;
+    // post-photo
+    const photo=document.createElement('div'); photo.className='post-photo';
+    if(p.photo){
+      const img=document.createElement('img'); img.src=p.photo; img.alt=''; photo.appendChild(img);
+    } else {
+      const ph=document.createElement('div'); ph.className='ph-ph';
+      const ic=document.createElement('div'); ic.className='ic'; ic.textContent='🏃';
+      const pt=document.createElement('p'); pt.textContent='Photo';
+      ph.append(ic,pt); photo.appendChild(ph);
+    }
+    // post-run
+    const run=document.createElement('div'); run.className='post-run';
+    const pu=document.createElement('div'); pu.className='post-user'; pu.textContent=p.user;
+    const pc=document.createElement('div'); pc.className='post-course'; pc.textContent=p.course;
+    // stats
+    const stats=document.createElement('div'); stats.className='post-stats';
+    function mkStat(lbl,val,unit,smallFont){
+      const ps=document.createElement('div'); ps.className='pstat';
+      const l=document.createElement('span'); l.className='ps-lbl'; l.textContent=lbl;
+      const v=document.createElement('span'); v.className='ps-val'; if(smallFont)v.style.fontSize='.82rem';
+      v.textContent=val;
+      if(unit){const u=document.createElement('span'); u.className='ps-u'; u.textContent=unit; v.appendChild(u);}
+      ps.append(l,v); return ps;
+    }
+    stats.append(mkStat('Distance',p.km,'km',false),mkStat('Time',p.min,'min',false),mkStat('Pace',p.pace,'',true));
+    // like button
+    const btn=document.createElement('button');
+    btn.className='like-btn'+(isLiked?' on':'');
+    btn.onclick=()=>toggleLike(p.id);
+    const bh=document.createElement('span'); bh.className='h'; bh.textContent='♥';
+    const bc=document.createElement('span'); bc.textContent=cnt;
+    btn.append(bh,bc);
+    run.append(pu,pc,stats,btn);
+    card.append(photo,run);
     list.appendChild(card);
   });
 }
@@ -618,7 +646,9 @@ function openChat(){
   msgs.forEach(m=>{
     const d=document.createElement('div');
     d.className='cmsg'+(m.mine?' mine':'');
-    d.innerHTML=`<div class="cmsg-u">${m.user}</div><div class="cmsg-t">${m.text}</div>`;
+    const cu=document.createElement('div'); cu.className='cmsg-u'; cu.textContent=m.user;
+    const ct=document.createElement('div'); ct.className='cmsg-t'; ct.textContent=m.text;
+    d.append(cu,ct);
     el.appendChild(d);
   });
   el.scrollTop=el.scrollHeight;
