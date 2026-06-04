@@ -109,6 +109,8 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .m-member-sep{color:rgba(200,162,74,0.25);font-size:0.44rem}
 .m-member-name{font-size:0.44rem;letter-spacing:.1em;color:var(--td)}
 .m-bc{font-size:0.52rem;letter-spacing:.12em;color:var(--td);text-transform:uppercase}
+.m-hd-right{display:flex;align-items:center;gap:8px}
+.m-profile-btn{width:30px;height:30px;font-size:0.75rem}
 .m-vis{position:relative;height:210px;flex-shrink:0;overflow:hidden;background:linear-gradient(180deg,#0c0c12 0%,#0a0a0b 100%)}
 .m-back{position:absolute;top:11px;left:14px;font-size:0.58rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;cursor:pointer;background:rgba(0,0,0,.55);border:1px solid var(--border);padding:5px 11px;z-index:10;display:none;font-family:var(--sans)}
 .m-back.on{display:block}
@@ -213,6 +215,41 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
 .chat-inp::placeholder{color:var(--tm)}
 .chat-send{padding:0 16px;background:var(--gold);color:var(--bg);border:none;font-family:var(--sans);font-size:0.62rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .chat-send:hover{background:var(--gold-hi)}
+
+/* ══ S4 MYPAGE ══ */
+.mp-hd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.mp-hd-left{display:flex;align-items:center;gap:10px}
+.mp-back{background:none;border:none;color:var(--td);font-size:1rem;cursor:pointer;padding:0;line-height:1;font-family:var(--sans)}
+.mp-back:hover{color:var(--gold)}
+.mp-title{font-family:var(--serif);font-size:1rem;font-style:italic;color:var(--gold);letter-spacing:.04em}
+.mp-settings{background:none;border:1px solid var(--border);color:var(--td);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.85rem;flex-shrink:0}
+.mp-settings:hover{border-color:var(--gold);color:var(--gold)}
+.mp-body{flex:1;overflow-y:auto;padding:20px 18px 80px}
+/* section divider */
+.mp-divider{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.mp-div-line{flex:1;height:1px;background:var(--border)}
+.mp-div-text{font-size:0.48rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.65;white-space:nowrap}
+/* member info */
+.mp-member-email{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--text);margin-bottom:4px}
+.mp-member-role{font-size:0.5rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.6;margin-bottom:18px}
+/* temperature card */
+.mp-temp-card{border:1px solid var(--border);background:var(--card);padding:20px 18px;margin-bottom:20px}
+.mp-temp-num{font-family:var(--serif);font-size:4rem;font-weight:300;line-height:1;margin-bottom:12px;letter-spacing:-.01em;color:var(--grade-color,var(--gold))}
+.mp-temp-bar-bg{width:100%;height:4px;background:var(--border);margin-bottom:12px;overflow:hidden}
+.mp-temp-bar-fill{height:100%;background:var(--grade-color,var(--gold));transition:width .6s ease}
+.mp-temp-grade{font-size:0.52rem;letter-spacing:.28em;text-transform:uppercase;opacity:.75;color:var(--grade-color,var(--gold))}
+/* stats grid */
+.mp-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:20px}
+.mp-stat{background:var(--bg);padding:14px 14px 12px;display:flex;flex-direction:column;gap:5px}
+.mp-stat-lbl{font-size:0.44rem;letter-spacing:.22em;text-transform:uppercase;color:var(--td)}
+.mp-stat-val{font-family:var(--serif);font-size:1.55rem;font-weight:300;color:var(--text);line-height:1}
+.mp-stat-unit{font-size:0.44rem;color:var(--td);margin-left:2px}
+/* recent runs */
+.mp-run-card{border:1px solid var(--border);background:var(--card);padding:12px 14px;margin-bottom:8px}
+.mp-run-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
+.mp-run-course{font-family:var(--serif);font-size:0.95rem;font-style:italic;color:var(--text)}
+.mp-run-km{font-family:var(--serif);font-size:0.95rem;color:var(--gold)}
+.mp-run-meta{font-size:0.46rem;letter-spacing:.12em;text-transform:uppercase;color:var(--td)}
 
 /* ══ POST MODAL ══ */
 .pmodal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;display:none;flex-direction:column;max-width:480px;margin:0 auto}
@@ -322,7 +359,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         <span class="m-member-name" id="m-member-name"></span>
       </div>
     </div>
-    <span class="m-bc" id="m-bc">World</span>
+    <div class="m-hd-right">
+      <span class="m-bc" id="m-bc">World</span>
+      <button class="f-chat m-profile-btn" type="button" onclick="showMyPage()" title="My Page">👤</button>
+    </div>
   </div>
   <div class="m-vis">
     <!-- Improved world map: more accurate continent silhouettes -->
@@ -379,6 +419,20 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
   </div>
 </div>
 
+<!-- S4 MYPAGE -->
+<div id="s4" class="screen">
+  <div class="mp-hd">
+    <div class="mp-hd-left">
+      <button class="mp-back" onclick="show(prevScreen)" title="Back">←</button>
+      <span class="mp-title">My Profile</span>
+    </div>
+    <button class="mp-settings" onclick="arcSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="mp-body" id="mp-body">
+    <!-- injected by renderMyPage() -->
+  </div>
+</div>
+
 <!-- S3 FEED -->
 <div id="s3" class="screen">
   <div class="f-hd">
@@ -391,8 +445,9 @@ html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans);
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="f-chat" onclick="openChat()">💬</button>
-        <button class="f-chat" onclick="goHome()" title="Home">⌂</button>
+        <button class="f-chat" type="button" onclick="openChat()">💬</button>
+        <button class="f-chat" type="button" onclick="showMyPage()" title="My Page">👤</button>
+        <button class="f-chat" type="button" onclick="goHome()" title="Home">⌂</button>
       </div>
     </div>
     <div class="f-filter">
@@ -788,8 +843,16 @@ function setFilter(f,el){
 function toggleLike(id){
   const key='arc_lk_'+S.district;
   const lk=LS.g(key,{});
-  lk[id]=!lk[id];
+  const wasLiked=!!lk[id];
+  lk[id]=!wasLiked;
   LS.s(key,lk);
+  // if liking (not un-liking) a post that belongs to current user, +0.3 to their temp
+  if(!wasLiked){
+    const uname=S.email?S.email.split('@')[0]:'';
+    const posts=LS.g('arc_posts_'+S.district,[]);
+    const post=posts.find(p=>p.id===id);
+    if(post&&post.user!==uname)updateTemp(0.3);
+  }
   renderFeed();
 }
 
@@ -820,6 +883,7 @@ function sendChat(){
   const uname=S.email?S.email.split('@')[0]:'You';
   msgs.push({user:uname,text:txt,mine:true});
   LS.s(key,msgs);
+  updateTemp(0.1);
   inp.value='';
   openChat();
 }
@@ -870,8 +934,138 @@ function submitPost(){
   const posts=LS.g(key,[]);
   posts.unshift({id:Date.now(),user:uname,course,km,min,pace,likes:0,photo:photoData,ts:Date.now()});
   LS.s(key,posts);
+  updateTemp(1.0);
   closePost();
   renderFeed();
+}
+
+// ── TEMPERATURE ──────────────────────────
+const TEMP_KEY='arc_temp';
+
+function getTemp(){
+  const v=parseFloat(LS.g(TEMP_KEY,36.5));
+  return isNaN(v)?36.5:Math.min(v,99.9);
+}
+
+function updateTemp(delta){
+  const cur=getTemp();
+  LS.s(TEMP_KEY,Math.min(parseFloat((cur+delta).toFixed(1)),99.9));
+}
+
+function getTempGrade(t){
+  if(t>=80)return{label:'Platinum Member',color:'#e5e4e2'};
+  if(t>=60)return{label:'Gold Member',color:'#c8a24a'};
+  if(t>=40)return{label:'Silver Member',color:'#c0c0c0'};
+  return{label:'Bronze Member',color:'#cd7f32'};
+}
+
+// ── MYPAGE ────────────────────────────────
+let prevScreen='s3';
+
+function showMyPage(){
+  // track which screen we came from
+  const active=document.querySelector('.screen.active');
+  if(active)prevScreen=active.id;
+  renderMyPage();
+  show('s4');
+}
+
+function renderMyPage(){
+  const email=LS.g('arc_e',null)||'—';
+  const roleRaw=LS.g('arc_r',null)||'member';
+  const roleLabel={student:'Student',pro:'Worker',founder:'Founder'}[roleRaw]||roleRaw;
+  const temp=getTemp();
+  const grade=getTempGrade(temp);
+
+  // Compute stats from all arc_posts_* keys
+  let totalKm=0,totalPosts=0,totalLikes=0,regions=0;
+  const uname=email!=='—'?email.split('@')[0]:'';
+  const recentRuns=[];
+
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k||!k.startsWith('arc_posts_'))continue;
+    regions++;
+    const posts=LS.g(k,[]);
+    posts.forEach(p=>{
+      if(p.user===uname){
+        totalPosts++;
+        totalKm+=parseFloat(p.km)||0;
+        totalLikes+=parseInt(p.likes)||0;
+        recentRuns.push({...p,district:k.replace('arc_posts_','')});
+      }
+    });
+  }
+  // sort recent by ts desc, take top 3
+  recentRuns.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const shown=recentRuns.slice(0,3);
+
+  const barPct=Math.min((temp/99.9)*100,100).toFixed(1);
+
+  let html=`
+  <div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Member</div><div class="mp-div-line"></div></div>
+  <div class="mp-member-email">${email}</div>
+  <div class="mp-member-role">${roleLabel}</div>
+
+  <div class="mp-temp-card" id="mp-temp-card">
+    <div class="mp-temp-num">${temp.toFixed(1)}°</div>
+    <div class="mp-temp-bar-bg">
+      <div class="mp-temp-bar-fill" id="mp-temp-fill" style="width:${barPct}%"></div>
+    </div>
+    <div class="mp-temp-grade">${grade.label}</div>
+  </div>
+
+  <div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Running Stats</div><div class="mp-div-line"></div></div>
+  <div class="mp-stats">
+    <div class="mp-stat">
+      <span class="mp-stat-lbl">Total Distance</span>
+      <span class="mp-stat-val">${totalKm.toFixed(1)}<span class="mp-stat-unit">km</span></span>
+    </div>
+    <div class="mp-stat">
+      <span class="mp-stat-lbl">Total Posts</span>
+      <span class="mp-stat-val">${totalPosts}</span>
+    </div>
+    <div class="mp-stat">
+      <span class="mp-stat-lbl">Likes Received</span>
+      <span class="mp-stat-val">${totalLikes}</span>
+    </div>
+    <div class="mp-stat">
+      <span class="mp-stat-lbl">Regions Visited</span>
+      <span class="mp-stat-val">${regions}</span>
+    </div>
+  </div>`;
+
+  if(shown.length){
+    html+=`<div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Recent Runs</div><div class="mp-div-line"></div></div>`;
+    shown.forEach(p=>{
+      const d=p.district||'';
+      html+=`
+      <div class="mp-run-card">
+        <div class="mp-run-top">
+          <span class="mp-run-course">${p.course||'My Run'}</span>
+          <span class="mp-run-km">${parseFloat(p.km).toFixed(1)}km</span>
+        </div>
+        <div class="mp-run-meta">${d} &nbsp;·&nbsp; ${p.min||0}min &nbsp;·&nbsp; ${p.pace||''}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('mp-body').innerHTML=html;
+  // apply grade color via CSS custom property (avoids inline style warnings)
+  document.getElementById('mp-temp-card').style.setProperty('--grade-color',grade.color);
+}
+
+function arcSettings(){
+  if(confirm('Reset your ARC data? This cannot be undone.')){
+    const toDelete=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith('arc_'))toDelete.push(k);
+    }
+    toDelete.forEach(k=>localStorage.removeItem(k));
+    S.verified=false; S.role=null; S.email=null;
+    show('s0');
+  }
 }
 
 // ── INIT ──────────────────────────────────
