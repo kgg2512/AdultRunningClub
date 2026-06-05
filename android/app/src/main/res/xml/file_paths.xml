@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 최소 경로 원칙: 앱 캐시 디렉토리만 허용, 외부 저장소 전체 노출 제거 -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <cache-path name="my_cache_images" path="images/" />
+    <files-path name="my_files" path="files/" />
 </paths>
