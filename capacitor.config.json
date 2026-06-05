@@ -1,0 +1,40 @@
+{
+  "appId": "com.g2company.arc",
+  "appName": "ARC — Running Society",
+  "webDir": "www",
+  "server": {
+    "allowMixedContent": false,
+    "cleartext": false
+  },
+  "ios": {
+    "limitsNavigationsToAppBoundDomains": true,
+    "contentInset": "automatic",
+    "scrollEnabled": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_arc_notify",
+      "iconColor": "#C9A84C",
+      "sound": "default"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0A0908",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#0A0908"
+    }
+  }
+}

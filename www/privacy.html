@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Adult Running Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0A0908; --bg2: #130F0C; --gold: #C9A84C;
+      --gold-dim: rgba(201,168,76,0.55); --gold-line: rgba(201,168,76,0.18);
+      --ivory: #FAF8F4; --ivory-dim: rgba(250,248,244,0.6);
+      --ivory-faint: rgba(250,248,244,0.15);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Raleway', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ivory); font-family: var(--sans); font-weight: 300; font-size: 0.875rem; line-height: 1.9; min-height: 100vh; }
+    .site-header { background: var(--bg2); border-bottom: 1px solid var(--gold-line); padding: 28px 24px 24px; text-align: center; }
+    .site-header .wordmark { font-family: var(--serif); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 10px; }
+    .site-header h1 { font-family: var(--serif); font-size: 1.75rem; font-weight: 300; font-style: italic; color: var(--ivory); letter-spacing: 0.03em; margin-bottom: 6px; }
+    .site-header .meta { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ivory-dim); }
+    .lang-toggle { display: flex; justify-content: center; gap: 0; margin: 24px auto 0; border: 1px solid var(--gold-line); width: fit-content; }
+    .lang-btn { background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 0.6rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ivory-dim); padding: 8px 20px; transition: all 0.2s; }
+    .lang-btn.active { background: var(--gold); color: var(--bg); font-weight: 500; }
+    .lang-btn:not(.active):hover { color: var(--gold); }
+    .divider { width: 1px; background: var(--gold-line); flex-shrink: 0; }
+    .content { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
+    .lang-section { display: none; }
+    .lang-section.active { display: block; }
+    .section { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--ivory-faint); }
+    .section:last-of-type { border-bottom: none; }
+    .section-number { font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 8px; }
+    .section h2 { font-family: var(--serif); font-size: 1.15rem; font-weight: 400; color: var(--ivory); margin-bottom: 16px; letter-spacing: 0.02em; }
+    p { color: var(--ivory-dim); margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+    ul { color: var(--ivory-dim); padding-left: 0; list-style: none; margin-bottom: 12px; }
+    li { padding: 8px 0 8px 16px; border-left: 1px solid var(--gold-line); margin-bottom: 6px; font-size: 0.85rem; }
+    li strong { color: var(--ivory); font-weight: 400; display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .data-table th { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 400; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--gold-line); background: var(--bg2); }
+    .data-table td { padding: 12px 12px; color: var(--ivory-dim); font-size: 0.82rem; border-bottom: 1px solid var(--ivory-faint); vertical-align: top; }
+    .highlight-box { background: var(--bg2); border-left: 2px solid var(--gold); padding: 16px 20px; margin: 16px 0; }
+    .highlight-box p { color: var(--ivory-dim); margin: 0; font-size: 0.83rem; }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .contact-block { background: var(--bg2); border: 1px solid var(--gold-line); padding: 24px; margin-top: 16px; }
+    .contact-block .label { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 6px; }
+    .contact-block .value { color: var(--ivory); font-size: 0.88rem; }
+    .contact-item { margin-bottom: 16px; }
+    .contact-item:last-child { margin-bottom: 0; }
+    .back-link { display: block; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ivory-dim); text-decoration: none; padding: 20px 24px; border-bottom: 1px solid var(--ivory-faint); }
+    .back-link:hover { color: var(--gold); }
+    .eff-bar { background: var(--bg2); border-top: 1px solid var(--gold-line); text-align: center; padding: 20px 24px; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ivory-dim); position: fixed; bottom: 0; left: 0; right: 0; }
+    @media (max-width: 480px) { .site-header h1 { font-size: 1.4rem; } .content { padding: 32px 20px 80px; } }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="./index.html">← Back to ARC</a>
+  <div class="site-header">
+    <span class="wordmark">Adult Running Club</span>
+    <h1>Privacy Policy</h1>
+    <p class="meta">개인정보처리방침</p>
+    <div class="lang-toggle">
+      <button type="button" class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
+      <div class="divider"></div>
+      <button type="button" class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="lang-section active" id="lang-ko">
+      <div class="section">
+        <span class="section-number">— 시행일: 2026.06.06</span>
+        <h2>개요</h2>
+        <p>G2 Company Ltd.(이하 "회사")는 <em>Adult Running Club</em>(이하 "서비스")를 운영합니다. 이 개인정보처리방침은 이용자의 개인정보를 어떻게 수집, 이용, 보관, 보호하는지를 설명합니다.</p>
+      </div>
+      <div class="section">
+        <span class="section-number">01</span>
+        <h2>수집하는 개인정보 항목 및 수집 방법</h2>
+        <table class="data-table">
+          <thead><tr><th>항목</th><th>목적</th><th>수집 방법</th></tr></thead>
+          <tbody><tr><td>이메일 주소</td><td>멤버십 인증 코드 발송, 본인 확인</td><td>이용자 직접 입력</td></tr></tbody>
+        </table>
+        <div class="highlight-box"><p>회사는 이메일 주소 외 어떠한 개인정보도 서버에 수집·저장하지 않습니다. 기타 데이터는 이용자 기기의 브라우저 로컬 저장소(localStorage)에만 저장되며 외부로 전송되지 않습니다.</p></div>
+        <p style="margin-top:16px;">로컬 저장소에 보관되는 데이터(개인정보 아님):</p>
+        <ul>
+          <li><strong>arc_v</strong>인증 완료 여부 (true/false)</li>
+          <li><strong>arc_r</strong>멤버 역할 구분</li>
+          <li><strong>arc_e</strong>인증에 사용한 이메일 주소 (기기 내 저장, 서버 미전송)</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">02</span>
+        <h2>개인정보 수집 및 이용 목적</h2>
+        <ul>
+          <li><strong>목적</strong>멤버십 자격 확인 및 인증 코드 1회 발송</li>
+          <li><strong>근거</strong>개인정보보호법 제15조 제1항 — 이용자 동의</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">03</span>
+        <h2>개인정보 보유 및 이용 기간</h2>
+        <ul>
+          <li><strong>서버 측</strong>인증 코드 발송 완료 즉시 파기. 서버에 영구 저장하지 않습니다.</li>
+          <li><strong>기기 로컬</strong>브라우저 데이터 삭제 또는 앱 삭제 시 소멸</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">04</span>
+        <h2>개인정보의 제3자 제공 및 국외이전</h2>
+        <p>인증 코드 발송을 위해 아래 서비스에 이메일 주소가 전달됩니다.</p>
+        <table class="data-table">
+          <thead><tr><th>수탁사</th><th>이전 항목</th><th>이전 목적</th><th>서버 위치</th></tr></thead>
+          <tbody><tr><td>EmailJS (emailjs.com)</td><td>이메일 주소</td><td>인증 코드 이메일 발송</td><td>미국 (US)</td></tr></tbody>
+        </table>
+        <div class="highlight-box"><p>위 처리는 개인정보보호법 제28조의8에 따라 국외이전에 해당합니다. 서비스 이용 및 본 방침 동의 시 위 국외이전에 동의하게 됩니다. EmailJS 개인정보처리방침: <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">emailjs.com/legal/privacy-policy</a></p></div>
+      </div>
+      <div class="section">
+        <span class="section-number">05</span>
+        <h2>정보주체의 권리 및 행사 방법</h2>
+        <ul>
+          <li><strong>열람·정정·삭제·처리정지</strong>아래 이메일로 요청하시면 지체 없이 조치합니다.</li>
+          <li><strong>로컬 데이터 삭제</strong>브라우저 설정 → 사이트 데이터 삭제에서 직접 삭제 가능</li>
+        </ul>
+        <p>문의: <a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></p>
+      </div>
+      <div class="section">
+        <span class="section-number">06</span>
+        <h2>기술적 보호 조치</h2>
+        <ul>
+          <li><strong>HTTPS</strong>모든 통신 구간 TLS 암호화</li>
+          <li><strong>최소 수집</strong>서비스에 필요한 최소 정보만 수집</li>
+          <li><strong>즉시 파기</strong>인증 완료 후 서버 측 이메일 즉시 삭제</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">07</span>
+        <h2>개인정보 보호책임자</h2>
+        <div class="contact-block">
+          <div class="contact-item"><span class="label">회사명</span><span class="value">G2 Company Ltd.</span></div>
+          <div class="contact-item"><span class="label">개인정보 보호책임자</span><span class="value">강경구</span></div>
+          <div class="contact-item"><span class="label">이메일</span><span class="value"><a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></span></div>
+        </div>
+      </div>
+      <div class="section">
+        <span class="section-number">08</span>
+        <h2>개인정보처리방침 변경</h2>
+        <p>본 방침은 관련 법령 변경 시 사전 고지 후 개정됩니다. 현행 시행일: 2026년 6월 6일</p>
+      </div>
+    </div>
+    <div class="lang-section" id="lang-en">
+      <div class="section">
+        <span class="section-number">— Effective: 2026.06.06</span>
+        <h2>Overview</h2>
+        <p>G2 Company Ltd. ("Company") operates <em>Adult Running Club</em> ("Service"). This Privacy Policy explains how we collect, use, retain, and protect your personal information.</p>
+      </div>
+      <div class="section">
+        <span class="section-number">01</span>
+        <h2>Data We Collect</h2>
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Purpose</th><th>Method</th></tr></thead>
+          <tbody><tr><td>Email address</td><td>Sending membership verification code</td><td>User input</td></tr></tbody>
+        </table>
+        <div class="highlight-box"><p>We do not collect or store any personal information on our servers beyond what is described above. App data is stored exclusively in your device's localStorage and is never transmitted externally.</p></div>
+        <p style="margin-top:16px;">localStorage data (not personal information):</p>
+        <ul>
+          <li><strong>arc_v</strong>Verification status</li>
+          <li><strong>arc_r</strong>Member role</li>
+          <li><strong>arc_e</strong>Email used for verification (device-only, never sent to our servers)</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">02</span>
+        <h2>How We Use Your Data</h2>
+        <ul>
+          <li><strong>Purpose</strong>Verifying membership and sending a one-time verification code</li>
+          <li><strong>Legal basis</strong>Your explicit consent at the time of collection</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">03</span>
+        <h2>Data Retention</h2>
+        <ul>
+          <li><strong>Server-side</strong>Deleted immediately after the verification code is sent.</li>
+          <li><strong>Device-local</strong>Until you clear browser data or uninstall the app.</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">04</span>
+        <h2>Third-Party Sharing &amp; International Transfer</h2>
+        <table class="data-table">
+          <thead><tr><th>Processor</th><th>Data</th><th>Purpose</th><th>Location</th></tr></thead>
+          <tbody><tr><td>EmailJS (emailjs.com)</td><td>Email address</td><td>Sending verification code</td><td>United States</td></tr></tbody>
+        </table>
+        <div class="highlight-box"><p>Your email address is transferred to US-based servers solely for verification email delivery. By accepting this Policy, you consent to this transfer. See <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">EmailJS Privacy Policy</a>.</p></div>
+      </div>
+      <div class="section">
+        <span class="section-number">05</span>
+        <h2>Your Rights</h2>
+        <p>You may request access, correction, deletion, or restriction of your data at <a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a>. Local data can be deleted via your browser's site data settings.</p>
+      </div>
+      <div class="section">
+        <span class="section-number">06</span>
+        <h2>Security</h2>
+        <ul>
+          <li><strong>HTTPS</strong>All communications encrypted via TLS</li>
+          <li><strong>Minimal collection</strong>Only data strictly necessary for the service</li>
+          <li><strong>Immediate deletion</strong>Email addresses deleted from servers after verification</li>
+        </ul>
+      </div>
+      <div class="section">
+        <span class="section-number">07</span>
+        <h2>Data Controller</h2>
+        <div class="contact-block">
+          <div class="contact-item"><span class="label">Company</span><span class="value">G2 Company Ltd.</span></div>
+          <div class="contact-item"><span class="label">DPO</span><span class="value">Kyunggu Kang</span></div>
+          <div class="contact-item"><span class="label">Email</span><span class="value"><a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></span></div>
+        </div>
+      </div>
+      <div class="section">
+        <span class="section-number">08</span>
+        <h2>Policy Changes</h2>
+        <p>We may update this policy with advance notice. Effective date: June 6, 2026.</p>
+      </div>
+    </div>
+  </div>
+  <div class="eff-bar">G2 Company Ltd. · Adult Running Club · Privacy Policy · 2026.06.06</div>
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.lang-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('lang-' + lang).classList.add('active');
+      document.getElementById('btn-' + lang).classList.add('active');
+    }
+  </script>
+</body>
+</html>

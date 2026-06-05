@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ARC — 앱 아이콘 생성기</title>
+<style>
+  body { font-family: system-ui; background: #0a0a0a; color: #fff; padding: 20px; }
+  h1 { font-size: 18px; margin-bottom: 16px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 16px; }
+  .item { text-align: center; font-size: 11px; color: #999; }
+  canvas { display: block; margin-bottom: 4px; border-radius: 22%; }
+  button { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 6px 14px;
+           border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 4px; }
+  button:hover { background: #222; }
+  .dl-all { background: #C8A96E; color: #000; border: none; padding: 10px 24px;
+             border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700;
+             margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<h1>ARC — Running Society 아이콘 생성기</h1>
+<button class="dl-all" onclick="downloadAll()">모두 다운로드</button>
+<div class="grid" id="grid"></div>
+<script>
+const SIZES = [
+  { size: 20, label: 'iOS 20' }, { size: 29, label: 'iOS 29' },
+  { size: 40, label: 'iOS 40' }, { size: 58, label: 'iOS 58' },
+  { size: 60, label: 'iOS 60' }, { size: 76, label: 'iOS 76' },
+  { size: 80, label: 'iOS 80' }, { size: 87, label: 'iOS 87' },
+  { size: 120, label: 'iOS 120' }, { size: 152, label: 'iOS 152' },
+  { size: 167, label: 'iOS 167' }, { size: 180, label: 'iOS 180' },
+  { size: 48, label: 'Android mdpi' }, { size: 72, label: 'Android hdpi' },
+  { size: 96, label: 'Android xhdpi' }, { size: 144, label: 'Android xxhdpi' },
+  { size: 192, label: 'Android xxxhdpi' }, { size: 512, label: 'Play Store' },
+  { size: 1024, label: 'App Store' }
+];
+
+function drawARC(ctx, size) {
+  const s = size;
+  // 배경
+  const grad = ctx.createLinearGradient(0, 0, s, s);
+  grad.addColorStop(0, '#0A0A0A');
+  grad.addColorStop(1, '#1a1a1a');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, s, s, s * 0.22);
+  ctx.fill();
+
+  // 골드 원형 링
+  const cx = s * 0.5, cy = s * 0.5, r = s * 0.36;
+  ctx.strokeStyle = '#C8A96E';
+  ctx.lineWidth = s * 0.04;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 달리는 사람 실루엣 (단순 stick figure)
+  const u = s / 100;
+  ctx.fillStyle = '#C8A96E';
+
+  // 머리
+  ctx.beginPath();
+  ctx.arc(cx + u * 5, cy - u * 22, u * 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 몸통
+  ctx.beginPath();
+  ctx.moveTo(cx + u * 5, cy - u * 14);
+  ctx.lineTo(cx - u * 4, cy + u * 2);
+  ctx.lineWidth = u * 5;
+  ctx.strokeStyle = '#C8A96E';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // 왼팔 (앞으로)
+  ctx.beginPath();
+  ctx.moveTo(cx + u * 3, cy - u * 8);
+  ctx.lineTo(cx - u * 12, cy - u * 2);
+  ctx.lineWidth = u * 4;
+  ctx.stroke();
+
+  // 오른팔 (뒤로)
+  ctx.beginPath();
+  ctx.moveTo(cx + u * 3, cy - u * 8);
+  ctx.lineTo(cx + u * 14, cy - u * 18);
+  ctx.stroke();
+
+  // 왼다리 (앞으로)
+  ctx.beginPath();
+  ctx.moveTo(cx - u * 4, cy + u * 2);
+  ctx.lineTo(cx - u * 14, cy + u * 18);
+  ctx.lineTo(cx - u * 20, cy + u * 22);
+  ctx.lineWidth = u * 4.5;
+  ctx.stroke();
+
+  // 오른다리 (뒤로)
+  ctx.beginPath();
+  ctx.moveTo(cx - u * 4, cy + u * 2);
+  ctx.lineTo(cx + u * 8, cy + u * 16);
+  ctx.lineTo(cx + u * 6, cy + u * 24);
+  ctx.stroke();
+}
+
+const grid = document.getElementById('grid');
+const canvases = {};
+
+SIZES.forEach(({ size, label }) => {
+  const item = document.createElement('div');
+  item.className = 'item';
+  const disp = Math.min(size, 100);
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  canvas.style.width = disp + 'px'; canvas.style.height = disp + 'px';
+  drawARC(canvas.getContext('2d'), size);
+  canvases[label] = canvas;
+  const btn = document.createElement('button');
+  btn.textContent = '저장';
+  btn.onclick = () => download(canvas, `arc-icon-${size}.png`);
+  item.append(canvas, document.createTextNode(`${label} (${size}×${size})`), document.createElement('br'), btn);
+  grid.append(item);
+});
+
+function download(canvas, name) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = name;
+  a.click();
+}
+
+function downloadAll() {
+  SIZES.forEach(({ size, label }) => {
+    const c = canvases[label];
+    setTimeout(() => download(c, `arc-icon-${size}.png`), 100);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "name": "ARC — Running Society",
+  "short_name": "ARC",
+  "description": "Seoul's premier luxury running members club — by invitation only.",
+  "id": "https://kgg2512.github.io/AdultRunningClub/",
+  "start_url": "/AdultRunningClub/",
+  "scope": "/AdultRunningClub/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "ko",
+  "dir": "ltr",
+  "background_color": "#0A0908",
+  "theme_color": "#C9A84C",
+  "categories": ["lifestyle", "sports", "social"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/arc-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/arc-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screen-gate.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ARC Gate — Members Only"
+    },
+    {
+      "src": "screenshots/screen-map.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Global Running Map"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Join ARC",
+      "short_name": "Join",
+      "url": "/AdultRunningClub/",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
