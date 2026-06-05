@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024">
+  <title>ARC — Feature Graphic 1024×500</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 1024px;
+      height: 500px;
+      overflow: hidden;
+      background: #0A0908;
+    }
+
+    .canvas {
+      width: 1024px;
+      height: 500px;
+      background: #0A0908;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 로마 숫자 연도 — 우상단 */
+    .year {
+      position: absolute;
+      top: 38px;
+      right: 52px;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 13px;
+      letter-spacing: 0.35em;
+      color: #C9A84C;
+      opacity: 0.75;
+    }
+
+    /* 상단 골드 수평선 */
+    .line-top {
+      position: absolute;
+      top: 62px;
+      left: 52px;
+      right: 52px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #C9A84C 20%, #C9A84C 80%, transparent 100%);
+      opacity: 0.55;
+    }
+
+    /* 하단 골드 수평선 */
+    .line-bottom {
+      position: absolute;
+      bottom: 62px;
+      left: 52px;
+      right: 52px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #C9A84C 20%, #C9A84C 80%, transparent 100%);
+      opacity: 0.55;
+    }
+
+    /* 중앙 콘텐츠 블록 */
+    .center-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* 상단 마이크로 레이블 */
+    .label-top {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 11px;
+      letter-spacing: 0.55em;
+      color: #C9A84C;
+      opacity: 0.6;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    /* ARC 대형 워드마크 */
+    .wordmark-arc {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 148px;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      color: #C9A84C;
+      /* 미세한 금박 효과 */
+      background: linear-gradient(
+        160deg,
+        #A07830 0%,
+        #C9A84C 30%,
+        #E8D08A 50%,
+        #C9A84C 70%,
+        #9A7030 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 구분선 (ARC 아래) */
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: #C9A84C;
+      opacity: 0.5;
+      margin: 20px 0 18px;
+    }
+
+    /* ADULT RUNNING CLUB 풀네임 */
+    .wordmark-full {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 15px;
+      letter-spacing: 0.6em;
+      color: #FAF8F4;
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+
+    /* 슬로건 */
+    .slogan {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: 17px;
+      letter-spacing: 0.08em;
+      color: #FAF8F4;
+      opacity: 0.5;
+      margin-top: 12px;
+    }
+
+    /* 하단 미세 텍스트 */
+    .footer-text {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      font-size: 10px;
+      letter-spacing: 0.45em;
+      color: #C9A84C;
+      opacity: 0.45;
+      white-space: nowrap;
+    }
+
+    /* 좌우 대칭 장식 — 가는 수직선 */
+    .deco-left,
+    .deco-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .deco-left  { left: 52px; }
+    .deco-right { right: 52px; }
+
+    .deco-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(180deg, transparent, #C9A84C 50%, transparent);
+      opacity: 0.35;
+    }
+
+    .deco-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #C9A84C;
+      opacity: 0.5;
+    }
+
+    /* 배경 서클 텍스처 (매우 미세) */
+    .bg-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 380px;
+      height: 380px;
+      border: 1px solid #C9A84C;
+      border-radius: 50%;
+      opacity: 0.04;
+      pointer-events: none;
+    }
+
+    .bg-ring-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px;
+      height: 480px;
+      border: 1px solid #C9A84C;
+      border-radius: 50%;
+      opacity: 0.02;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <!-- 배경 원형 텍스처 -->
+    <div class="bg-ring-2"></div>
+    <div class="bg-ring"></div>
+
+    <!-- 로마 숫자 연도 -->
+    <div class="year">MMXXVI</div>
+
+    <!-- 수평 골드 라인 -->
+    <div class="line-top"></div>
+    <div class="line-bottom"></div>
+
+    <!-- 좌우 장식 수직선 -->
+    <div class="deco-left">
+      <div class="deco-dot"></div>
+      <div class="deco-line"></div>
+      <div class="deco-dot"></div>
+    </div>
+    <div class="deco-right">
+      <div class="deco-dot"></div>
+      <div class="deco-line"></div>
+      <div class="deco-dot"></div>
+    </div>
+
+    <!-- 중앙 메인 콘텐츠 -->
+    <div class="center-block">
+      <div class="label-top">Est. Seoul &nbsp;·&nbsp; 2026</div>
+      <div class="wordmark-arc">ARC</div>
+      <div class="divider"></div>
+      <div class="wordmark-full">Adult Running Club</div>
+      <div class="slogan">Seoul's Premier Running Society</div>
+    </div>
+
+    <!-- 하단 미세 텍스트 -->
+    <div class="footer-text">SEOUL &nbsp;·&nbsp; MEMBERS ONLY</div>
+  </div>
+</body>
+</html>
