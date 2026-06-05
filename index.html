@@ -136,6 +136,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .g-no{background:transparent;color:var(--gate-text-dim);border:1px solid rgba(201,168,76,0.18)}
 .g-no:hover{border-color:rgba(201,168,76,0.4);color:rgba(250,248,244,0.6)}
 .g-footer-cities{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:0.4rem;letter-spacing:.3em;color:rgba(250,248,244,0.18);text-transform:uppercase;z-index:1}
+.g-privacy-bar{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2}
+.g-privacy-link{font-family:var(--sans);font-size:0.38rem;letter-spacing:0.2em;color:rgba(250,248,244,0.18);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
+.g-privacy-link:hover{color:rgba(201,168,76,0.5)}
 
 /* ══ S1 VERIFY ══ */
 #s1{background:var(--bg)}
@@ -391,6 +394,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <button class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
   <button class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
   <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
+  <div class="g-privacy-bar">
+    <a href="./privacy.html" class="g-privacy-link">Privacy Policy</a>
+  </div>
 </div>
 
 <!-- S1 VERIFY -->
