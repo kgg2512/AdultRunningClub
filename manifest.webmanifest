@@ -1,5 +1,5 @@
 {
-  "name": "Adult Running Club",
+  "name": "ARC — Running Society",
   "short_name": "ARC",
   "description": "Seoul's premier luxury running members club — by invitation only.",
   "id": "https://kgg2512.github.io/AdultRunningClub/",
@@ -15,7 +15,9 @@
   "prefer_related_applications": false,
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/arc-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/arc-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
     {

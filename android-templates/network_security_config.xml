@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ARC — Running Society
+  Android Network Security Config
+  배포 경로: android/app/src/main/res/xml/network_security_config.xml
+  (디렉토리가 없으면 xml/ 폴더 생성 후 배치)
+  AndroidManifest.xml의 <application> 태그에 android:networkSecurityConfig="@xml/network_security_config" 추가 필요
+-->
+<network-security-config>
+  <!-- 기본: HTTPS 강제, HTTP 차단 -->
+  <base-config cleartextTrafficPermitted="false">
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+
+  <!-- GitHub Pages (웹 콘텐츠 호스팅) -->
+  <domain-config cleartextTrafficPermitted="false">
+    <domain includeSubdomains="true">kgg2512.github.io</domain>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </domain-config>
+</network-security-config>

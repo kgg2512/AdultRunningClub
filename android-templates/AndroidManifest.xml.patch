@@ -1,0 +1,40 @@
+<!--
+  ARC — Running Society
+  Android 권한 선언 패치
+  배포 경로: android/app/src/main/AndroidManifest.xml 의 <manifest> 태그 바로 아래에 병합
+  (cap add android 실행 후 Android Studio 또는 직접 편집)
+-->
+
+<!-- ===== 권한 선언 (manifest 태그 안, application 태그 밖) ===== -->
+
+<!-- 위치 권한 (러닝 GPS 트래킹) -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+<!-- 백그라운드 위치 (러닝 중 GPS 지속) — Play Store 별도 심사 필요 -->
+<!-- 주의: 실제 배경 트래킹 필요 시에만 활성화. 그렇지 않으면 심사 거절 리스크 -->
+<!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+
+<!-- 인터넷 (API 통신) -->
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<!-- 알림 (Android 13+) -->
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+<!-- 진동 (러닝 알림 햅틱) -->
+<uses-permission android:name="android.permission.VIBRATE" />
+
+<!-- 절전 모드 무시 (러닝 중 GPS 유지) -->
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+<!-- 부팅 시 수신 (푸시 알림 복원) -->
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+<!-- ===== application 태그 안 추가 항목 ===== -->
+<!--
+  <application ...>
+    추가: android:usesCleartextTraffic="false"  (CISO 보안 필수)
+    추가: android:networkSecurityConfig="@xml/network_security_config"
+  </application>
+-->
