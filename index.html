@@ -1221,6 +1221,7 @@ function arcSettings(){
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
+if (S.verified) { loadMap(); show('s2'); }
 </script>
 </body>
 </html>
