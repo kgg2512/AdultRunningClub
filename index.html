@@ -9,8 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-<!-- EmailJS SDK removed — credentials now handled server-side via CF Worker proxy.
-     See cf-worker/email-proxy.js and cf-worker/README.md for deployment. -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -771,7 +770,7 @@ function isFreeEmail(e,r){
   return FREE.includes(d);
 }
 
-const CF_WORKER_URL = 'YOUR_CF_WORKER_URL';
+emailjs.init('xBoQd6PMFec8hCvVD');
 
 function sendCode(){
   const e=document.getElementById('e-inp').value.trim();
@@ -796,22 +795,17 @@ function sendCode(){
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
 
-  fetch(CF_WORKER_URL+'/send',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({to_email:e,code:code})
-  })
-    .then(r=>{
-      if(!r.ok)throw new Error('status '+r.status);
+  emailjs.send('service_ayss3t8','inz0rw3',{to_email:e,code:code})
+    .then(()=>{
       hint.style.color='#A8892F';
       hint.textContent='✓ Code sent to '+e;
       btn.textContent='Resend Code'; btn.disabled=false;
       document.getElementById('code-step').style.display='block';
       document.getElementById('v-err').classList.remove('on');
     })
-    .catch(()=>{
+    .catch((err)=>{
       hint.style.color='#9B2C2C';
-      hint.textContent='❌ Send failed — please try again';
+      hint.textContent='❌ Send failed — '+(err.text||'please try again');
       btn.textContent='Send Verification Code'; btn.disabled=false;
     });
 }
