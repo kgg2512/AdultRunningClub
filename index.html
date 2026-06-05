@@ -440,7 +440,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div id="code-step" style="display:none;margin-top:18px">
       <div class="v-slabel">03 — Enter code</div>
       <div class="v-ig">
-        <input class="v-inp" type="text" id="c-inp" placeholder="6-digit code" maxlength="6" style="letter-spacing:.3em;font-size:1.2rem;text-align:center">
+        <input class="v-inp" type="text" id="c-inp" placeholder="4-digit code" maxlength="4" style="letter-spacing:.3em;font-size:1.2rem;text-align:center">
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
@@ -791,11 +791,11 @@ function sendCode(){
     );
     if(!confirmed)return;
   }
-  const arr=new Uint32Array(1);crypto.getRandomValues(arr);const code=String(100000+(arr[0]%900000));
+  const arr=new Uint32Array(1);crypto.getRandomValues(arr);const code=String(1000+(arr[0]%9000));
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
 
-  emailjs.send('service_ayss3t8','inz0rw3',{to_email:e,code:code})
+  emailjs.send('service_ayss3t8','template_5zt0y8c',{to_email:e,code:code})
     .then(()=>{
       hint.style.color='#A8892F';
       hint.textContent='✓ Code sent to '+e;
