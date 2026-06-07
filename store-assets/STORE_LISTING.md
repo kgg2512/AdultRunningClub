@@ -43,7 +43,7 @@ Seoul's premier running membership. Email verified members only.
 ```
 (55자)
 
-> **권장**: 영어 단축본 사용. 독점성(by invitation only)을 앞세워 즉각적 차별화.
+> **권장**: 영어 단축본 사용. "Email verified members only"로 이메일 인증 기반 멤버십을 즉각적으로 전달.
 
 ---
 
@@ -222,7 +222,7 @@ It is a club for those who share Seoul's most distinguished mornings.
 | 7 | running community Seoul | 롱테일 정밀 타겟 |
 | 8 | running app | 범용 트래픽 |
 | 9 | adult running club | 브랜드명 직결 |
-| 10 | invitation only club | 희소성 키워드, 경쟁 없음 |
+| 10 | elite running Seoul | 프리미엄+지역 조합 롱테일 |
 
 ---
 
@@ -271,7 +271,7 @@ It is a club for those who share Seoul's most distinguished mornings.
 
 | 화면 | 한국어 캡션 | 영어 캡션 |
 |------|------------|----------|
-| 게이트(초청 코드) 화면 | "초청받은 이들만 입장합니다" | "Entry by invitation only" |
+| 게이트(인증) 화면 | "검증된 멤버만 입장합니다" | "Verified members only" |
 | 코스 피드 화면 | "서울의 격조 있는 루트, 멤버 전용" | "Seoul's finest routes, members only" |
 | 멤버 피드 화면 | "같은 아침을 달리는 사람들" | "Those who run the same mornings" |
 | 러닝 기록 화면 | "기록이 쌓이면 신뢰가 됩니다" | "Consistency becomes credibility" |
