@@ -1103,6 +1103,8 @@ function showMyPage(){
   show('s4');
 }
 
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
 function renderMyPage(){
   const email=LS.g('arc_e',null)||'—';
   const roleRaw=LS.g('arc_r',null)||'member';
@@ -1135,8 +1137,8 @@ function renderMyPage(){
 
   let html=`
   <div class="temp-card" id="mp-temp-card">
-    <div class="mp-member-email">${email}</div>
-    <div class="mp-member-role">${roleLabel}</div>
+    <div class="mp-member-email">${escHtml(email)}</div>
+    <div class="mp-member-role">${escHtml(roleLabel)}</div>
     <div class="mp-temp-num">${temp.toFixed(1)}°</div>
     <div class="temp-bar-bg">
       <div class="temp-bar-fill" id="mp-temp-fill" style="width:${barPct}%"></div>
@@ -1169,14 +1171,14 @@ function renderMyPage(){
   if(shown.length){
     html+=`<div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Recent Runs</div><div class="mp-div-line"></div></div>`;
     shown.forEach(p=>{
-      const d=p.district||'';
+      const d=escHtml(p.district||'');
       html+=`
       <div class="mp-run-card">
         <div class="mp-run-top">
-          <span class="mp-run-course">${p.course||'My Run'}</span>
+          <span class="mp-run-course">${escHtml(p.course||'My Run')}</span>
           <span class="mp-run-km">${parseFloat(p.km).toFixed(1)}km</span>
         </div>
-        <div class="mp-run-meta">${d} &nbsp;·&nbsp; ${p.min||0}min &nbsp;·&nbsp; ${p.pace||''}</div>
+        <div class="mp-run-meta">${d} &nbsp;·&nbsp; ${p.min||0}min &nbsp;·&nbsp; ${escHtml(p.pace||'')}</div>
       </div>`;
     });
   }

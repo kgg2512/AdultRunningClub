@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+﻿apply plugin: 'com.android.application'
 
 android {
     namespace "com.g2company.arc"
@@ -6,9 +6,9 @@ android {
     signingConfigs {
         release {
             storeFile file('../release.keystore')
-            storePassword 'G2company2024!'
-            keyAlias 'arc-release'
-            keyPassword 'G2company2024!'
+            storePassword project.findProperty('KEYSTORE_PASSWORD') ?: ''
+            keyAlias project.findProperty('KEY_ALIAS') ?: 'arc-release'
+            keyPassword project.findProperty('KEY_PASSWORD') ?: ''
         }
     }
     defaultConfig {

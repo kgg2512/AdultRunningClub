@@ -28,18 +28,18 @@ ARC — Adult Running Club
 
 ### 한국어
 ```
-서울 최상위 러닝 멤버십. 초청된 이들만의 코스, 커뮤니티, 그리고 격조.
+서울 프리미엄 러닝 멤버십. 코스 아카이브, 커뮤니티, 그리고 격조.
 ```
 (39자)
 
 ### 영어
 ```
-Seoul's premier invitation-only running membership. Courses, community, and class.
+Seoul's premier running membership. Courses, community, and class.
 ```
 (83자 → 단축본)
 
 ```
-Seoul's premier running membership. By invitation only.
+Seoul's premier running membership. Email verified members only.
 ```
 (55자)
 
@@ -56,19 +56,19 @@ Seoul's premier running membership. By invitation only.
 ```
 ARC — Adult Running Club
 
-초청으로만 입장합니다.
+이메일 인증 기반 멤버십입니다.
 
-ARC는 서울에서 처음으로 시작된 초청제 럭셔리 러닝 멤버십입니다.
+ARC는 서울에서 시작된 럭셔리 러닝 멤버십입니다.
 가장 성공한 사람들이 가장 이른 아침을 함께 달립니다.
 
 ─────────────────────────
 
 멤버십
 
-ARC는 지원이 아닌 초청으로 운영됩니다. 현재 멤버의 추천을 통해서만 입장이 가능하며,
-멤버 구성의 수준을 유지하기 위해 총원은 엄격히 제한됩니다.
+ARC는 이메일 인증 기반으로 운영됩니다. 인증 완료 후 커뮤니티에 참여할 수 있으며,
+멤버 구성의 수준을 유지하기 위해 운영됩니다.
 
-러닝은 수단입니다. 진짜 목적은 서울에서 가장 수준 높은 사람들과
+러닝은 수단입니다. 진짜 목적은 서울에서 수준 높은 사람들과
 땀을 나누고, 네트워크를 쌓고, 신뢰를 만드는 것입니다.
 
 ─────────────────────────
@@ -98,19 +98,17 @@ ARC는 서울에서 시작하지만, 뉴욕 런던 도쿄의 파트너 클럽과
 
 멤버 혜택
 
-• 초청제 러닝 세션 — 주 3회, 멤버 전용 코스
-• 큐레이션 피드 — 멤버 기록 및 커뮤니티 업데이트
-• 글로벌 네트워크 — 파트너 도시 클럽 연결
-• 프라이빗 이벤트 — 시즌별 멤버 전용 런치·디너
-• 전용 앱 — 코스 아카이브, 멤버 디렉토리, 일정 관리
+• 코스 아카이브 — 서울 러닝 코스 큐레이션
+• 커뮤니티 피드 — 멤버 기록 및 커뮤니티 업데이트
+• 멤버 채팅 — 지역별 러닝 커뮤니케이션
+• 마이페이지 — 개인 러닝 기록 및 통계
 
 ─────────────────────────
 
 입장 방법
 
-기존 멤버의 초청을 받으셨다면, 앱을 설치하고 초청 코드로 등록하십시오.
-초청을 받지 않으셨다면, 대기 명단에 등록하실 수 있습니다.
-모든 요청을 검토하나, 멤버십 수락을 보장하지 않습니다.
+앱을 설치하고 이메일 인증을 완료하면 서비스를 이용할 수 있습니다.
+이메일 인증 코드는 등록한 이메일 주소로 발송됩니다.
 
 ─────────────────────────
 
@@ -126,20 +124,19 @@ ARC는 러닝 앱이 아닙니다.
 ```
 ARC — Adult Running Club
 
-By invitation only.
+Email verification-based membership.
 
-ARC is Seoul's first invitation-only luxury running membership.
+ARC is Seoul's luxury running membership.
 The most accomplished people share the earliest mornings.
 
 ─────────────────────────
 
 Membership
 
-ARC operates by invitation, not application. Access is granted exclusively through
-recommendation from an existing member. Total membership is strictly capped
-to preserve the standard of the community.
+ARC operates through email verification. Complete verification to join the community.
+Membership is managed to maintain community standards.
 
-Running is the medium. The real purpose is to share sweat with Seoul's most
+Running is the medium. The real purpose is to share sweat with Seoul's
 accomplished professionals, build meaningful networks, and earn trust that
 only physical proximity creates.
 
@@ -172,21 +169,17 @@ When you travel, you travel with the same caliber of community.
 
 Member Benefits
 
-• Invitation-only running sessions — 3x weekly, member-exclusive courses
-• Curated feed — member records and community updates
-• Global network — partner city club connections
-• Private events — seasonal member-only lunches and dinners
-• Exclusive app — course archive, member directory, schedule management
+• Course archive — curated Seoul running routes
+• Community feed — member records and community updates
+• Member chat — regional running communication
+• My page — personal running records and statistics
 
 ─────────────────────────
 
 How to Join
 
-If you have received an invitation from a current member, install the app and
-register with your invitation code.
-
-If you have not received an invitation, you may register for the waitlist.
-All requests are reviewed. Membership acceptance is not guaranteed.
+Install the app and complete email verification to access the service.
+A verification code will be sent to your registered email address.
 
 ─────────────────────────
 
