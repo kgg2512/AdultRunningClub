@@ -124,6 +124,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 }
 .g-arc-badge::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(201,168,76,0.10)}
 .g-arc-badge-text{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--gold);letter-spacing:.06em}
+.g-arc-fullname{font-family:var(--sans);font-size:0.48rem;font-weight:300;letter-spacing:.45em;color:var(--gold);opacity:.75;text-transform:uppercase;margin-bottom:22px}
 .g-title{font-family:var(--serif);font-size:3rem;font-weight:300;font-style:italic;line-height:1.05;color:var(--gate-text);margin-bottom:6px;letter-spacing:0.01em}
 .g-title-sub{font-family:var(--sans);font-size:0.52rem;font-weight:200;letter-spacing:.6em;color:var(--gold);opacity:.7;margin-bottom:30px;text-transform:uppercase}
 .g-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:28px}
@@ -136,10 +137,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .g-yes:hover{background:var(--gold-dark);box-shadow:0 4px 24px rgba(201,168,76,.25)}
 .g-no{background:transparent;color:var(--gate-text-dim);border:1px solid rgba(201,168,76,0.18)}
 .g-no:hover{border-color:rgba(201,168,76,0.4);color:rgba(250,248,244,0.6)}
+.g-demo-link{background:none;border:none;color:var(--gate-text-dim);font-family:var(--sans);font-size:0.44rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:8px 0;opacity:.45;transition:opacity .2s}
+.g-demo-link:hover{opacity:.8}
 .g-footer-cities{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:0.4rem;letter-spacing:.3em;color:rgba(250,248,244,0.18);text-transform:uppercase;z-index:1}
 .g-privacy-bar{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2}
 .g-privacy-link{font-family:var(--sans);font-size:0.38rem;letter-spacing:0.2em;color:rgba(250,248,244,0.18);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
 .g-privacy-link:hover{color:rgba(201,168,76,0.5)}
+.demo-notice{display:none;margin:0 0 20px;padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);text-align:center}
+.demo-notice-label{font-family:var(--sans);font-size:0.5rem;letter-spacing:.15em;color:var(--gold);opacity:.9;text-transform:uppercase;margin-bottom:10px}
+.demo-enter-btn{background:var(--gold);color:var(--gate-bg);border:none;padding:12px 28px;font-family:var(--sans);font-size:0.54rem;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;width:100%}
+.demo-enter-btn:hover{background:var(--gold-dark)}
 
 /* ══ S1 VERIFY ══ */
 #s1{background:var(--bg)}
@@ -410,6 +417,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <div class="g-arc-badge">
     <span class="g-arc-badge-text">ARC</span>
   </div>
+  <div class="g-arc-fullname">Adult Running Club</div>
   <h1 class="g-title">Members<br>Only.</h1>
   <div class="g-title-sub">Running Club</div>
   <div class="g-ornament">
@@ -420,6 +428,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <p class="g-warn">For those who move with purpose.<br>Join those who refuse to stand still.</p>
   <button type="button" class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
   <button type="button" class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
+  <button type="button" class="g-demo-link" onclick="enterDemo()">Try Demo →</button>
   <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
   <div class="g-privacy-bar">
     <a href="./privacy.html" class="g-privacy-link">Privacy Policy</a>
@@ -436,6 +445,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div class="v-sub">Prove your adulthood.</div>
   </div>
   <div class="v-body">
+    <div id="demo-notice" class="demo-notice">
+      <p class="demo-notice-label">Demo Mode — Supabase not connected</p>
+      <button type="button" class="demo-enter-btn" onclick="enterDemo()">Enter Demo →</button>
+    </div>
     <div class="v-slabel">01 — Who are you?</div>
     <div class="role-grid">
       <button type="button" class="role-btn" onclick="pickRole('student',this)">Student</button>
@@ -654,34 +667,34 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 // ══════════════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://yglfqjtkjtusaikbdiex.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnbGZxanRranR1c2Fpa2JkaWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjU1MTEsImV4cCI6MjA5NjQwMTUxMX0.vCuF1e0WiG_Y2rClMwbC1HMt6pcD9kRsdVLaRKMNlAg';
+let DEMO_MODE = !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
 
-// Supabase 클라이언트 초기화
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-});
-
-// Supabase 프로젝트 keepalive (비활성 방지 — CFO 요구)
-(async () => {
-  try { await db.from('posts').select('id').limit(1); } catch(e) {}
-})();
-
-// ── 앱 상태 ───────────────────────────────────────────────────
+// ── 앱 상태 (Supabase 초기화 전 먼저 정의 — 순서 중요) ──────
 const S = {
-  session: null,      // Supabase session
-  profile: null,      // users_profile 행
+  session: null,
+  profile: null,
   lvl: 0,
   path: [],
   district: null,
   filter: 'pop',
   pendingEmail: null,
   pendingRole: null,
-  likedPosts: new Set()  // 현재 district의 좋아요 캐시
+  likedPosts: new Set()
 };
+
+// Supabase 클라이언트 초기화
+let db;
+if (!DEMO_MODE) {
+  try {
+    const { createClient } = supabase;
+    db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    (async () => {
+      try { await db.from('posts').select('id').limit(1); } catch(e) {}
+    })();
+  } catch(e) { console.warn('Supabase init failed:', e); }
+}
 
 // ── 로컬 폴백 (미인증 상태 임시 저장용) ─────────────────────
 const LS = {
@@ -772,7 +785,7 @@ function show(id) {
 }
 
 function goBNavMap() {
-  if (S.session) { loadMap(); show('s2'); } else { show('s0'); }
+  if (DEMO_MODE || S.session) { loadMap(); show('s2'); } else { show('s0'); }
 }
 function goBNavProfile() {
   prevScreen = currentScreen || 's2';
@@ -782,8 +795,11 @@ function goBNavProfile() {
 
 // ── GATE ──────────────────────────────────────────────────────
 function gateYes() {
-  if (S.session) { loadMap(); show('s2'); } else { show('s1'); }
+  if (S.session) { loadMap(); show('s2'); return; }
+  show('s1');
+  if (DEMO_MODE) document.getElementById('demo-notice').style.display = 'block'; // CSS default is none; show only in demo
 }
+function enterDemo() { DEMO_MODE = true; loadMap(); show('s2'); }
 function gateNo() {
   const msg = document.createElement('div');
   msg.style.cssText = 'background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
@@ -1028,130 +1044,138 @@ function loadFeed() {
   renderFeed();
 }
 
+const DEMO_POSTS_TEMPLATE = [
+  { id: 'dp1', user_id: 'd1', course: 'Riverside Trail', km: 5.2, pace: '5\'30"', photo_url: null, likes_count: 23, created_at: new Date(Date.now()-3600000).toISOString(), users_profile: { display_name: 'Alex K.', role: 'founder' } },
+  { id: 'dp2', user_id: 'd2', course: 'Hill Sprint Route', km: 8.7, pace: '4\'55"', photo_url: null, likes_count: 47, created_at: new Date(Date.now()-7200000).toISOString(), users_profile: { display_name: 'Sarah M.', role: 'pro' } },
+  { id: 'dp3', user_id: 'd3', course: 'Park Loop Classic', km: 3.8, pace: '6\'10"', photo_url: null, likes_count: 15, created_at: new Date(Date.now()-10800000).toISOString(), users_profile: { display_name: 'Jun T.', role: 'student' } },
+  { id: 'dp4', user_id: 'd4', course: 'Night Run Express', km: 12.0, pace: '5\'05"', photo_url: null, likes_count: 61, created_at: new Date(Date.now()-86400000).toISOString(), users_profile: { display_name: 'Emma R.', role: 'pro' } }
+];
+
 async function renderFeed() {
   const list = document.getElementById('f-list');
   list.innerHTML = '<div class="feed-loading">Loading...</div>';
 
-  try {
-    // posts SELECT (district 필터)
-    let query = db.from('posts')
-      .select(`
-        id, user_id, district, course, km, pace, photo_url, likes_count, created_at,
-        users_profile ( display_name, role )
-      `)
-      .eq('district', S.district);
+  let posts = null;
 
-    if (S.filter === 'pop') query = query.order('likes_count', { ascending: false });
-    else if (S.filter === 'new') query = query.order('created_at', { ascending: false });
-    else query = query.order('created_at', { ascending: true });
+  if (DEMO_MODE) {
+    posts = DEMO_POSTS_TEMPLATE.map(p => ({ ...p, district: S.district }));
+  } else {
+    try {
+      let query = db.from('posts')
+        .select(`
+          id, user_id, district, course, km, pace, photo_url, likes_count, created_at,
+          users_profile ( display_name, role )
+        `)
+        .eq('district', S.district);
 
-    query = query.limit(50);
-    const { data: posts, error } = await query;
-    if (error) throw error;
+      if (S.filter === 'pop') query = query.order('likes_count', { ascending: false });
+      else if (S.filter === 'new') query = query.order('created_at', { ascending: false });
+      else query = query.order('created_at', { ascending: true });
 
-    // 내가 좋아요한 포스트 조회
-    if (S.session) {
-      const { data: likedData } = await db.from('likes')
-        .select('post_id')
-        .eq('user_id', S.session.user.id)
-        .in('post_id', (posts || []).map(p => p.id));
-      S.likedPosts = new Set((likedData || []).map(l => l.post_id));
-    }
+      query = query.limit(50);
+      const { data, error } = await query;
+      if (error) throw error;
+      posts = data;
 
-    list.innerHTML = '';
-    if (!posts || posts.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'feed-loading';
-      empty.textContent = 'No posts yet. Be the first!';
-      list.appendChild(empty);
+      if (S.session) {
+        const { data: likedData } = await db.from('likes')
+          .select('post_id')
+          .eq('user_id', S.session.user.id)
+          .in('post_id', (posts || []).map(p => p.id));
+        S.likedPosts = new Set((likedData || []).map(l => l.post_id));
+      }
+    } catch (err) {
+      list.innerHTML = '';
+      const errEl = document.createElement('div');
+      errEl.className = 'feed-loading';
+      errEl.textContent = 'Failed to load posts.';
+      list.appendChild(errEl);
+      toast('Feed load failed: ' + (err.message || 'unknown error'));
       return;
     }
-
-    posts.forEach(p => {
-      const isLiked = S.likedPosts.has(p.id);
-      const cnt = p.likes_count || 0;
-      const displayName = p.users_profile?.display_name || 'Runner';
-
-      const card = document.createElement('div');
-      card.className = 'post';
-
-      // 상단: 지도 + 사진 2컬럼
-      const visuals = document.createElement('div'); visuals.className = 'post-visuals';
-
-      // 좌: 러닝 루트 SVG
-      const mapDiv = document.createElement('div'); mapDiv.className = 'post-map';
-      mapDiv.innerHTML = makeRouteSvg(S.district, p.id ? p.id.charCodeAt(0) : 1);
-
-      // 우: 사진 (Supabase Storage signed URL 또는 빈 상태)
-      const photoDiv = document.createElement('div'); photoDiv.className = 'post-photo';
-      if (p.photo_url) {
-        const img = document.createElement('img');
-        img.alt = '';
-        // photo_url은 Storage 경로 — signed URL 생성
-        (async () => {
-          const { data: signedData } = await db.storage
-            .from('arc-photos')
-            .createSignedUrl(p.photo_url, 3600);
-          if (signedData?.signedUrl) img.src = signedData.signedUrl;
-        })();
-        photoDiv.appendChild(img);
-      } else {
-        const ph = document.createElement('div');
-        ph.style.cssText = 'text-align:center;color:#A89E93';
-        const phIcon = document.createElement('div');
-        phIcon.style.fontSize = '1.5rem';
-        phIcon.textContent = '📸';
-        const phText = document.createElement('p');
-        phText.style.cssText = 'font-size:0.44rem;letter-spacing:.1em;text-transform:uppercase;margin-top:4px';
-        phText.textContent = 'No Photo';
-        ph.append(phIcon, phText);
-        photoDiv.appendChild(ph);
-      }
-      visuals.append(mapDiv, photoDiv);
-
-      // 하단 footer
-      const footer = document.createElement('div'); footer.className = 'post-footer';
-      const userInfo = document.createElement('div'); userInfo.className = 'post-user-info';
-      const uname = document.createElement('span'); uname.className = 'post-username';
-      uname.textContent = displayName;
-      const ucourse = document.createElement('span'); ucourse.className = 'post-course';
-      ucourse.textContent = p.course || 'My Run';
-      userInfo.append(uname, ucourse);
-
-      const statsRow = document.createElement('div'); statsRow.className = 'post-stats-row';
-
-      function mkStatInline(val, lbl) {
-        const ps = document.createElement('div'); ps.className = 'pstat-inline';
-        const v = document.createElement('span'); v.className = 'ps-val-sm';
-        v.textContent = val;
-        const l = document.createElement('span'); l.className = 'ps-lbl-sm';
-        l.textContent = lbl;
-        ps.append(v, l); return ps;
-      }
-
-      const likeBtn = document.createElement('button');
-      likeBtn.className = 'like-btn' + (isLiked ? ' on' : '');
-      const likeHeart = document.createElement('span');
-      likeHeart.style.fontSize = '1rem';
-      likeHeart.textContent = '♥';
-      const likeCnt = document.createElement('span');
-      likeCnt.textContent = cnt;
-      likeBtn.append(likeHeart, likeCnt);
-      likeBtn.onclick = () => toggleLike(p.id, likeBtn, likeCnt);
-
-      statsRow.append(mkStatInline((parseFloat(p.km) || 0) + 'km', 'dist'), mkStatInline(p.pace || '—', 'pace'), likeBtn);
-      footer.append(userInfo, statsRow);
-      card.append(visuals, footer);
-      list.appendChild(card);
-    });
-  } catch (err) {
-    list.innerHTML = '';
-    const errEl = document.createElement('div');
-    errEl.className = 'feed-loading';
-    errEl.textContent = 'Failed to load posts.';
-    list.appendChild(errEl);
-    toast('Feed load failed: ' + (err.message || 'unknown error'));
   }
+
+  list.innerHTML = '';
+  if (!posts || posts.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'feed-loading';
+    empty.textContent = 'No posts yet. Be the first!';
+    list.appendChild(empty);
+    return;
+  }
+
+  posts.forEach(p => {
+    const isLiked = S.likedPosts.has(p.id);
+    const cnt = p.likes_count || 0;
+    const displayName = p.users_profile?.display_name || 'Runner';
+
+    const card = document.createElement('div');
+    card.className = 'post';
+
+    const visuals = document.createElement('div'); visuals.className = 'post-visuals';
+
+    const mapDiv = document.createElement('div'); mapDiv.className = 'post-map';
+    mapDiv.innerHTML = makeRouteSvg(S.district, p.id ? p.id.charCodeAt(0) : 1);
+
+    const photoDiv = document.createElement('div'); photoDiv.className = 'post-photo';
+    if (p.photo_url && !DEMO_MODE) {
+      const img = document.createElement('img');
+      img.alt = '';
+      (async () => {
+        const { data: signedData } = await db.storage
+          .from('arc-photos')
+          .createSignedUrl(p.photo_url, 3600);
+        if (signedData?.signedUrl) img.src = signedData.signedUrl;
+      })();
+      photoDiv.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.style.cssText = 'text-align:center;color:#A89E93';
+      const phIcon = document.createElement('div');
+      phIcon.style.fontSize = '1.5rem';
+      phIcon.textContent = '📸';
+      const phText = document.createElement('p');
+      phText.style.cssText = 'font-size:0.44rem;letter-spacing:.1em;text-transform:uppercase;margin-top:4px';
+      phText.textContent = 'No Photo';
+      ph.append(phIcon, phText);
+      photoDiv.appendChild(ph);
+    }
+    visuals.append(mapDiv, photoDiv);
+
+    const footer = document.createElement('div'); footer.className = 'post-footer';
+    const userInfo = document.createElement('div'); userInfo.className = 'post-user-info';
+    const uname = document.createElement('span'); uname.className = 'post-username';
+    uname.textContent = displayName;
+    const ucourse = document.createElement('span'); ucourse.className = 'post-course';
+    ucourse.textContent = p.course || 'My Run';
+    userInfo.append(uname, ucourse);
+
+    const statsRow = document.createElement('div'); statsRow.className = 'post-stats-row';
+
+    function mkStatInline(val, lbl) {
+      const ps = document.createElement('div'); ps.className = 'pstat-inline';
+      const v = document.createElement('span'); v.className = 'ps-val-sm';
+      v.textContent = val;
+      const l = document.createElement('span'); l.className = 'ps-lbl-sm';
+      l.textContent = lbl;
+      ps.append(v, l); return ps;
+    }
+
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'like-btn' + (isLiked ? ' on' : '');
+    const likeHeart = document.createElement('span');
+    likeHeart.style.fontSize = '1rem';
+    likeHeart.textContent = '♥';
+    const likeCnt = document.createElement('span');
+    likeCnt.textContent = cnt;
+    likeBtn.append(likeHeart, likeCnt);
+    likeBtn.onclick = () => toggleLike(p.id, likeBtn, likeCnt);
+
+    statsRow.append(mkStatInline((parseFloat(p.km) || 0) + 'km', 'dist'), mkStatInline(p.pace || '—', 'pace'), likeBtn);
+    footer.append(userInfo, statsRow);
+    card.append(visuals, footer);
+    list.appendChild(card);
+  });
 }
 
 function setFilter(f, el) {
@@ -1201,8 +1225,15 @@ async function openChat() {
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.disabled = true;
   const el = document.getElementById('chat-msgs');
-  el.innerHTML = '<div class="feed-loading">Loading...</div>';
   document.getElementById('chat-ov').classList.add('on');
+
+  if (DEMO_MODE) {
+    el.innerHTML = '';
+    sendBtn.disabled = false;
+    return;
+  }
+
+  el.innerHTML = '<div class="feed-loading">Loading...</div>';
 
   try {
     const { data: msgs, error } = await db.from('messages')
@@ -1237,11 +1268,24 @@ function closeChat() { document.getElementById('chat-ov').classList.remove('on')
 
 // sendChat: messages 테이블 INSERT
 async function sendChat() {
-  if (!S.session) { toast('Please sign in to chat.'); return; }
   const inp = document.getElementById('chat-inp');
   const txt = inp.value.trim();
   if (!txt) return;
   if (txt.length > 500) { toast('Message too long (max 500 chars).'); return; }
+
+  if (DEMO_MODE) {
+    const el = document.getElementById('chat-msgs');
+    const d = document.createElement('div'); d.className = 'cmsg mine';
+    const cu = document.createElement('div'); cu.className = 'cmsg-u'; cu.textContent = 'You (Demo)';
+    const ct = document.createElement('div'); ct.className = 'cmsg-t'; ct.textContent = txt;
+    d.append(cu, ct);
+    el.appendChild(d);
+    el.scrollTop = el.scrollHeight;
+    inp.value = '';
+    return;
+  }
+
+  if (!S.session) { toast('Please sign in to chat.'); return; }
 
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.disabled = true;
@@ -1395,11 +1439,19 @@ async function renderMyPage() {
   let totalKm = 0, totalPosts = 0, totalLikes = 0;
   const recentRuns = [];
 
-  if (S.session) {
+  if (DEMO_MODE) {
+    email = 'demo@arc.club';
+    roleRaw = 'founder';
+    DEMO_POSTS_TEMPLATE.forEach(p => {
+      totalPosts++;
+      totalKm += parseFloat(p.km) || 0;
+      totalLikes += parseInt(p.likes_count) || 0;
+      recentRuns.push(p);
+    });
+  } else if (S.session) {
     email = S.session.user.email || '—';
     roleRaw = S.profile?.role || 'member';
 
-    // 내 포스트 조회
     try {
       const { data: myPosts } = await db.from('posts')
         .select('id, course, km, pace, likes_count, created_at, district')
@@ -1450,7 +1502,7 @@ async function renderMyPage() {
       </div>
       <div class="mp-stat">
         <span class="mp-stat-lbl">Member Since</span>
-        <span class="mp-stat-val" style="font-size:0.9rem">${S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
+        <span class="mp-stat-val" style="font-size:0.9rem">${DEMO_MODE ? 'Jun 2024' : S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
       </div>
     </div>
   </div>`;
@@ -1492,6 +1544,8 @@ function arcSettings() {
 
 // ── 초기화 ────────────────────────────────────────────────────
 (async function init() {
+  if (DEMO_MODE) { show('s0'); return; }
+
   // Supabase 세션 복원
   try {
     const { data: { session } } = await db.auth.getSession();
@@ -1517,19 +1571,21 @@ function arcSettings() {
   if (inp) inp.addEventListener('input', updateBtn);
 
   // 세션 변경 리스너 (OTP 인증 완료 콜백)
-  db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session && !S.session) {
-      S.session = session;
-      const { data: profile } = await db.from('users_profile')
-        .select('*').eq('user_id', session.user.id).single();
-      S.profile = profile;
-      loadMap();
-      show('s2');
-    }
-    if (event === 'SIGNED_OUT') {
-      S.session = null; S.profile = null;
-    }
-  });
+  try {
+    db.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session && !S.session) {
+        S.session = session;
+        const { data: profile } = await db.from('users_profile')
+          .select('*').eq('user_id', session.user.id).single();
+        S.profile = profile;
+        loadMap();
+        show('s2');
+      }
+      if (event === 'SIGNED_OUT') {
+        S.session = null; S.profile = null;
+      }
+    });
+  } catch(e) {}
 })();
 </script>
 <script>

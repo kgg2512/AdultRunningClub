@@ -137,6 +137,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .g-yes:hover{background:var(--gold-dark);box-shadow:0 4px 24px rgba(201,168,76,.25)}
 .g-no{background:transparent;color:var(--gate-text-dim);border:1px solid rgba(201,168,76,0.18)}
 .g-no:hover{border-color:rgba(201,168,76,0.4);color:rgba(250,248,244,0.6)}
+.g-demo-link{background:none;border:none;color:var(--gate-text-dim);font-family:var(--sans);font-size:0.44rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:8px 0;opacity:.45;transition:opacity .2s}
+.g-demo-link:hover{opacity:.8}
 .g-footer-cities{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:0.4rem;letter-spacing:.3em;color:rgba(250,248,244,0.18);text-transform:uppercase;z-index:1}
 .g-privacy-bar{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2}
 .g-privacy-link{font-family:var(--sans);font-size:0.38rem;letter-spacing:0.2em;color:rgba(250,248,244,0.18);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
@@ -426,6 +428,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <p class="g-warn">For those who move with purpose.<br>Join those who refuse to stand still.</p>
   <button type="button" class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
   <button type="button" class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
+  <button type="button" class="g-demo-link" onclick="enterDemo()">Try Demo →</button>
   <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
   <div class="g-privacy-bar">
     <a href="./privacy.html" class="g-privacy-link">Privacy Policy</a>
@@ -662,9 +665,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 // SUPABASE 설정 — 회장 직접 입력 필요
 // Supabase Dashboard > Settings > API 에서 확인
 // ══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // 예: https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // anon/public key (공개 가능)
-const DEMO_MODE = !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
+const SUPABASE_URL  = 'https://yglfqjtkjtusaikbdiex.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnbGZxanRranR1c2Fpa2JkaWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjU1MTEsImV4cCI6MjA5NjQwMTUxMX0.vCuF1e0WiG_Y2rClMwbC1HMt6pcD9kRsdVLaRKMNlAg';
+let DEMO_MODE = !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
 
 // ── 앱 상태 (Supabase 초기화 전 먼저 정의 — 순서 중요) ──────
 const S = {
@@ -796,7 +799,7 @@ function gateYes() {
   show('s1');
   if (DEMO_MODE) document.getElementById('demo-notice').style.display = 'block'; // CSS default is none; show only in demo
 }
-function enterDemo() { loadMap(); show('s2'); }
+function enterDemo() { DEMO_MODE = true; loadMap(); show('s2'); }
 function gateNo() {
   const msg = document.createElement('div');
   msg.style.cssText = 'background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
