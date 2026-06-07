@@ -665,10 +665,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 // SUPABASE 설정 — 회장 직접 입력 필요
 // Supabase Dashboard > Settings > API 에서 확인
 // ══════════════════════════════════════════════════════════════
-// ⚠️ SECURITY: 실제 키는 CF Worker 배포 후 환경변수로 관리. 코드에 하드코딩 금지.
-// 배포 전 회장 직접 CF Worker 환경변수에 입력할 것.
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL  = 'https://yglfqjtkjtusaikbdiex.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnbGZxanRranR1c2Fpa2JkaWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjU1MTEsImV4cCI6MjA5NjQwMTUxMX0.vCuF1e0WiG_Y2rClMwbC1HMt6pcD9kRsdVLaRKMNlAg';
 let DEMO_MODE = !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
 
 // ── 앱 상태 (Supabase 초기화 전 먼저 정의 — 순서 중요) ──────
