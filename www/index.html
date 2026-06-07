@@ -9,7 +9,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-<!-- SEC-CRED: EmailJS SDK 제거 — CF Worker 프록시 방식으로 대체 (자격증명 클라이언트 노출 방지) -->
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -162,6 +163,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .v-hint{font-size:0.54rem;color:var(--text-dim);margin-top:5px;letter-spacing:.04em}
 .v-btn{width:100%;padding:17px;background:var(--gold);color:var(--gate-bg);font-family:var(--sans);font-size:0.6rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;border:none;cursor:pointer;margin-top:6px;transition:background .2s;border-radius:0}
 .v-btn:hover{background:var(--gold-dark)}
+.v-btn:disabled{opacity:0.5;cursor:not-allowed}
 .code-box{margin:18px 0;padding:22px;background:var(--gold-light);border:1px solid rgba(201,168,76,0.2);text-align:center;display:none;border-radius:0}
 .code-box.on{display:block}
 .code-box p{font-size:0.5rem;letter-spacing:.24em;color:var(--text-sub);text-transform:uppercase;margin-bottom:12px}
@@ -170,11 +172,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .v-err.on{display:block}
 .privacy-notice{font-size:0.52rem;color:var(--text-dim);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
 .v-hd-row{display:flex;align-items:center;justify-content:space-between}
+.v-skip-top{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--sans);font-size:0.44rem;letter-spacing:.22em;text-transform:uppercase;padding:6px 14px;cursor:pointer;opacity:0.75}
+.v-skip-top:hover{opacity:1}
 .privacy-notice a{color:var(--gold);text-decoration:underline}
 .consent-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0 8px;cursor:pointer}
 .consent-row input[type=checkbox]{width:14px;height:14px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
 .consent-row label{font-size:0.52rem;color:var(--text-sub);letter-spacing:0.06em;line-height:1.7;cursor:pointer}
 .consent-row label a{color:var(--gold);text-decoration:underline}
+
+/* ══ OTP 입력 안내 ══ */
+.otp-info{font-size:0.54rem;color:var(--text-sub);letter-spacing:0.06em;line-height:1.8;padding:14px;background:var(--gold-light);border:1px solid rgba(201,168,76,0.2);margin-bottom:14px;display:none}
+.otp-info.on{display:block}
 
 /* ══ S2 MAP ══ */
 #s2{padding-bottom:80px}
@@ -268,6 +276,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .like-btn.on{color:var(--gold)}
 .like-btn:hover{color:var(--gold)}
 
+/* Loading indicator */
+.feed-loading{text-align:center;padding:32px;font-size:0.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim)}
+
 /* ══ WELCOME MODAL ══ */
 .welcome-modal{position:fixed;inset:0;background:rgba(250,248,244,0.98);z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;text-align:center;padding:40px 36px}
 .welcome-modal.on{display:flex}
@@ -306,6 +317,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .chat-inp::placeholder{color:var(--text-dim)}
 .chat-send{padding:0 18px;background:var(--gold);color:var(--gate-bg);border:none;font-family:var(--sans);font-size:0.58rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-radius:0;font-weight:500}
 .chat-send:hover{background:var(--gold-dark)}
+.chat-send:disabled{opacity:0.5;cursor:not-allowed}
 
 /* ══ S4 MYPAGE ══ */
 #s4{background:var(--bg);padding-bottom:80px}
@@ -366,8 +378,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .pm-ri::placeholder{color:var(--text-dim);font-size:0.6rem}
 .pm-sub{width:100%;padding:16px;background:var(--gold);color:var(--gate-bg);border:none;font-family:var(--sans);font-size:0.6rem;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;border-radius:0;margin-top:4px;font-weight:500}
 .pm-sub:hover{background:var(--gold-dark)}
+.pm-sub:disabled{opacity:0.5;cursor:not-allowed}
 #pm-canvas{display:none}
 #photo-in{display:none}
+
+/* ══ UTILITY ══ */
+.hidden-step{display:none}
+.hidden-step.visible{display:block}
+.code-step-spacing{margin-top:18px}
+.v-otp-inp{letter-spacing:.3em;font-size:1.2rem;text-align:center}
+.m-logo-clickable{cursor:pointer}
+.f-top-actions{display:flex;gap:8px}
+
+/* ══ TOAST ══ */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--gate-bg);color:var(--gate-text);
+  padding:10px 20px;font-size:0.54rem;letter-spacing:.1em;
+  z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;
+  white-space:nowrap;max-width:90%;text-align:center;
+}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -387,8 +418,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div class="g-ornament-line"></div>
   </div>
   <p class="g-warn">Exclusive to the hot, sexy, fancy adult.<br>If you are not qualified,<br>become a better one.</p>
-  <button class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
-  <button class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
+  <button type="button" class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
+  <button type="button" class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
   <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
   <div class="g-privacy-bar">
     <a href="./privacy.html" class="g-privacy-link">Privacy Policy</a>
@@ -407,11 +438,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <div class="v-body">
     <div class="v-slabel">01 — Who are you?</div>
     <div class="role-grid">
-      <button class="role-btn" onclick="pickRole('student',this)">Student</button>
-      <button class="role-btn" onclick="pickRole('pro',this)">Worker</button>
-      <button class="role-btn" onclick="pickRole('founder',this)">Founder</button>
+      <button type="button" class="role-btn" onclick="pickRole('student',this)">Student</button>
+      <button type="button" class="role-btn" onclick="pickRole('pro',this)">Worker</button>
+      <button type="button" class="role-btn" onclick="pickRole('founder',this)">Founder</button>
     </div>
-    <div id="email-step" style="display:none">
+    <div id="email-step" class="hidden-step">
       <div class="v-slabel">02 — Your email</div>
       <div class="v-ig">
         <label class="v-lbl" id="e-lbl">Email</label>
@@ -434,17 +465,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
       </div>
       <button class="v-btn" type="button" onclick="sendCode()" id="send-btn" disabled>Send Verification Code</button>
     </div>
-    <div class="code-box" id="code-box">
-      <p>Your verification code</p>
-      <div class="code-num" id="code-num">——</div>
+    <!-- OTP 전송 후 안내 메시지 -->
+    <div class="otp-info" id="otp-info">
+      Supabase Auth OTP 코드를 이메일로 발송했습니다.<br>
+      받은 편지함을 확인하세요. (스팸 폴더도 확인)
     </div>
-    <div id="code-step" style="display:none;margin-top:18px">
-      <div class="v-slabel">03 — Enter code</div>
+    <div id="code-step" class="hidden-step code-step-spacing">
+      <div class="v-slabel">03 — Enter OTP code</div>
       <div class="v-ig">
-        <input class="v-inp" type="text" id="c-inp" placeholder="4-digit code" maxlength="4" style="letter-spacing:.3em;font-size:1.2rem;text-align:center">
+        <input class="v-inp v-otp-inp" type="text" id="c-inp" placeholder="6-digit OTP" maxlength="6">
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
-      <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
+      <button type="button" class="v-btn" id="verify-btn" onclick="doVerify()">Verify &amp; Enter</button>
     </div>
   </div>
 </div>
@@ -453,7 +485,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 <div id="s2" class="screen">
   <div class="m-hd">
     <div class="m-hd-left">
-      <span class="m-logo" onclick="goHome()" style="cursor:pointer">Adult Running Club</span>
+      <span class="m-logo m-logo-clickable" onclick="goHome()">Adult Running Club</span>
       <div class="m-member-badge">
         <span class="m-member-role" id="m-member-role"></span>
         <span class="m-member-sep">·</span>
@@ -511,7 +543,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
       <path fill="#C9A84C" d="M868,372 L877,361 L884,372 L879,386 L868,390 L862,380 Z"/>
     </svg>
     <div id="m-pins"></div>
-    <button class="m-back" id="m-back" onclick="mapBack()" style="display:none">← Back</button>
+    <button type="button" class="m-back" id="m-back" onclick="mapBack()">← Back</button>
   </div>
   <div class="m-list">
     <div class="m-ltitle" id="m-ltitle">Select a region</div>
@@ -523,9 +555,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 <div id="s4" class="screen">
   <div class="mp-hd">
     <div class="mp-hd-top">
-      <button class="mp-back" onclick="show(prevScreen)" title="Back">←</button>
+      <button type="button" class="mp-back" onclick="show(prevScreen)" title="Back">←</button>
       <span class="mp-title">My Profile</span>
-      <button class="mp-settings" onclick="arcSettings()" title="Settings">⚙</button>
+      <button type="button" class="mp-settings" onclick="arcSettings()" title="Settings">⚙</button>
     </div>
   </div>
   <div class="mp-body" id="mp-body">
@@ -538,21 +570,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <div class="f-hd">
     <div class="f-top">
       <div class="f-loc">
-        <button class="f-bk" onclick="feedBack()">←</button>
+        <button type="button" class="f-bk" onclick="feedBack()">←</button>
         <div class="f-title-wrap">
           <span class="f-lname" id="f-lname">Community</span>
           <span class="f-profile-line" id="f-profile-line"></span>
         </div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div class="f-top-actions">
         <button class="f-chat" type="button" onclick="openChat()">💬</button>
         <button class="f-chat" type="button" onclick="goHome()" title="Home">⌂</button>
       </div>
     </div>
     <div class="f-filter">
-      <button class="ftab on" onclick="setFilter('pop',this)">Popular</button>
-      <button class="ftab" onclick="setFilter('new',this)">Newest</button>
-      <button class="ftab" onclick="setFilter('old',this)">Oldest</button>
+      <button type="button" class="ftab on" onclick="setFilter('pop',this)">Popular</button>
+      <button type="button" class="ftab" onclick="setFilter('new',this)">Newest</button>
+      <button type="button" class="ftab" onclick="setFilter('old',this)">Oldest</button>
     </div>
   </div>
   <div class="f-list" id="f-list"></div>
@@ -577,12 +609,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 <div class="chat-ov" id="chat-ov">
   <div class="chat-hd">
     <span class="chat-ttl" id="chat-ttl">Community Chat</span>
-    <button class="chat-x" onclick="closeChat()">✕</button>
+    <button type="button" class="chat-x" onclick="closeChat()">✕</button>
   </div>
   <div class="chat-msgs" id="chat-msgs"></div>
   <div class="chat-ia">
-    <input class="chat-inp" id="chat-inp" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send" onclick="sendChat()">Send</button>
+    <input class="chat-inp" id="chat-inp" placeholder="Say something..." maxlength="500" onkeydown="if(event.key==='Enter')sendChat()">
+    <button type="button" class="chat-send" id="chat-send-btn" onclick="sendChat()">Send</button>
   </div>
 </div>
 
@@ -590,7 +622,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 <div class="pmodal" id="pmodal">
   <div class="pm-hd">
     <span class="pm-ttl">New Post</span>
-    <button class="pm-x" onclick="closePost()">✕</button>
+    <button type="button" class="pm-x" onclick="closePost()">✕</button>
   </div>
   <div class="pm-body">
     <div class="pm-preview">
@@ -606,643 +638,903 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
       </div>
     </div>
     <canvas id="pm-canvas"></canvas>
-    <input type="file" id="photo-in" accept="image/*" onchange="onPhoto(event)">
-    <button class="pm-sub" onclick="submitPost()">Post to Community</button>
+    <input type="file" id="photo-in" accept="image/jpeg,image/png,image/webp" onchange="onPhoto(event)">
+    <button type="button" class="pm-sub" id="pm-sub-btn" onclick="submitPost()">Post to Community</button>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 </div><!-- #app -->
 
 <script>
-// ── STORAGE ──────────────────────────────
-const LS={
-  g:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
-  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+// ══════════════════════════════════════════════════════════════
+// SUPABASE 설정 — 회장 직접 입력 필요
+// Supabase Dashboard > Settings > API 에서 확인
+// ══════════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // 예: https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // anon/public key (공개 가능)
+
+// Supabase 클라이언트 초기화
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
+
+// Supabase 프로젝트 keepalive (비활성 방지 — CFO 요구)
+(async () => {
+  try { await db.from('posts').select('id').limit(1); } catch(e) {}
+})();
+
+// ── 앱 상태 ───────────────────────────────────────────────────
+const S = {
+  session: null,      // Supabase session
+  profile: null,      // users_profile 행
+  lvl: 0,
+  path: [],
+  district: null,
+  filter: 'pop',
+  pendingEmail: null,
+  pendingRole: null,
+  likedPosts: new Set()  // 현재 district의 좋아요 캐시
 };
 
-// ── STATE ─────────────────────────────────
-const S={
-  verified:LS.g('arc_v',false),
-  role:LS.g('arc_r',null),
-  email:LS.g('arc_e',null),
-  lvl:0, path:[], district:null,
-  filter:'pop', code:null, pendingEmail:null
+// ── 로컬 폴백 (미인증 상태 임시 저장용) ─────────────────────
+const LS = {
+  g: (k, d) => { try { const v = localStorage.getItem(k); return v != null ? JSON.parse(v) : d; } catch { return d; } },
+  s: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 
-// ── WORLD DATA ────────────────────────────
-const WD={
-  'Korea':{likes:247,pin:{x:'77%',y:'30%'},cities:{
-    'Seoul':{likes:183,pin:{x:'76%',y:'28%'},districts:{'Gangnam':{likes:87},'Hongdae':{likes:62},'Itaewon':{likes:34}}},
-    'Busan':{likes:64,pin:{x:'79%',y:'34%'},districts:{'Haeundae':{likes:41},'Gwangalli':{likes:23}}}
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, dur = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── 이스케이프 헬퍼 ───────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── WORLD DATA ────────────────────────────────────────────────
+const WD = {
+  'Korea': { likes: 247, pin: { x: '77%', y: '30%' }, cities: {
+    'Seoul': { likes: 183, pin: { x: '76%', y: '28%' }, districts: { 'Gangnam': { likes: 87 }, 'Hongdae': { likes: 62 }, 'Itaewon': { likes: 34 } } },
+    'Busan': { likes: 64, pin: { x: '79%', y: '34%' }, districts: { 'Haeundae': { likes: 41 }, 'Gwangalli': { likes: 23 } } }
   }},
-  'Japan':{likes:198,pin:{x:'82%',y:'27%'},cities:{
-    'Tokyo':{likes:142,pin:{x:'83%',y:'26%'},districts:{'Shibuya':{likes:56},'Shinjuku':{likes:48},'Ginza':{likes:38}}},
-    'Osaka':{likes:56,pin:{x:'81%',y:'31%'},districts:{'Namba':{likes:32},'Umeda':{likes:24}}}
+  'Japan': { likes: 198, pin: { x: '82%', y: '27%' }, cities: {
+    'Tokyo': { likes: 142, pin: { x: '83%', y: '26%' }, districts: { 'Shibuya': { likes: 56 }, 'Shinjuku': { likes: 48 }, 'Ginza': { likes: 38 } } },
+    'Osaka': { likes: 56, pin: { x: '81%', y: '31%' }, districts: { 'Namba': { likes: 32 }, 'Umeda': { likes: 24 } } }
   }},
-  'USA':{likes:312,pin:{x:'18%',y:'29%'},cities:{
-    'New York':{likes:187,pin:{x:'21%',y:'26%'},districts:{'Manhattan':{likes:98},'Brooklyn':{likes:89}}},
-    'Los Angeles':{likes:125,pin:{x:'12%',y:'33%'},districts:{'Santa Monica':{likes:74},'Hollywood':{likes:51}}}
+  'USA': { likes: 312, pin: { x: '18%', y: '29%' }, cities: {
+    'New York': { likes: 187, pin: { x: '21%', y: '26%' }, districts: { 'Manhattan': { likes: 98 }, 'Brooklyn': { likes: 89 } } },
+    'Los Angeles': { likes: 125, pin: { x: '12%', y: '33%' }, districts: { 'Santa Monica': { likes: 74 }, 'Hollywood': { likes: 51 } } }
   }},
-  'UK':{likes:156,pin:{x:'46%',y:'21%'},cities:{
-    'London':{likes:156,pin:{x:'46%',y:'22%'},districts:{'Chelsea':{likes:64},'Notting Hill':{likes:52},'Shoreditch':{likes:40}}}
+  'UK': { likes: 156, pin: { x: '46%', y: '21%' }, cities: {
+    'London': { likes: 156, pin: { x: '46%', y: '22%' }, districts: { 'Chelsea': { likes: 64 }, 'Notting Hill': { likes: 52 }, 'Shoreditch': { likes: 40 } } }
   }},
-  'France':{likes:134,pin:{x:'49%',y:'26%'},cities:{
-    'Paris':{likes:134,pin:{x:'49%',y:'26%'},districts:{"Le Marais":{likes:67},'Saint-Germain':{likes:67}}}
+  'France': { likes: 134, pin: { x: '49%', y: '26%' }, cities: {
+    'Paris': { likes: 134, pin: { x: '49%', y: '26%' }, districts: { 'Le Marais': { likes: 67 }, 'Saint-Germain': { likes: 67 } } }
   }},
-  'Australia':{likes:88,pin:{x:'76%',y:'68%'},cities:{
-    'Sydney':{likes:88,pin:{x:'80%',y:'70%'},districts:{'Bondi Beach':{likes:53},'Darling Harbour':{likes:35}}}
+  'Australia': { likes: 88, pin: { x: '76%', y: '68%' }, cities: {
+    'Sydney': { likes: 88, pin: { x: '80%', y: '70%' }, districts: { 'Bondi Beach': { likes: 53 }, 'Darling Harbour': { likes: 35 } } }
   }}
 };
 
-// ── MOCK DATA ─────────────────────────────
-function getPosts(d){
-  const user=LS.g('arc_posts_'+d,[]);
-  const seed=[
-    {id:1,user:'Alex R.',course:'River Circuit',km:8.4,min:42,pace:"5'00\"",likes:31,photo:null,ts:Date.now()-3600e3},
-    {id:2,user:'Mia K.',course:'Morning Loop',km:5.2,min:27,pace:"5'12\"",likes:24,photo:null,ts:Date.now()-86400e3},
-    {id:3,user:'Jin S.',course:'Hill Sprint',km:12.0,min:68,pace:"5'40\"",likes:18,photo:null,ts:Date.now()-172800e3},
-    {id:4,user:'Emma V.',course:'Flat 10K',km:10.0,min:48,pace:"4'48\"",likes:45,photo:null,ts:Date.now()-259200e3},
-    {id:5,user:'Luca B.',course:'Park Run',km:6.8,min:35,pace:"5'09\"",likes:12,photo:null,ts:Date.now()-345600e3},
-  ];
-  return [...user,...seed];
-}
-
-function getChats(d){
-  return LS.g('arc_chats_'+d,[
-    {user:'Alex R.',text:"Anyone running this Sunday at 6am?",mine:false},
-    {user:'Mia K.',text:"I'm in! Meet at the usual spot 🏃",mine:false},
-    {user:'Jin S.',text:"Same bridge as last week?",mine:false},
-    {user:'Alex R.',text:"Yes. See you there.",mine:false},
-  ]);
-}
-
-// ── ROUTE SVG GENERATOR ──────────────────
-// SEC-XSS: district 문자열을 SVG innerHTML에 직접 삽입 금지
-// → DOMParser로 SVG 생성 후 text 요소에 textContent 할당
+// ── 러닝 루트 SVG 생성기 ─────────────────────────────────────
 function makeRouteSvg(district, seed) {
   const s = seed || 1;
   const rng = (n) => { let x = Math.sin(s * 9301 + n * 49297) * 233280; return x - Math.floor(x); };
   const W = 160, H = 140;
   let grid = '';
-  for(let x = 0; x <= W; x += 20) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#E8E2D9" stroke-width="0.5"/>`;
-  for(let y = 0; y <= H; y += 20) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#E8E2D9" stroke-width="0.5"/>`;
-  const pts = [[W*0.2, H*0.5]];
-  for(let i = 1; i < 5; i++) {
-    pts.push([W*(0.1 + rng(i*2)*0.8), H*(0.15 + rng(i*2+1)*0.7)]);
+  for (let x = 0; x <= W; x += 20) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#E8E2D9" stroke-width="0.5"/>`;
+  for (let y = 0; y <= H; y += 20) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#E8E2D9" stroke-width="0.5"/>`;
+  const pts = [[W * 0.2, H * 0.5]];
+  for (let i = 1; i < 5; i++) {
+    pts.push([W * (0.1 + rng(i * 2) * 0.8), H * (0.15 + rng(i * 2 + 1) * 0.7)]);
   }
-  pts.push([W*0.2, H*0.5]);
-  const d = pts.map((p,i)=>i===0?`M${p[0].toFixed(1)},${p[1].toFixed(1)}`:`L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  pts.push([W * 0.2, H * 0.5]);
+  const d = pts.map((p, i) => i === 0 ? `M${p[0].toFixed(1)},${p[1].toFixed(1)}` : `L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const sp = pts[0];
-  // 정적 SVG 문자열 생성 (district 제외 — 숫자/경로 값만 포함하여 XSS 불가)
-  const svgStr = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
     <rect width="${W}" height="${H}" fill="#F0EDE6"/>
     ${grid}
     <path d="${d}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${sp[0]}" cy="${sp[1]}" r="4" fill="#6B2D3E"/>
-    <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="Raleway,sans-serif" font-size="8" fill="#A89E93" letter-spacing="1" id="svg-district-label"></text>
+    <text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-family="Raleway,sans-serif" font-size="8" fill="#A89E93" letter-spacing="1">${esc(district || 'Route')}</text>
   </svg>`;
-  // DOMParser로 파싱 후 district를 textContent로 설정 (XSS 방지)
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgStr, 'image/svg+xml');
-  const textEl = doc.getElementById('svg-district-label');
-  if(textEl) textEl.textContent = district || 'Route';
-  return doc.documentElement.outerHTML;
 }
 
-// ── NAVIGATION ────────────────────────────
+// ── 네비게이션 ────────────────────────────────────────────────
 let currentScreen = 's0';
+let prevScreen = 's2';
 
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen = id;
   const nav = document.getElementById('bottom-nav');
-  const inApp = ['s2','s3','s4'].includes(id);
+  const inApp = ['s2', 's3', 's4'].includes(id);
   nav.classList.toggle('on', inApp);
-  // 활성 탭 표시
-  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  if(id==='s2') document.getElementById('bnav-map')?.classList.add('active');
-  if(id==='s4') document.getElementById('bnav-profile')?.classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 's2') document.getElementById('bnav-map')?.classList.add('active');
+  if (id === 's4') document.getElementById('bnav-profile')?.classList.add('active');
 }
 
-function goBNavMap(){ if(S.verified){loadMap();show('s2')}else{show('s0')} }
-function goBNavProfile(){ prevScreen=currentScreen||'s2'; renderMyPage(); show('s4'); }
-
-// ── GATE ──────────────────────────────────
-function gateYes(){
-  if(S.verified){loadMap();show('s2')}else{show('s1')}
+function goBNavMap() {
+  if (S.session) { loadMap(); show('s2'); } else { show('s0'); }
 }
-function gateNo(){
-  const msg=document.createElement('div');
-  msg.style.cssText='background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
-  msg.textContent="Come back when you're ready.";
-  document.body.replaceChildren(msg);
-}
-
-// ── VERIFICATION ──────────────────────────
-let selRole=null;
-function pickRole(r,el){
-  selRole=r;
-  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  const hints={student:'School email required (.edu or .ac.kr)',pro:'Company email required — personal/free email providers not accepted',founder:'Company email required — personal/free email providers not accepted'};
-  const lbls={student:'School Email',pro:'Company Email',founder:'Company Email'};
-  document.getElementById('e-lbl').textContent=lbls[r];
-  document.getElementById('e-hint').textContent=hints[r];
-  document.getElementById('e-hint').style.color='';
-  document.getElementById('email-step').style.display='block';
-  document.getElementById('code-box').classList.remove('on');
-  document.getElementById('code-step').style.display='none';
-}
-
-const FREE=[
-  'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','msn.com',
-  'icloud.com','me.com','mac.com',
-  'naver.com','daum.net','hanmail.net','kakao.com','nate.com',
-  'protonmail.com','proton.me','tutanota.com','tutamail.com','tuta.io',
-  'guerrillamail.com','guerrillamail.net','guerrillamail.org','guerrillamail.biz','guerrillamail.de',
-  'mailinator.com','trashmail.com','trashmail.net','sharklasers.com','guerrillamailblock.com',
-  'grr.la','spam4.me','yopmail.com','yopmail.fr','cool.fr.nf',
-  'throwam.com','dispostable.com','maildrop.cc','mailnull.com',
-  'aol.com','mail.com','zoho.com','gmx.com','gmx.net','inbox.com'
-];
-function validEmail(e){
-  const d=(e.split('@')[1]||'').toLowerCase();
-  return !!(d&&d.includes('.'));
-}
-function isFreeEmail(e,r){
-  const d=(e.split('@')[1]||'').toLowerCase();
-  if(r==='student')return !(d.endsWith('.edu')||d.endsWith('.ac.kr'));
-  return FREE.includes(d);
-}
-
-// SEC-CRED: emailjs.init + 직접 호출 제거 → CF Worker 프록시 경유
-// CF Worker URL: 배포 후 실제 subdomain으로 교체
-// wrangler secret put EMAILJS_PUBLIC_KEY / EMAILJS_SERVICE_ID / EMAILJS_TEMPLATE_ID 필요
-const ARC_EMAIL_WORKER_URL = 'https://arc-email-proxy.kgg2512.workers.dev';
-
-function sendCode(){
-  const e=document.getElementById('e-inp').value.trim();
-  const hint=document.getElementById('e-hint');
-  const btn=document.getElementById('send-btn');
-  if(!validEmail(e)){
-    hint.style.color='#9B2C2C';
-    hint.textContent='❌ Enter a valid email address';
-    return;
-  }
-  if(isFreeEmail(e,selRole)){
-    const confirmed=window.confirm(
-      'Warning: "'+e+'" appears to be a personal or free email provider.\n\n'+
-      (selRole==='student'
-        ? 'A school email (.edu or .ac.kr) is required for Student verification.'
-        : 'A company email is required for Worker / Founder verification. Personal email addresses are not accepted.')+
-      '\n\nSend anyway?'
-    );
-    if(!confirmed)return;
-  }
-  const arr=new Uint32Array(1);crypto.getRandomValues(arr);const code=String(1000+(arr[0]%9000));
-  S.code=code; S.pendingEmail=e;
-  btn.textContent='Sending...'; btn.disabled=true;
-
-  // CF Worker 프록시 호출 (자격증명은 Worker 환경변수에서만 접근)
-  fetch(ARC_EMAIL_WORKER_URL+'/send',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({to_email:e,code:code})
-  })
-    .then(r=>r.ok?r.json():r.json().then(d=>{throw new Error(d.error||'Send failed');}))
-    .then(()=>{
-      hint.style.color='#A8892F';
-      hint.textContent='✓ Code sent to '+e;
-      btn.textContent='Resend Code'; btn.disabled=false;
-      document.getElementById('code-step').style.display='block';
-      document.getElementById('v-err').classList.remove('on');
-    })
-    .catch((err)=>{
-      hint.style.color='#9B2C2C';
-      hint.textContent='❌ Send failed — '+(err.message||'please try again');
-      btn.textContent='Send Verification Code'; btn.disabled=false;
-    });
-}
-
-function doVerify(){
-  if(document.getElementById('c-inp').value.trim()===S.code){
-    S.verified=true; S.role=selRole; S.email=S.pendingEmail;
-    LS.s('arc_v',true); LS.s('arc_r',selRole); LS.s('arc_e',S.pendingEmail);
-    loadMap(); show('s2');
-  }else{
-    document.getElementById('v-err').classList.add('on');
-  }
-}
-
-function goHome(){
-  LS.s('arc_v',false); S.verified=false;
-  show('s0');
-}
-
-
-// ── WORLD MAP ─────────────────────────────
-function loadMap(){S.lvl=0;S.path=[];renderMap()}
-
-function renderMap(){
-  const lvl=S.lvl,path=S.path;
-  document.getElementById('m-bc').textContent=['World',...path].join(' › ');
-  const back=document.getElementById('m-back');
-  back.style.display=lvl>0?'block':'none';
-
-  const lbls=['Select a country','Select a city','Select a district'];
-  document.getElementById('m-ltitle').textContent=lbls[Math.min(lvl,2)];
-
-  let data;
-  if(lvl===0)data=WD;
-  else if(lvl===1)data=WD[path[0]].cities;
-  else data=WD[path[0]].cities[path[1]].districts;
-
-  const pins=document.getElementById('m-pins');
-  pins.innerHTML='';
-  const pinSource=lvl===0?WD:lvl===1?WD[path[0]].cities:null;
-  if(pinSource){
-    Object.entries(pinSource).forEach(([name,d])=>{
-      if(!d.pin)return;
-      const el=document.createElement('div');
-      el.className='pin';
-      el.style.left=d.pin.x; el.style.top=d.pin.y;
-      const dot=document.createElement('div'); dot.className='pin-dot';
-      const ring=document.createElement('div'); ring.className='pin-ring';
-      const lbl=document.createElement('div'); lbl.className='pin-lbl'; lbl.textContent=name;
-      el.append(dot,ring,lbl);
-      el.onclick=()=>drill(name);
-      pins.appendChild(el);
-    });
-  }
-
-  const list=document.getElementById('r-list');
-  list.innerHTML='';
-  Object.entries(data).forEach(([name,d])=>{
-    const lk=d.likes||0;
-    const c=document.createElement('div');
-    c.className='r-card';
-    const rName=document.createElement('span'); rName.className='r-name'; rName.textContent=name;
-    const rMeta=document.createElement('div'); rMeta.className='r-meta';
-    const rLikes=document.createElement('span'); rLikes.className='r-likes'; rLikes.textContent='♥ '+lk;
-    const rArr=document.createElement('span'); rArr.className='r-arr'; rArr.textContent='›';
-    rMeta.append(rLikes,rArr); c.append(rName,rMeta);
-    c.onclick=lvl<2?()=>drill(name):()=>enterDistrict(name);
-    list.appendChild(c);
-  });
-}
-
-function drill(name){
-  S.path.push(name); S.lvl++;
-  if(S.lvl===3){enterDistrict(name);return}
-  renderMap();
-}
-
-function mapBack(){
-  if(S.lvl>0){S.path.pop();S.lvl--;renderMap()}
-}
-
-function enterDistrict(name){
-  S.district=name;
-  loadFeed(); show('s3');
-}
-
-function feedBack(){
-  if(S.lvl===3){S.path.pop();S.lvl=2}
-  renderMap(); show('s2');
-}
-
-// ── FEED ──────────────────────────────────
-function loadFeed(){
-  document.getElementById('f-lname').textContent=S.district||'Community';
-  document.getElementById('chat-ttl').textContent=(S.district||'Community')+' Chat';
-  renderFeed();
-}
-
-function renderFeed(){
-  const posts=getPosts(S.district);
-  const liked=LS.g('arc_lk_'+S.district,{});
-  let sorted=[...posts];
-  if(S.filter==='pop')sorted.sort((a,b)=>(b.likes+(liked[b.id]?1:0))-(a.likes+(liked[a.id]?1:0)));
-  if(S.filter==='new')sorted.sort((a,b)=>b.ts-a.ts);
-  if(S.filter==='old')sorted.sort((a,b)=>a.ts-b.ts);
-
-  const list=document.getElementById('f-list');
-  list.innerHTML='';
-  sorted.forEach(p=>{
-    const isLiked=!!liked[p.id];
-    const cnt=p.likes+(isLiked?1:0);
-    const card=document.createElement('div');
-    card.className='post';
-
-    // 상단: 지도 + 사진 2컬럼
-    const visuals=document.createElement('div'); visuals.className='post-visuals';
-
-    // 좌: 러닝 루트 지도 SVG
-    const mapDiv=document.createElement('div'); mapDiv.className='post-map';
-    mapDiv.innerHTML=makeRouteSvg(S.district, p.id||p.ts||1);
-
-    // 우: 사진
-    const photoDiv=document.createElement('div'); photoDiv.className='post-photo';
-    if(p.photo){
-      const img=document.createElement('img'); img.src=p.photo; img.alt='';
-      photoDiv.appendChild(img);
-    } else {
-      const ph=document.createElement('div');
-      ph.style.cssText='text-align:center;color:#A89E93';
-      ph.innerHTML='<div style="font-size:1.5rem">📸</div><p style="font-size:0.44rem;letter-spacing:.1em;text-transform:uppercase;margin-top:4px">Add Photo</p>';
-      photoDiv.appendChild(ph);
-    }
-    visuals.append(mapDiv, photoDiv);
-
-    // 하단 footer
-    const footer=document.createElement('div'); footer.className='post-footer';
-
-    const userInfo=document.createElement('div'); userInfo.className='post-user-info';
-    const uname=document.createElement('span'); uname.className='post-username'; uname.textContent=p.user;
-    const ucourse=document.createElement('span'); ucourse.className='post-course'; ucourse.textContent=p.course;
-    userInfo.append(uname,ucourse);
-
-    const statsRow=document.createElement('div'); statsRow.className='post-stats-row';
-
-    function mkStatInline(val,lbl){
-      const ps=document.createElement('div'); ps.className='pstat-inline';
-      const v=document.createElement('span'); v.className='ps-val-sm'; v.textContent=val;
-      const l=document.createElement('span'); l.className='ps-lbl-sm'; l.textContent=lbl;
-      ps.append(v,l); return ps;
-    }
-
-    const likeBtn=document.createElement('button');
-    likeBtn.className='like-btn'+(isLiked?' on':'');
-    likeBtn.onclick=()=>toggleLike(p.id);
-    // SEC-XSS: innerHTML 제거 → DOM API
-    const heartSpan=document.createElement('span'); heartSpan.style.fontSize='1rem'; heartSpan.textContent='♥';
-    likeBtn.appendChild(heartSpan); likeBtn.appendChild(document.createTextNode(cnt));
-
-    statsRow.append(mkStatInline(p.km+'km','dist'), mkStatInline(p.pace,'pace'), likeBtn);
-    footer.append(userInfo, statsRow);
-    card.append(visuals, footer);
-    list.appendChild(card);
-  });
-}
-
-function setFilter(f,el){
-  S.filter=f;
-  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  renderFeed();
-}
-
-function toggleLike(id){
-  const key='arc_lk_'+S.district;
-  const lk=LS.g(key,{});
-  const wasLiked=!!lk[id];
-  lk[id]=!wasLiked;
-  LS.s(key,lk);
-  if(!wasLiked){
-    const uname=S.email?S.email.split('@')[0]:'';
-    const posts=LS.g('arc_posts_'+S.district,[]);
-    const post=posts.find(p=>p.id===id);
-    if(post&&post.user!==uname)updateTemp(0.3);
-  }
-  renderFeed();
-}
-
-// ── CHAT ──────────────────────────────────
-function openChat(){
-  const msgs=getChats(S.district);
-  const el=document.getElementById('chat-msgs');
-  el.innerHTML='';
-  msgs.forEach(m=>{
-    const d=document.createElement('div');
-    d.className='cmsg'+(m.mine?' mine':'');
-    const cu=document.createElement('div'); cu.className='cmsg-u'; cu.textContent=m.user;
-    const ct=document.createElement('div'); ct.className='cmsg-t'; ct.textContent=m.text;
-    d.append(cu,ct);
-    el.appendChild(d);
-  });
-  el.scrollTop=el.scrollHeight;
-  document.getElementById('chat-ov').classList.add('on');
-}
-
-function closeChat(){document.getElementById('chat-ov').classList.remove('on')}
-
-function sendChat(){
-  const inp=document.getElementById('chat-inp');
-  const txt=inp.value.trim(); if(!txt)return;
-  const key='arc_chats_'+S.district;
-  const msgs=getChats(S.district);
-  const uname=S.email?S.email.split('@')[0]:'You';
-  msgs.push({user:uname,text:txt,mine:true});
-  LS.s(key,msgs);
-  updateTemp(0.1);
-  inp.value='';
-  openChat();
-}
-
-// ── POST MODAL ────────────────────────────
-let photoData=null;
-
-function openPost(){
-  photoData=null;
-  document.getElementById('pm-img').style.display='none';
-  document.getElementById('pm-img').src='';
-  document.querySelector('.pm-ph-hint').style.display='';
-  ['ri-course','ri-km','ri-min','ri-pace'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('pmodal').classList.add('on');
-}
-
-function closePost(){document.getElementById('pmodal').classList.remove('on')}
-
-function onPhoto(e){
-  const f=e.target.files[0]; if(!f)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const cv=document.getElementById('pm-canvas');
-      const mx=400; let w=img.width,h=img.height;
-      if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx}else{w=Math.round(w*mx/h);h=mx}}
-      cv.width=w; cv.height=h;
-      cv.getContext('2d').drawImage(img,0,0,w,h);
-      photoData=cv.toDataURL('image/jpeg',0.72);
-      const pi=document.getElementById('pm-img');
-      pi.src=photoData; pi.style.display='block';
-      document.querySelector('.pm-ph-hint').style.display='none';
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(f);
-}
-
-function submitPost(){
-  const course=document.getElementById('ri-course').value.trim()||'My Run';
-  const km=parseFloat(document.getElementById('ri-km').value)||5;
-  const min=parseInt(document.getElementById('ri-min').value)||30;
-  const pm=Math.floor(min/km); const ps=Math.round(((min/km)-pm)*60);
-  const pace=document.getElementById('ri-pace').value.trim()||`${pm}'${String(ps).padStart(2,'0')}"`;
-  const uname=S.email?S.email.split('@')[0]:'Anonymous';
-  const key='arc_posts_'+S.district;
-  const posts=LS.g(key,[]);
-  posts.unshift({id:Date.now(),user:uname,course,km,min,pace,likes:0,photo:photoData,ts:Date.now()});
-  LS.s(key,posts);
-  updateTemp(1.0);
-  closePost();
-  renderFeed();
-}
-
-// ── TEMPERATURE ──────────────────────────
-const TEMP_KEY='arc_temp';
-
-function getTemp(){
-  const v=parseFloat(LS.g(TEMP_KEY,36.5));
-  return isNaN(v)?36.5:Math.min(v,99.9);
-}
-
-function updateTemp(delta){
-  const cur=getTemp();
-  LS.s(TEMP_KEY,Math.min(parseFloat((cur+delta).toFixed(1)),99.9));
-}
-
-function getTempGrade(t){
-  if(t>=80)return{label:'Platinum Member',color:'#6B2D3E'};
-  if(t>=60)return{label:'Gold Member',color:'#C9A84C'};
-  if(t>=40)return{label:'Silver Member',color:'#6B6459'};
-  return{label:'Bronze Member',color:'#A89E93'};
-}
-
-// ── MYPAGE ────────────────────────────────
-let prevScreen='s3';
-
-function showMyPage(){
-  const active=document.querySelector('.screen.active');
-  if(active)prevScreen=active.id;
+function goBNavProfile() {
+  prevScreen = currentScreen || 's2';
   renderMyPage();
   show('s4');
 }
 
-function renderMyPage(){
-  const email=LS.g('arc_e',null)||'—';
-  const roleRaw=LS.g('arc_r',null)||'member';
-  const roleLabel={student:'Student',pro:'Worker',founder:'Founder'}[roleRaw]||roleRaw;
-  const temp=getTemp();
-  const grade=getTempGrade(temp);
-
-  let totalKm=0,totalPosts=0,totalLikes=0,regions=0;
-  const uname=email!=='—'?email.split('@')[0]:'';
-  const recentRuns=[];
-
-  for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
-    if(!k||!k.startsWith('arc_posts_'))continue;
-    regions++;
-    const posts=LS.g(k,[]);
-    posts.forEach(p=>{
-      if(p.user===uname){
-        totalPosts++;
-        totalKm+=parseFloat(p.km)||0;
-        totalLikes+=parseInt(p.likes)||0;
-        recentRuns.push({...p,district:k.replace('arc_posts_','')});
-      }
-    });
-  }
-  recentRuns.sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const shown=recentRuns.slice(0,3);
-
-  const barPct=Math.min((temp/99.9)*100,100).toFixed(1);
-
-  // SEC-XSS: innerHTML 직접 삽입 제거 → DOM API로 교체 (localStorage 데이터는 신뢰 불가)
-  const body=document.getElementById('mp-body');
-  body.textContent=''; // 초기화
-
-  // 온도 카드
-  const tempCard=document.createElement('div'); tempCard.className='temp-card'; tempCard.id='mp-temp-card';
-  const emailEl=document.createElement('div'); emailEl.className='mp-member-email'; emailEl.textContent=email;
-  const roleEl=document.createElement('div'); roleEl.className='mp-member-role'; roleEl.textContent=roleLabel;
-  const tempNum=document.createElement('div'); tempNum.className='mp-temp-num'; tempNum.textContent=temp.toFixed(1)+'°';
-  const barBg=document.createElement('div'); barBg.className='temp-bar-bg';
-  const barFill=document.createElement('div'); barFill.className='temp-bar-fill'; barFill.id='mp-temp-fill'; barFill.style.width=barPct+'%';
-  barBg.appendChild(barFill);
-  const gradeEl=document.createElement('div'); gradeEl.className='mp-temp-grade'; gradeEl.textContent=grade.label;
-  tempCard.append(emailEl,roleEl,tempNum,barBg,gradeEl);
-  body.appendChild(tempCard);
-
-  // Stats 섹션
-  function mkDivider(text){
-    const d=document.createElement('div'); d.className='mp-divider';
-    const l1=document.createElement('div'); l1.className='mp-div-line';
-    const t=document.createElement('div'); t.className='mp-div-text'; t.textContent=text;
-    const l2=document.createElement('div'); l2.className='mp-div-line';
-    d.append(l1,t,l2); return d;
-  }
-  function mkStat(lbl,val,unit){
-    const s=document.createElement('div'); s.className='mp-stat';
-    const l=document.createElement('span'); l.className='mp-stat-lbl'; l.textContent=lbl;
-    const v=document.createElement('span'); v.className='mp-stat-val'; v.textContent=val;
-    if(unit){const u=document.createElement('span'); u.className='mp-stat-unit'; u.textContent=unit; v.appendChild(u);}
-    s.append(l,v); return s;
-  }
-  body.appendChild(mkDivider('Running Stats'));
-  const statsSection=document.createElement('div'); statsSection.className='stats-section';
-  const statsWrap=document.createElement('div'); statsWrap.className='mp-stats';
-  statsWrap.append(
-    mkStat('Total Distance',totalKm.toFixed(1),'km'),
-    mkStat('Total Posts',totalPosts,null),
-    mkStat('Likes Received',totalLikes,null),
-    mkStat('Regions Visited',regions,null)
-  );
-  statsSection.appendChild(statsWrap);
-  body.appendChild(statsSection);
-
-  if(shown.length){
-    body.appendChild(mkDivider('Recent Runs'));
-    shown.forEach(p=>{
-      const rc=document.createElement('div'); rc.className='mp-run-card';
-      const top=document.createElement('div'); top.className='mp-run-top';
-      const course=document.createElement('span'); course.className='mp-run-course'; course.textContent=p.course||'My Run';
-      const km=document.createElement('span'); km.className='mp-run-km'; km.textContent=parseFloat(p.km).toFixed(1)+'km';
-      top.append(course,km);
-      const meta=document.createElement('div'); meta.className='mp-run-meta';
-      // textContent 사용 — XSS 방지. · 구분자는 텍스트 노드로
-      meta.textContent=((p.district||'')+' · '+(p.min||0)+'min · '+(p.pace||''));
-      rc.append(top,meta);
-      body.appendChild(rc);
-    });
-  }
-
-  const card=document.getElementById('mp-temp-card');
-  if(card)card.style.setProperty('--grade-color',grade.color);
+// ── GATE ──────────────────────────────────────────────────────
+function gateYes() {
+  if (S.session) { loadMap(); show('s2'); } else { show('s1'); }
+}
+function gateNo() {
+  const msg = document.createElement('div');
+  msg.style.cssText = 'background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
+  msg.textContent = "Come back when you're ready.";
+  document.body.replaceChildren(msg);
 }
 
-function arcSettings(){
-  if(confirm('Reset your ARC data? This cannot be undone.')){
-    const toDelete=[];
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(k&&k.startsWith('arc_'))toDelete.push(k);
+// ── 인증: Supabase Auth OTP ───────────────────────────────────
+let selRole = null;
+
+function pickRole(r, el) {
+  selRole = r;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  const hints = {
+    student: 'School email required (.edu or .ac.kr)',
+    pro: 'Company email required — personal/free email providers not accepted',
+    founder: 'Company email required — personal/free email providers not accepted'
+  };
+  const lbls = { student: 'School Email', pro: 'Company Email', founder: 'Company Email' };
+  document.getElementById('e-lbl').textContent = lbls[r];
+  document.getElementById('e-hint').textContent = hints[r];
+  document.getElementById('e-hint').style.color = '';
+  document.getElementById('email-step').classList.add('visible');
+  document.getElementById('otp-info').classList.remove('on');
+  document.getElementById('code-step').classList.remove('visible');
+}
+
+const FREE_DOMAINS = [
+  'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','msn.com',
+  'icloud.com','me.com','mac.com',
+  'naver.com','daum.net','hanmail.net','kakao.com','nate.com',
+  'protonmail.com','proton.me','tutanota.com','tutamail.com','tuta.io',
+  'guerrillamail.com','mailinator.com','trashmail.com','yopmail.com',
+  'aol.com','mail.com','zoho.com','gmx.com','gmx.net','inbox.com'
+];
+
+function validEmail(e) {
+  const d = (e.split('@')[1] || '').toLowerCase();
+  return !!(d && d.includes('.'));
+}
+function isFreeEmail(e, r) {
+  const d = (e.split('@')[1] || '').toLowerCase();
+  if (r === 'student') return !(d.endsWith('.edu') || d.endsWith('.ac.kr'));
+  return FREE_DOMAINS.includes(d);
+}
+
+// sendCode: EmailJS 제거 → Supabase Auth OTP
+async function sendCode() {
+  const e = document.getElementById('e-inp').value.trim();
+  const hint = document.getElementById('e-hint');
+  const btn = document.getElementById('send-btn');
+
+  if (!validEmail(e)) {
+    hint.style.color = '#9B2C2C';
+    hint.textContent = 'Enter a valid email address';
+    return;
+  }
+  if (isFreeEmail(e, selRole)) {
+    const confirmed = window.confirm(
+      'Warning: "' + e + '" appears to be a personal or free email.\n\n' +
+      (selRole === 'student'
+        ? 'A school email (.edu or .ac.kr) is required for Student verification.'
+        : 'A company email is required for Worker / Founder verification.') +
+      '\n\nSend anyway?'
+    );
+    if (!confirmed) return;
+  }
+
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  S.pendingEmail = e;
+  S.pendingRole = selRole;
+
+  try {
+    const { error } = await db.auth.signInWithOtp({
+      email: e,
+      options: {
+        data: { role: selRole },
+        shouldCreateUser: true
+      }
+    });
+    if (error) throw error;
+
+    hint.style.color = '#A8892F';
+    hint.textContent = 'OTP sent to ' + e;
+    btn.textContent = 'Resend Code';
+    btn.disabled = false;
+    document.getElementById('otp-info').classList.add('on');
+    document.getElementById('code-step').classList.add('visible');
+    document.getElementById('v-err').classList.remove('on');
+  } catch (err) {
+    hint.style.color = '#9B2C2C';
+    hint.textContent = 'Send failed — ' + (err.message || 'please try again');
+    btn.textContent = 'Send Verification Code';
+    btn.disabled = false;
+  }
+}
+
+// doVerify: EmailJS 코드 비교 제거 → Supabase verifyOtp
+async function doVerify() {
+  const token = document.getElementById('c-inp').value.trim();
+  const verifyBtn = document.getElementById('verify-btn');
+
+  if (!token || !S.pendingEmail) {
+    document.getElementById('v-err').classList.add('on');
+    return;
+  }
+
+  verifyBtn.textContent = 'Verifying...';
+  verifyBtn.disabled = true;
+
+  try {
+    const { data, error } = await db.auth.verifyOtp({
+      email: S.pendingEmail,
+      token,
+      type: 'email'
+    });
+    if (error) throw error;
+
+    S.session = data.session;
+    // users_profile role 업데이트 (트리거로 자동 생성된 행)
+    await db.from('users_profile').upsert({
+      user_id: data.user.id,
+      email: data.user.email,
+      role: S.pendingRole || 'pro'
+    });
+
+    // profile 로드
+    const { data: profile } = await db.from('users_profile')
+      .select('*').eq('user_id', data.user.id).single();
+    S.profile = profile;
+
+    // 헤더 업데이트
+    updateHeader();
+    loadMap();
+    show('s2');
+  } catch (err) {
+    document.getElementById('v-err').classList.add('on');
+    verifyBtn.textContent = 'Verify & Enter';
+    verifyBtn.disabled = false;
+  }
+}
+
+function updateHeader() {
+  const roleLabel = { student: 'Student', pro: 'Worker', founder: 'Founder' };
+  if (S.session) {
+    const email = S.session.user.email || '';
+    const role = S.profile?.role || 'member';
+    document.getElementById('m-member-role').textContent = roleLabel[role] || role;
+    document.getElementById('m-member-name').textContent = email.split('@')[0];
+  }
+}
+
+function goHome() {
+  db.auth.signOut();
+  S.session = null; S.profile = null;
+  show('s0');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────────────
+function loadMap() { S.lvl = 0; S.path = []; updateHeader(); renderMap(); }
+
+function renderMap() {
+  const lvl = S.lvl, path = S.path;
+  document.getElementById('m-bc').textContent = ['World', ...path].join(' › ');
+  const back = document.getElementById('m-back');
+  back.classList.toggle('on', lvl > 0);
+  const lbls = ['Select a country', 'Select a city', 'Select a district'];
+  document.getElementById('m-ltitle').textContent = lbls[Math.min(lvl, 2)];
+
+  let data;
+  if (lvl === 0) data = WD;
+  else if (lvl === 1) data = WD[path[0]].cities;
+  else data = WD[path[0]].cities[path[1]].districts;
+
+  const pins = document.getElementById('m-pins');
+  pins.innerHTML = '';
+  const pinSource = lvl === 0 ? WD : lvl === 1 ? WD[path[0]].cities : null;
+  if (pinSource) {
+    Object.entries(pinSource).forEach(([name, d]) => {
+      if (!d.pin) return;
+      const el = document.createElement('div');
+      el.className = 'pin';
+      el.style.left = d.pin.x; el.style.top = d.pin.y;
+      const dot = document.createElement('div'); dot.className = 'pin-dot';
+      const ring = document.createElement('div'); ring.className = 'pin-ring';
+      const lbl = document.createElement('div'); lbl.className = 'pin-lbl';
+      lbl.textContent = name;  // textContent — XSS 안전
+      el.append(dot, ring, lbl);
+      el.onclick = () => drill(name);
+      pins.appendChild(el);
+    });
+  }
+
+  const list = document.getElementById('r-list');
+  list.innerHTML = '';
+  Object.entries(data).forEach(([name, d]) => {
+    const lk = d.likes || 0;
+    const c = document.createElement('div');
+    c.className = 'r-card';
+    const rName = document.createElement('span'); rName.className = 'r-name';
+    rName.textContent = name;  // textContent
+    const rMeta = document.createElement('div'); rMeta.className = 'r-meta';
+    const rLikes = document.createElement('span'); rLikes.className = 'r-likes';
+    rLikes.textContent = '♥ ' + lk;
+    const rArr = document.createElement('span'); rArr.className = 'r-arr';
+    rArr.textContent = '›';
+    rMeta.append(rLikes, rArr); c.append(rName, rMeta);
+    c.onclick = lvl < 2 ? () => drill(name) : () => enterDistrict(name);
+    list.appendChild(c);
+  });
+}
+
+function drill(name) {
+  S.path.push(name); S.lvl++;
+  if (S.lvl === 3) { enterDistrict(name); return; }
+  renderMap();
+}
+
+function mapBack() {
+  if (S.lvl > 0) { S.path.pop(); S.lvl--; renderMap(); }
+}
+
+function enterDistrict(name) {
+  S.district = name;
+  loadFeed();
+  show('s3');
+}
+
+function feedBack() {
+  if (S.lvl === 3) { S.path.pop(); S.lvl = 2; }
+  renderMap(); show('s2');
+}
+
+// ── FEED: Supabase posts 테이블 SELECT ───────────────────────
+function loadFeed() {
+  document.getElementById('f-lname').textContent = S.district || 'Community';
+  document.getElementById('chat-ttl').textContent = (S.district || 'Community') + ' Chat';
+  renderFeed();
+}
+
+async function renderFeed() {
+  const list = document.getElementById('f-list');
+  list.innerHTML = '<div class="feed-loading">Loading...</div>';
+
+  try {
+    // posts SELECT (district 필터)
+    let query = db.from('posts')
+      .select(`
+        id, user_id, district, course, km, pace, photo_url, likes_count, created_at,
+        users_profile ( display_name, role )
+      `)
+      .eq('district', S.district);
+
+    if (S.filter === 'pop') query = query.order('likes_count', { ascending: false });
+    else if (S.filter === 'new') query = query.order('created_at', { ascending: false });
+    else query = query.order('created_at', { ascending: true });
+
+    query = query.limit(50);
+    const { data: posts, error } = await query;
+    if (error) throw error;
+
+    // 내가 좋아요한 포스트 조회
+    if (S.session) {
+      const { data: likedData } = await db.from('likes')
+        .select('post_id')
+        .eq('user_id', S.session.user.id)
+        .in('post_id', (posts || []).map(p => p.id));
+      S.likedPosts = new Set((likedData || []).map(l => l.post_id));
     }
-    toDelete.forEach(k=>localStorage.removeItem(k));
-    S.verified=false; S.role=null; S.email=null;
+
+    list.innerHTML = '';
+    if (!posts || posts.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'feed-loading';
+      empty.textContent = 'No posts yet. Be the first!';
+      list.appendChild(empty);
+      return;
+    }
+
+    posts.forEach(p => {
+      const isLiked = S.likedPosts.has(p.id);
+      const cnt = p.likes_count || 0;
+      const displayName = p.users_profile?.display_name || 'Runner';
+
+      const card = document.createElement('div');
+      card.className = 'post';
+
+      // 상단: 지도 + 사진 2컬럼
+      const visuals = document.createElement('div'); visuals.className = 'post-visuals';
+
+      // 좌: 러닝 루트 SVG
+      const mapDiv = document.createElement('div'); mapDiv.className = 'post-map';
+      mapDiv.innerHTML = makeRouteSvg(S.district, p.id ? p.id.charCodeAt(0) : 1);
+
+      // 우: 사진 (Supabase Storage signed URL 또는 빈 상태)
+      const photoDiv = document.createElement('div'); photoDiv.className = 'post-photo';
+      if (p.photo_url) {
+        const img = document.createElement('img');
+        img.alt = '';
+        // photo_url은 Storage 경로 — signed URL 생성
+        (async () => {
+          const { data: signedData } = await db.storage
+            .from('arc-photos')
+            .createSignedUrl(p.photo_url, 3600);
+          if (signedData?.signedUrl) img.src = signedData.signedUrl;
+        })();
+        photoDiv.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.style.cssText = 'text-align:center;color:#A89E93';
+        const phIcon = document.createElement('div');
+        phIcon.style.fontSize = '1.5rem';
+        phIcon.textContent = '📸';
+        const phText = document.createElement('p');
+        phText.style.cssText = 'font-size:0.44rem;letter-spacing:.1em;text-transform:uppercase;margin-top:4px';
+        phText.textContent = 'No Photo';
+        ph.append(phIcon, phText);
+        photoDiv.appendChild(ph);
+      }
+      visuals.append(mapDiv, photoDiv);
+
+      // 하단 footer
+      const footer = document.createElement('div'); footer.className = 'post-footer';
+      const userInfo = document.createElement('div'); userInfo.className = 'post-user-info';
+      const uname = document.createElement('span'); uname.className = 'post-username';
+      uname.textContent = displayName;
+      const ucourse = document.createElement('span'); ucourse.className = 'post-course';
+      ucourse.textContent = p.course || 'My Run';
+      userInfo.append(uname, ucourse);
+
+      const statsRow = document.createElement('div'); statsRow.className = 'post-stats-row';
+
+      function mkStatInline(val, lbl) {
+        const ps = document.createElement('div'); ps.className = 'pstat-inline';
+        const v = document.createElement('span'); v.className = 'ps-val-sm';
+        v.textContent = val;
+        const l = document.createElement('span'); l.className = 'ps-lbl-sm';
+        l.textContent = lbl;
+        ps.append(v, l); return ps;
+      }
+
+      const likeBtn = document.createElement('button');
+      likeBtn.className = 'like-btn' + (isLiked ? ' on' : '');
+      const likeHeart = document.createElement('span');
+      likeHeart.style.fontSize = '1rem';
+      likeHeart.textContent = '♥';
+      const likeCnt = document.createElement('span');
+      likeCnt.textContent = cnt;
+      likeBtn.append(likeHeart, likeCnt);
+      likeBtn.onclick = () => toggleLike(p.id, likeBtn, likeCnt);
+
+      statsRow.append(mkStatInline((parseFloat(p.km) || 0) + 'km', 'dist'), mkStatInline(p.pace || '—', 'pace'), likeBtn);
+      footer.append(userInfo, statsRow);
+      card.append(visuals, footer);
+      list.appendChild(card);
+    });
+  } catch (err) {
+    list.innerHTML = '';
+    const errEl = document.createElement('div');
+    errEl.className = 'feed-loading';
+    errEl.textContent = 'Failed to load posts.';
+    list.appendChild(errEl);
+    toast('Feed load failed: ' + (err.message || 'unknown error'));
+  }
+}
+
+function setFilter(f, el) {
+  S.filter = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderFeed();
+}
+
+// toggleLike: likes 테이블 upsert/delete
+async function toggleLike(postId, btn, cntEl) {
+  if (!S.session) { toast('Please sign in to like posts.'); return; }
+  btn.disabled = true;
+  const wasLiked = S.likedPosts.has(postId);
+
+  try {
+    if (wasLiked) {
+      const { error } = await db.from('likes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', S.session.user.id);
+      if (error) throw error;
+      S.likedPosts.delete(postId);
+      btn.classList.remove('on');
+      cntEl.textContent = Math.max(0, parseInt(cntEl.textContent) - 1);
+    } else {
+      const { error } = await db.from('likes')
+        .insert({ post_id: postId, user_id: S.session.user.id });
+      if (error) throw error;
+      S.likedPosts.add(postId);
+      btn.classList.add('on');
+      cntEl.textContent = parseInt(cntEl.textContent) + 1;
+    }
+  } catch (err) {
+    if (err.message && err.message.includes('Rate limit')) {
+      toast('Too many likes. Please slow down.');
+    } else {
+      toast('Like failed. Please try again.');
+    }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── CHAT: messages 테이블 (폴링 대신 수동 새로고침) ──────────
+async function openChat() {
+  const sendBtn = document.getElementById('chat-send-btn');
+  sendBtn.disabled = true;
+  const el = document.getElementById('chat-msgs');
+  el.innerHTML = '<div class="feed-loading">Loading...</div>';
+  document.getElementById('chat-ov').classList.add('on');
+
+  try {
+    const { data: msgs, error } = await db.from('messages')
+      .select('id, sender_name, content, sender_id, created_at')
+      .eq('district', S.district)
+      .order('created_at', { ascending: true })
+      .limit(50);
+    if (error) throw error;
+
+    el.innerHTML = '';
+    (msgs || []).forEach(m => {
+      const isMine = S.session && m.sender_id === S.session.user.id;
+      const d = document.createElement('div');
+      d.className = 'cmsg' + (isMine ? ' mine' : '');
+      const cu = document.createElement('div'); cu.className = 'cmsg-u';
+      cu.textContent = m.sender_name;  // textContent — XSS 안전
+      const ct = document.createElement('div'); ct.className = 'cmsg-t';
+      ct.textContent = m.content;       // textContent — XSS 안전
+      d.append(cu, ct);
+      el.appendChild(d);
+    });
+    el.scrollTop = el.scrollHeight;
+  } catch (err) {
+    el.innerHTML = '<div class="feed-loading">Failed to load messages.</div>';
+    toast('Chat load failed.');
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+function closeChat() { document.getElementById('chat-ov').classList.remove('on'); }
+
+// sendChat: messages 테이블 INSERT
+async function sendChat() {
+  if (!S.session) { toast('Please sign in to chat.'); return; }
+  const inp = document.getElementById('chat-inp');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  if (txt.length > 500) { toast('Message too long (max 500 chars).'); return; }
+
+  const sendBtn = document.getElementById('chat-send-btn');
+  sendBtn.disabled = true;
+  inp.value = '';
+
+  const senderName = S.session.user.email?.split('@')[0] || 'Runner';
+
+  try {
+    const { error } = await db.from('messages').insert({
+      district: S.district,
+      sender_id: S.session.user.id,
+      sender_name: senderName,
+      content: txt
+    });
+    if (error) throw error;
+    await openChat();  // 전송 후 목록 새로고침
+  } catch (err) {
+    toast('Send failed: ' + (err.message || 'please try again'));
+    sendBtn.disabled = false;
+  }
+}
+
+// ── POST MODAL ────────────────────────────────────────────────
+let photoBlob = null;  // WebP Blob (Storage 업로드용)
+
+function openPost() {
+  photoBlob = null;
+  document.getElementById('pm-img').style.display = 'none';
+  document.getElementById('pm-img').src = '';
+  document.querySelector('.pm-ph-hint').style.display = '';
+  ['ri-course', 'ri-km', 'ri-min', 'ri-pace'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pmodal').classList.add('on');
+}
+
+function closePost() { document.getElementById('pmodal').classList.remove('on'); }
+
+// onPhoto: WebP + 800px 리사이즈 (CFO 요구: 목표 80KB 이하)
+function onPhoto(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+
+  // 파일 타입 체크 (CISO: JPEG/PNG/WebP만)
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
+    toast('Only JPEG, PNG, WebP images are allowed.');
+    return;
+  }
+  // 5MB 상한 (CISO)
+  if (f.size > 5 * 1024 * 1024) {
+    toast('Image too large. Maximum 5MB.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.getElementById('pm-canvas');
+      const MAX = 800;  // CFO: 800px 리사이즈
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      // WebP 변환 (CFO 요구)
+      cv.toBlob(blob => {
+        photoBlob = blob;
+        const url = URL.createObjectURL(blob);
+        const pi = document.getElementById('pm-img');
+        pi.src = url; pi.style.display = 'block';
+        document.querySelector('.pm-ph-hint').style.display = 'none';
+      }, 'image/webp', 0.82);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+// submitPost: Storage 업로드 + posts INSERT
+async function submitPost() {
+  if (!S.session) { toast('Please sign in to post.'); return; }
+
+  const course = document.getElementById('ri-course').value.trim() || 'My Run';
+  const km = parseFloat(document.getElementById('ri-km').value) || 5;
+  const min = parseInt(document.getElementById('ri-min').value) || 30;
+  const pm = Math.floor(min / km);
+  const ps = Math.round(((min / km) - pm) * 60);
+  const pace = document.getElementById('ri-pace').value.trim() || `${pm}'${String(ps).padStart(2, '0')}"`;
+
+  const subBtn = document.getElementById('pm-sub-btn');
+  subBtn.textContent = 'Uploading...';
+  subBtn.disabled = true;
+
+  let photoStoragePath = null;
+
+  try {
+    // 사진 업로드 (있는 경우만)
+    if (photoBlob) {
+      const fileName = `${S.session.user.id}/${Date.now()}.webp`;
+      const { error: storageError } = await db.storage
+        .from('arc-photos')
+        .upload(fileName, photoBlob, {
+          contentType: 'image/webp',
+          upsert: false
+        });
+      if (storageError) throw storageError;
+      photoStoragePath = fileName;
+    }
+
+    // posts 테이블 INSERT
+    const { error: insertError } = await db.from('posts').insert({
+      user_id: S.session.user.id,
+      district: S.district,
+      course,
+      km,
+      pace,
+      photo_url: photoStoragePath
+    });
+    if (insertError) throw insertError;
+
+    closePost();
+    toast('Post shared!');
+    await renderFeed();
+  } catch (err) {
+    toast('Post failed: ' + (err.message || 'please try again'));
+  } finally {
+    subBtn.textContent = 'Post to Community';
+    subBtn.disabled = false;
+  }
+}
+
+// ── 온도 시스템 (localStorage 유지 — Supabase 미연동) ─────────
+const TEMP_KEY = 'arc_temp';
+function getTemp() { const v = parseFloat(LS.g(TEMP_KEY, 36.5)); return isNaN(v) ? 36.5 : Math.min(v, 99.9); }
+function updateTemp(delta) { LS.s(TEMP_KEY, Math.min(parseFloat((getTemp() + delta).toFixed(1)), 99.9)); }
+function getTempGrade(t) {
+  if (t >= 80) return { label: 'Platinum Member', color: '#6B2D3E' };
+  if (t >= 60) return { label: 'Gold Member', color: '#C9A84C' };
+  if (t >= 40) return { label: 'Silver Member', color: '#6B6459' };
+  return { label: 'Bronze Member', color: '#A89E93' };
+}
+
+// ── MYPAGE ────────────────────────────────────────────────────
+async function renderMyPage() {
+  const body = document.getElementById('mp-body');
+  body.innerHTML = '<div class="feed-loading">Loading profile...</div>';
+
+  let email = '—';
+  let roleRaw = 'member';
+  let totalKm = 0, totalPosts = 0, totalLikes = 0;
+  const recentRuns = [];
+
+  if (S.session) {
+    email = S.session.user.email || '—';
+    roleRaw = S.profile?.role || 'member';
+
+    // 내 포스트 조회
+    try {
+      const { data: myPosts } = await db.from('posts')
+        .select('id, course, km, pace, likes_count, created_at, district')
+        .eq('user_id', S.session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      (myPosts || []).forEach(p => {
+        totalPosts++;
+        totalKm += parseFloat(p.km) || 0;
+        totalLikes += parseInt(p.likes_count) || 0;
+        recentRuns.push(p);
+      });
+    } catch (e) {}
+  }
+
+  const roleLabel = { student: 'Student', pro: 'Worker', founder: 'Founder' };
+  const temp = getTemp();
+  const grade = getTempGrade(temp);
+  const barPct = Math.min((temp / 99.9) * 100, 100).toFixed(1);
+  const shown = recentRuns.slice(0, 3);
+
+  let html = `
+  <div class="temp-card" id="mp-temp-card">
+    <div class="mp-member-email">${esc(email)}</div>
+    <div class="mp-member-role">${esc(roleLabel[roleRaw] || roleRaw)}</div>
+    <div class="mp-temp-num">${temp.toFixed(1)}°</div>
+    <div class="temp-bar-bg">
+      <div class="temp-bar-fill" id="mp-temp-fill" style="width:${barPct}%"></div>
+    </div>
+    <div class="mp-temp-grade">${esc(grade.label)}</div>
+  </div>
+
+  <div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Running Stats</div><div class="mp-div-line"></div></div>
+  <div class="stats-section">
+    <div class="mp-stats">
+      <div class="mp-stat">
+        <span class="mp-stat-lbl">Total Distance</span>
+        <span class="mp-stat-val">${totalKm.toFixed(1)}<span class="mp-stat-unit">km</span></span>
+      </div>
+      <div class="mp-stat">
+        <span class="mp-stat-lbl">Total Posts</span>
+        <span class="mp-stat-val">${totalPosts}</span>
+      </div>
+      <div class="mp-stat">
+        <span class="mp-stat-lbl">Likes Received</span>
+        <span class="mp-stat-val">${totalLikes}</span>
+      </div>
+      <div class="mp-stat">
+        <span class="mp-stat-lbl">Member Since</span>
+        <span class="mp-stat-val" style="font-size:0.9rem">${S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
+      </div>
+    </div>
+  </div>`;
+
+  if (shown.length) {
+    html += `<div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Recent Runs</div><div class="mp-div-line"></div></div>`;
+    shown.forEach(p => {
+      html += `
+      <div class="mp-run-card">
+        <div class="mp-run-top">
+          <span class="mp-run-course">${esc(p.course || 'My Run')}</span>
+          <span class="mp-run-km">${parseFloat(p.km).toFixed(1)}km</span>
+        </div>
+        <div class="mp-run-meta">${esc(p.district || '')} &nbsp;·&nbsp; ${esc(p.pace || '')}</div>
+      </div>`;
+    });
+  }
+
+  body.innerHTML = html;
+  const card = document.getElementById('mp-temp-card');
+  if (card) card.style.setProperty('--grade-color', grade.color);
+}
+
+// arcSettings: 세션 로그아웃 + localStorage 초기화
+function arcSettings() {
+  if (confirm('Sign out and reset your ARC data? This cannot be undone.')) {
+    db.auth.signOut();
+    S.session = null; S.profile = null;
+    // localStorage arc_ 키 제거
+    const toDelete = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('arc_')) toDelete.push(k);
+    }
+    toDelete.forEach(k => localStorage.removeItem(k));
     show('s0');
   }
 }
 
-// ── INIT ──────────────────────────────────
-(function(){
-  if(S.verified){loadMap();show('s2')}else{show('s0')}
-  const cb=document.getElementById('consent-terms');
-  const btn=document.getElementById('send-btn');
-  const inp=document.getElementById('e-inp');
-  const updateBtn=()=>{btn.disabled=!(cb&&cb.checked&&inp&&validEmail(inp.value.trim()))};
-  if(cb) cb.addEventListener('change',updateBtn);
-  if(inp) inp.addEventListener('input',updateBtn);
+// ── 초기화 ────────────────────────────────────────────────────
+(async function init() {
+  // Supabase 세션 복원
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      S.session = session;
+      const { data: profile } = await db.from('users_profile')
+        .select('*').eq('user_id', session.user.id).single();
+      S.profile = profile;
+      loadMap();
+      show('s2');
+      return;
+    }
+  } catch (e) {}
+
+  show('s0');
+
+  // 인증 동의 체크박스 → 버튼 활성화
+  const cb = document.getElementById('consent-terms');
+  const btn = document.getElementById('send-btn');
+  const inp = document.getElementById('e-inp');
+  const updateBtn = () => { btn.disabled = !(cb && cb.checked && inp && validEmail(inp.value.trim())); };
+  if (cb) cb.addEventListener('change', updateBtn);
+  if (inp) inp.addEventListener('input', updateBtn);
+
+  // 세션 변경 리스너 (OTP 인증 완료 콜백)
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && !S.session) {
+      S.session = session;
+      const { data: profile } = await db.from('users_profile')
+        .select('*').eq('user_id', session.user.id).single();
+      S.profile = profile;
+      loadMap();
+      show('s2');
+    }
+    if (event === 'SIGNED_OUT') {
+      S.session = null; S.profile = null;
+    }
+  });
 })();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
-if (S.verified) { loadMap(); show('s2'); }
 </script>
 </body>
 </html>
