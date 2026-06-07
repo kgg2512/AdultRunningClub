@@ -141,6 +141,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .g-privacy-bar{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2}
 .g-privacy-link{font-family:var(--sans);font-size:0.38rem;letter-spacing:0.2em;color:rgba(250,248,244,0.18);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
 .g-privacy-link:hover{color:rgba(201,168,76,0.5)}
+.demo-notice{display:none;margin:0 0 20px;padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);text-align:center}
+.demo-notice-label{font-family:var(--sans);font-size:0.5rem;letter-spacing:.15em;color:var(--gold);opacity:.9;text-transform:uppercase;margin-bottom:10px}
+.demo-enter-btn{background:var(--gold);color:var(--gate-bg);border:none;padding:12px 28px;font-family:var(--sans);font-size:0.54rem;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;width:100%}
+.demo-enter-btn:hover{background:var(--gold-dark)}
 
 /* ══ S1 VERIFY ══ */
 #s1{background:var(--bg)}
@@ -438,6 +442,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div class="v-sub">Prove your adulthood.</div>
   </div>
   <div class="v-body">
+    <div id="demo-notice" class="demo-notice">
+      <p class="demo-notice-label">Demo Mode — Supabase not connected</p>
+      <button type="button" class="demo-enter-btn" onclick="enterDemo()">Enter Demo →</button>
+    </div>
     <div class="v-slabel">01 — Who are you?</div>
     <div class="role-grid">
       <button type="button" class="role-btn" onclick="pickRole('student',this)">Student</button>
@@ -774,7 +782,7 @@ function show(id) {
 }
 
 function goBNavMap() {
-  if (S.session) { loadMap(); show('s2'); } else { show('s0'); }
+  if (DEMO_MODE || S.session) { loadMap(); show('s2'); } else { show('s0'); }
 }
 function goBNavProfile() {
   prevScreen = currentScreen || 's2';
@@ -784,9 +792,11 @@ function goBNavProfile() {
 
 // ── GATE ──────────────────────────────────────────────────────
 function gateYes() {
-  if (DEMO_MODE) { loadMap(); show('s2'); return; }
-  if (S.session) { loadMap(); show('s2'); } else { show('s1'); }
+  if (S.session) { loadMap(); show('s2'); return; }
+  show('s1');
+  if (DEMO_MODE) document.getElementById('demo-notice').style.display = 'block'; // CSS default is none; show only in demo
 }
+function enterDemo() { loadMap(); show('s2'); }
 function gateNo() {
   const msg = document.createElement('div');
   msg.style.cssText = 'background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
@@ -1215,7 +1225,7 @@ async function openChat() {
   document.getElementById('chat-ov').classList.add('on');
 
   if (DEMO_MODE) {
-    el.innerHTML = '<div class="feed-loading" style="opacity:.5;font-style:italic">Connect Supabase to enable live chat.</div>';
+    el.innerHTML = '';
     sendBtn.disabled = false;
     return;
   }
@@ -1255,11 +1265,24 @@ function closeChat() { document.getElementById('chat-ov').classList.remove('on')
 
 // sendChat: messages 테이블 INSERT
 async function sendChat() {
-  if (!S.session) { toast('Please sign in to chat.'); return; }
   const inp = document.getElementById('chat-inp');
   const txt = inp.value.trim();
   if (!txt) return;
   if (txt.length > 500) { toast('Message too long (max 500 chars).'); return; }
+
+  if (DEMO_MODE) {
+    const el = document.getElementById('chat-msgs');
+    const d = document.createElement('div'); d.className = 'cmsg mine';
+    const cu = document.createElement('div'); cu.className = 'cmsg-u'; cu.textContent = 'You (Demo)';
+    const ct = document.createElement('div'); ct.className = 'cmsg-t'; ct.textContent = txt;
+    d.append(cu, ct);
+    el.appendChild(d);
+    el.scrollTop = el.scrollHeight;
+    inp.value = '';
+    return;
+  }
+
+  if (!S.session) { toast('Please sign in to chat.'); return; }
 
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.disabled = true;
@@ -1413,11 +1436,19 @@ async function renderMyPage() {
   let totalKm = 0, totalPosts = 0, totalLikes = 0;
   const recentRuns = [];
 
-  if (S.session) {
+  if (DEMO_MODE) {
+    email = 'demo@arc.club';
+    roleRaw = 'founder';
+    DEMO_POSTS_TEMPLATE.forEach(p => {
+      totalPosts++;
+      totalKm += parseFloat(p.km) || 0;
+      totalLikes += parseInt(p.likes_count) || 0;
+      recentRuns.push(p);
+    });
+  } else if (S.session) {
     email = S.session.user.email || '—';
     roleRaw = S.profile?.role || 'member';
 
-    // 내 포스트 조회
     try {
       const { data: myPosts } = await db.from('posts')
         .select('id, course, km, pace, likes_count, created_at, district')
@@ -1468,7 +1499,7 @@ async function renderMyPage() {
       </div>
       <div class="mp-stat">
         <span class="mp-stat-lbl">Member Since</span>
-        <span class="mp-stat-val" style="font-size:0.9rem">${S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
+        <span class="mp-stat-val" style="font-size:0.9rem">${DEMO_MODE ? 'Jun 2024' : S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
       </div>
     </div>
   </div>`;
