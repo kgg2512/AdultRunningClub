@@ -4,13 +4,15 @@
   "description": "ARC — Running Society. Seoul's premier luxury running members club.",
   "private": true,
   "scripts": {
-    "cap:init": "npx cap init",
+    "sync": "cp index.html www/index.html && echo 'www/index.html synced'",
+    "build": "npm run sync && npx cap sync android",
+    "build:android:release": "npm run build && cd android && ./gradlew bundleRelease",
+    "build:android:debug": "npm run build && cd android && ./gradlew bundleDebug",
     "cap:sync": "npx cap sync",
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android",
     "cap:add:ios": "npx cap add ios",
     "cap:add:android": "npx cap add android",
-    "cap:build:android": "npx cap sync android && cd android && ./gradlew bundleRelease",
     "cap:update": "npx cap update"
   },
   "dependencies": {

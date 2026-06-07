@@ -1,0 +1,87 @@
+name: Build & Deploy — Web + Android
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  # ─── 웹 상태 확인 ─────────────────────────────────────────────
+  web-status:
+    name: Web (GitHub Pages)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pages 배포 확인
+        run: |
+          echo "### 🌐 Web Deploy" >> $GITHUB_STEP_SUMMARY
+          echo "GitHub Pages auto-deploys from master branch root." >> $GITHUB_STEP_SUMMARY
+          echo "→ https://kgg2512.github.io/AdultRunningClub/" >> $GITHUB_STEP_SUMMARY
+
+  # ─── Android AAB 빌드 ─────────────────────────────────────────
+  build-android:
+    name: Android AAB Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync www/ from index.html
+        run: npm run sync
+
+      - name: Capacitor sync android
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build AAB
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > android/release.keystore
+            cd android && ./gradlew bundleRelease \
+              -PKEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" \
+              -PKEY_ALIAS="$KEY_ALIAS" \
+              -PKEY_PASSWORD="$KEY_PASSWORD"
+            echo "AAB_PATH=android/app/build/outputs/bundle/release/app-release.aab" >> $GITHUB_ENV
+            echo "BUILD_TYPE=release" >> $GITHUB_ENV
+          else
+            echo "⚠️  Keystore secrets not configured — building debug bundle"
+            cd android && ./gradlew bundleDebug
+            echo "AAB_PATH=android/app/build/outputs/bundle/debug/app-debug.aab" >> $GITHUB_ENV
+            echo "BUILD_TYPE=debug" >> $GITHUB_ENV
+          fi
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arc-${{ env.BUILD_TYPE }}-${{ github.sha }}
+          path: ${{ env.AAB_PATH }}
+          retention-days: 30
+
+      - name: Build summary
+        run: |
+          echo "### 📱 Android ${{ env.BUILD_TYPE }} Build" >> $GITHUB_STEP_SUMMARY
+          echo "- AAB: \`${{ env.AAB_PATH }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.BUILD_TYPE }}" = "debug" ]; then
+            echo "- ⚠️ Add KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD to GitHub Secrets for release builds" >> $GITHUB_STEP_SUMMARY
+          fi
