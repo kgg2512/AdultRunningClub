@@ -876,6 +876,19 @@ async function sendCode() {
   S.pendingEmail = e;
   S.pendingRole = selRole;
 
+  // DEMO_MODE: Supabase 없이 회원가입 플로우 시뮬레이션
+  if (DEMO_MODE) {
+    await new Promise(r => setTimeout(r, 800)); // 전송 느낌 연출
+    hint.style.color = '#A8892F';
+    hint.textContent = 'Demo: OTP sent to ' + e + ' (use code: 123456)';
+    btn.textContent = 'Resend Code';
+    btn.disabled = false;
+    document.getElementById('otp-info').classList.add('on');
+    document.getElementById('code-step').classList.add('visible');
+    document.getElementById('v-err').classList.remove('on');
+    return;
+  }
+
   try {
     const { error } = await db.auth.signInWithOtp({
       email: e,
@@ -913,6 +926,24 @@ async function doVerify() {
 
   verifyBtn.textContent = 'Verifying...';
   verifyBtn.disabled = true;
+
+  // DEMO_MODE: 코드 '123456' 허용 → 데모 세션 생성
+  if (DEMO_MODE) {
+    await new Promise(r => setTimeout(r, 600)); // 검증 느낌 연출
+    if (token !== '123456') {
+      document.getElementById('v-err').classList.add('on');
+      verifyBtn.textContent = 'Verify & Enter';
+      verifyBtn.disabled = false;
+      return;
+    }
+    // 데모 세션 설정
+    S.session = { user: { id: 'demo-user', email: S.pendingEmail, created_at: new Date().toISOString() } };
+    S.profile = { user_id: 'demo-user', email: S.pendingEmail, role: S.pendingRole || 'pro', marketing_consent: false };
+    updateHeader();
+    loadMap();
+    show('s2');
+    return;
+  }
 
   try {
     const { data, error } = await db.auth.verifyOtp({
@@ -959,7 +990,7 @@ function updateHeader() {
 }
 
 function goHome() {
-  db.auth.signOut();
+  if (db) db.auth.signOut();
   S.session = null; S.profile = null;
   show('s0');
 }
@@ -1531,7 +1562,7 @@ async function renderMyPage() {
 // arcSettings: 세션 로그아웃 + localStorage 초기화
 function arcSettings() {
   if (confirm('Sign out and reset your ARC data? This cannot be undone.')) {
-    db.auth.signOut();
+    if (db) db.auth.signOut();
     S.session = null; S.profile = null;
     // localStorage arc_ 키 제거
     const toDelete = [];
@@ -1546,7 +1577,17 @@ function arcSettings() {
 
 // ── 초기화 ────────────────────────────────────────────────────
 (async function init() {
-  if (DEMO_MODE) { show('s0'); return; }
+  if (DEMO_MODE) {
+    show('s0');
+    // DEMO_MODE에서도 인증 체크박스 → send-btn 활성화 필요
+    const cb = document.getElementById('consent-terms');
+    const btn = document.getElementById('send-btn');
+    const inp = document.getElementById('e-inp');
+    const updateBtn = () => { btn.disabled = !(cb && cb.checked && inp && validEmail(inp.value.trim())); };
+    if (cb) cb.addEventListener('change', updateBtn);
+    if (inp) inp.addEventListener('input', updateBtn);
+    return;
+  }
 
   // Supabase 세션 복원
   try {
