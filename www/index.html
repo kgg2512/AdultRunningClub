@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- SEC-CRED: EmailJS SDK 제거 — CF Worker 프록시 방식으로 대체 (자격증명 클라이언트 노출 방지) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -169,11 +169,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .v-err{font-size:0.58rem;color:#9B2C2C;margin-top:7px;display:none}
 .v-err.on{display:block}
 .privacy-notice{font-size:0.52rem;color:var(--text-dim);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
-.demo-skip-wrap{text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
-.demo-skip-btn{opacity:1;font-size:0.52rem;max-width:260px;padding:12px 24px;color:var(--text-sub)!important;border-color:var(--border)!important}
 .v-hd-row{display:flex;align-items:center;justify-content:space-between}
-.v-skip-top{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--sans);font-size:0.44rem;letter-spacing:.22em;text-transform:uppercase;padding:6px 14px;cursor:pointer;opacity:0.75}
-.v-skip-top:hover{opacity:1}
 .privacy-notice a{color:var(--gold);text-decoration:underline}
 .consent-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0 8px;cursor:pointer}
 .consent-row input[type=checkbox]{width:14px;height:14px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
@@ -404,7 +400,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <div class="v-hd">
     <div class="v-hd-row">
       <button type="button" class="v-back" onclick="show('s0')">← Back</button>
-      <button type="button" class="v-skip-top" onclick="demoSkip()">Skip</button>
     </div>
     <div class="v-title">Verification</div>
     <div class="v-sub">Prove your adulthood.</div>
@@ -450,10 +445,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
-    </div>
-    <!-- Demo bypass — intentionally de-emphasised -->
-    <div class="demo-skip-wrap">
-      <button class="g-btn g-no demo-skip-btn" onclick="demoSkip()">Skip (Demo Only)</button>
     </div>
   </div>
 </div>
@@ -686,6 +677,8 @@ function getChats(d){
 }
 
 // ── ROUTE SVG GENERATOR ──────────────────
+// SEC-XSS: district 문자열을 SVG innerHTML에 직접 삽입 금지
+// → DOMParser로 SVG 생성 후 text 요소에 textContent 할당
 function makeRouteSvg(district, seed) {
   const s = seed || 1;
   const rng = (n) => { let x = Math.sin(s * 9301 + n * 49297) * 233280; return x - Math.floor(x); };
@@ -700,13 +693,20 @@ function makeRouteSvg(district, seed) {
   pts.push([W*0.2, H*0.5]);
   const d = pts.map((p,i)=>i===0?`M${p[0].toFixed(1)},${p[1].toFixed(1)}`:`L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const sp = pts[0];
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+  // 정적 SVG 문자열 생성 (district 제외 — 숫자/경로 값만 포함하여 XSS 불가)
+  const svgStr = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
     <rect width="${W}" height="${H}" fill="#F0EDE6"/>
     ${grid}
     <path d="${d}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${sp[0]}" cy="${sp[1]}" r="4" fill="#6B2D3E"/>
-    <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="Raleway,sans-serif" font-size="8" fill="#A89E93" letter-spacing="1">${district||'Route'}</text>
+    <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="Raleway,sans-serif" font-size="8" fill="#A89E93" letter-spacing="1" id="svg-district-label"></text>
   </svg>`;
+  // DOMParser로 파싱 후 district를 textContent로 설정 (XSS 방지)
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgStr, 'image/svg+xml');
+  const textEl = doc.getElementById('svg-district-label');
+  if(textEl) textEl.textContent = district || 'Route';
+  return doc.documentElement.outerHTML;
 }
 
 // ── NAVIGATION ────────────────────────────
@@ -776,7 +776,10 @@ function isFreeEmail(e,r){
   return FREE.includes(d);
 }
 
-emailjs.init('xBoQd6PMFec8hCvVD');
+// SEC-CRED: emailjs.init + 직접 호출 제거 → CF Worker 프록시 경유
+// CF Worker URL: 배포 후 실제 subdomain으로 교체
+// wrangler secret put EMAILJS_PUBLIC_KEY / EMAILJS_SERVICE_ID / EMAILJS_TEMPLATE_ID 필요
+const ARC_EMAIL_WORKER_URL = 'https://arc-email-proxy.kgg2512.workers.dev';
 
 function sendCode(){
   const e=document.getElementById('e-inp').value.trim();
@@ -801,7 +804,13 @@ function sendCode(){
   S.code=code; S.pendingEmail=e;
   btn.textContent='Sending...'; btn.disabled=true;
 
-  emailjs.send('service_ayss3t8','template_5zt0y8c',{to_email:e,code:code})
+  // CF Worker 프록시 호출 (자격증명은 Worker 환경변수에서만 접근)
+  fetch(ARC_EMAIL_WORKER_URL+'/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({to_email:e,code:code})
+  })
+    .then(r=>r.ok?r.json():r.json().then(d=>{throw new Error(d.error||'Send failed');}))
     .then(()=>{
       hint.style.color='#A8892F';
       hint.textContent='✓ Code sent to '+e;
@@ -811,7 +820,7 @@ function sendCode(){
     })
     .catch((err)=>{
       hint.style.color='#9B2C2C';
-      hint.textContent='❌ Send failed — '+(err.text||'please try again');
+      hint.textContent='❌ Send failed — '+(err.message||'please try again');
       btn.textContent='Send Verification Code'; btn.disabled=false;
     });
 }
@@ -829,12 +838,6 @@ function doVerify(){
 function goHome(){
   LS.s('arc_v',false); S.verified=false;
   show('s0');
-}
-
-function demoSkip(){
-  S.verified=true; S.role='pro'; S.email='demo@demo.arc';
-  LS.s('arc_v',true); LS.s('arc_r','pro'); LS.s('arc_e','demo@demo.arc');
-  loadMap(); show('s2');
 }
 
 
@@ -972,7 +975,9 @@ function renderFeed(){
     const likeBtn=document.createElement('button');
     likeBtn.className='like-btn'+(isLiked?' on':'');
     likeBtn.onclick=()=>toggleLike(p.id);
-    likeBtn.innerHTML=`<span style="font-size:1rem">♥</span>${cnt}`;
+    // SEC-XSS: innerHTML 제거 → DOM API
+    const heartSpan=document.createElement('span'); heartSpan.style.fontSize='1rem'; heartSpan.textContent='♥';
+    likeBtn.appendChild(heartSpan); likeBtn.appendChild(document.createTextNode(cnt));
 
     statsRow.append(mkStatInline(p.km+'km','dist'), mkStatInline(p.pace,'pace'), likeBtn);
     footer.append(userInfo, statsRow);
@@ -1146,55 +1151,65 @@ function renderMyPage(){
 
   const barPct=Math.min((temp/99.9)*100,100).toFixed(1);
 
-  let html=`
-  <div class="temp-card" id="mp-temp-card">
-    <div class="mp-member-email">${email}</div>
-    <div class="mp-member-role">${roleLabel}</div>
-    <div class="mp-temp-num">${temp.toFixed(1)}°</div>
-    <div class="temp-bar-bg">
-      <div class="temp-bar-fill" id="mp-temp-fill" style="width:${barPct}%"></div>
-    </div>
-    <div class="mp-temp-grade">${grade.label}</div>
-  </div>
+  // SEC-XSS: innerHTML 직접 삽입 제거 → DOM API로 교체 (localStorage 데이터는 신뢰 불가)
+  const body=document.getElementById('mp-body');
+  body.textContent=''; // 초기화
 
-  <div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Running Stats</div><div class="mp-div-line"></div></div>
-  <div class="stats-section">
-    <div class="mp-stats">
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Total Distance</span>
-        <span class="mp-stat-val">${totalKm.toFixed(1)}<span class="mp-stat-unit">km</span></span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Total Posts</span>
-        <span class="mp-stat-val">${totalPosts}</span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Likes Received</span>
-        <span class="mp-stat-val">${totalLikes}</span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Regions Visited</span>
-        <span class="mp-stat-val">${regions}</span>
-      </div>
-    </div>
-  </div>`;
+  // 온도 카드
+  const tempCard=document.createElement('div'); tempCard.className='temp-card'; tempCard.id='mp-temp-card';
+  const emailEl=document.createElement('div'); emailEl.className='mp-member-email'; emailEl.textContent=email;
+  const roleEl=document.createElement('div'); roleEl.className='mp-member-role'; roleEl.textContent=roleLabel;
+  const tempNum=document.createElement('div'); tempNum.className='mp-temp-num'; tempNum.textContent=temp.toFixed(1)+'°';
+  const barBg=document.createElement('div'); barBg.className='temp-bar-bg';
+  const barFill=document.createElement('div'); barFill.className='temp-bar-fill'; barFill.id='mp-temp-fill'; barFill.style.width=barPct+'%';
+  barBg.appendChild(barFill);
+  const gradeEl=document.createElement('div'); gradeEl.className='mp-temp-grade'; gradeEl.textContent=grade.label;
+  tempCard.append(emailEl,roleEl,tempNum,barBg,gradeEl);
+  body.appendChild(tempCard);
+
+  // Stats 섹션
+  function mkDivider(text){
+    const d=document.createElement('div'); d.className='mp-divider';
+    const l1=document.createElement('div'); l1.className='mp-div-line';
+    const t=document.createElement('div'); t.className='mp-div-text'; t.textContent=text;
+    const l2=document.createElement('div'); l2.className='mp-div-line';
+    d.append(l1,t,l2); return d;
+  }
+  function mkStat(lbl,val,unit){
+    const s=document.createElement('div'); s.className='mp-stat';
+    const l=document.createElement('span'); l.className='mp-stat-lbl'; l.textContent=lbl;
+    const v=document.createElement('span'); v.className='mp-stat-val'; v.textContent=val;
+    if(unit){const u=document.createElement('span'); u.className='mp-stat-unit'; u.textContent=unit; v.appendChild(u);}
+    s.append(l,v); return s;
+  }
+  body.appendChild(mkDivider('Running Stats'));
+  const statsSection=document.createElement('div'); statsSection.className='stats-section';
+  const statsWrap=document.createElement('div'); statsWrap.className='mp-stats';
+  statsWrap.append(
+    mkStat('Total Distance',totalKm.toFixed(1),'km'),
+    mkStat('Total Posts',totalPosts,null),
+    mkStat('Likes Received',totalLikes,null),
+    mkStat('Regions Visited',regions,null)
+  );
+  statsSection.appendChild(statsWrap);
+  body.appendChild(statsSection);
 
   if(shown.length){
-    html+=`<div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Recent Runs</div><div class="mp-div-line"></div></div>`;
+    body.appendChild(mkDivider('Recent Runs'));
     shown.forEach(p=>{
-      const d=p.district||'';
-      html+=`
-      <div class="mp-run-card">
-        <div class="mp-run-top">
-          <span class="mp-run-course">${p.course||'My Run'}</span>
-          <span class="mp-run-km">${parseFloat(p.km).toFixed(1)}km</span>
-        </div>
-        <div class="mp-run-meta">${d} &nbsp;·&nbsp; ${p.min||0}min &nbsp;·&nbsp; ${p.pace||''}</div>
-      </div>`;
+      const rc=document.createElement('div'); rc.className='mp-run-card';
+      const top=document.createElement('div'); top.className='mp-run-top';
+      const course=document.createElement('span'); course.className='mp-run-course'; course.textContent=p.course||'My Run';
+      const km=document.createElement('span'); km.className='mp-run-km'; km.textContent=parseFloat(p.km).toFixed(1)+'km';
+      top.append(course,km);
+      const meta=document.createElement('div'); meta.className='mp-run-meta';
+      // textContent 사용 — XSS 방지. · 구분자는 텍스트 노드로
+      meta.textContent=((p.district||'')+' · '+(p.min||0)+'min · '+(p.pace||''));
+      rc.append(top,meta);
+      body.appendChild(rc);
     });
   }
 
-  document.getElementById('mp-body').innerHTML=html;
   const card=document.getElementById('mp-temp-card');
   if(card)card.style.setProperty('--grade-color',grade.color);
 }
