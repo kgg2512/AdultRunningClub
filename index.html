@@ -907,10 +907,12 @@ async function doVerify() {
 
     S.session = data.session;
     // users_profile role 업데이트 (트리거로 자동 생성된 행)
+    const emailConsentChecked = document.getElementById('emailConsent')?.checked || false;
     await db.from('users_profile').upsert({
       user_id: data.user.id,
       email: data.user.email,
-      role: S.pendingRole || 'pro'
+      role: S.pendingRole || 'pro',
+      marketing_consent: emailConsentChecked
     });
 
     // profile 로드

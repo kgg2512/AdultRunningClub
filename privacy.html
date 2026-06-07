@@ -82,9 +82,16 @@
         <h2>수집하는 개인정보 항목 및 수집 방법</h2>
         <table class="data-table">
           <thead><tr><th>항목</th><th>목적</th><th>수집 방법</th></tr></thead>
-          <tbody><tr><td>이메일 주소</td><td>멤버십 인증 코드 발송, 본인 확인</td><td>이용자 직접 입력</td></tr></tbody>
+          <tbody>
+            <tr><td>이메일 주소</td><td>멤버십 인증 코드 발송, 본인 확인</td><td>이용자 직접 입력</td></tr>
+            <tr><td>역할 (student / pro / founder)</td><td>멤버십 등급 분류 및 서비스 접근 제어</td><td>이용자 직접 선택</td></tr>
+            <tr><td>러닝 기록 (거리, 페이스, 코스, 지역)</td><td>커뮤니티 피드 표시 및 통계</td><td>이용자 직접 입력</td></tr>
+            <tr><td>게시물 (텍스트, 사진)</td><td>커뮤니티 공유 및 피드 표시</td><td>이용자 직접 업로드</td></tr>
+            <tr><td>채팅 메시지</td><td>지역별 러닝 커뮤니티 소통</td><td>이용자 직접 입력</td></tr>
+            <tr><td>마케팅 수신 동의 여부</td><td>선택적 마케팅 이메일 발송 여부 관리</td><td>이용자 동의 체크박스</td></tr>
+          </tbody>
         </table>
-        <div class="highlight-box"><p>회사는 이메일 주소 외 어떠한 개인정보도 서버에 수집·저장하지 않습니다. 기타 데이터는 이용자 기기의 브라우저 로컬 저장소(localStorage)에만 저장되며 외부로 전송되지 않습니다.</p></div>
+        <div class="highlight-box"><p>이메일 주소, 역할, 러닝 기록, 게시물, 채팅 메시지는 Supabase(미국) 서버에 저장됩니다. 사진은 Supabase Storage(미국)에 저장됩니다. 인증 외 기기 로컬 데이터는 브라우저 localStorage에만 저장됩니다.</p></div>
         <p style="margin-top:16px;">로컬 저장소에 보관되는 데이터(개인정보 아님):</p>
         <ul>
           <li><strong>arc_v</strong>인증 완료 여부 (true/false)</li>
@@ -114,9 +121,12 @@
         <p>인증 코드 발송을 위해 아래 서비스에 이메일 주소가 전달됩니다.</p>
         <table class="data-table">
           <thead><tr><th>수탁사</th><th>이전 항목</th><th>이전 목적</th><th>서버 위치</th></tr></thead>
-          <tbody><tr><td>EmailJS (emailjs.com)</td><td>이메일 주소</td><td>인증 코드 이메일 발송</td><td>미국 (US)</td></tr></tbody>
+          <tbody>
+            <tr><td>EmailJS (emailjs.com)</td><td>이메일 주소</td><td>인증 코드 이메일 발송</td><td>미국 (US)</td></tr>
+            <tr><td>Supabase, Inc. (supabase.com)</td><td>이메일 주소, 역할, 러닝 기록, 게시물, 채팅 메시지, 사진</td><td>서비스 데이터 저장·조회 (DB 및 Storage)</td><td>미국 (US)</td></tr>
+          </tbody>
         </table>
-        <div class="highlight-box"><p>위 처리는 개인정보보호법 제28조의8에 따라 국외이전에 해당합니다. 서비스 이용 및 본 방침 동의 시 위 국외이전에 동의하게 됩니다. EmailJS 개인정보처리방침: <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">emailjs.com/legal/privacy-policy</a></p></div>
+        <div class="highlight-box"><p>위 처리는 개인정보보호법 제28조의8에 따라 국외이전에 해당합니다. 서비스 이용 및 본 방침 동의 시 위 국외이전에 동의하게 됩니다.<br>EmailJS 개인정보처리방침: <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">emailjs.com/legal/privacy-policy</a><br>Supabase 개인정보처리방침: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a></p></div>
       </div>
       <div class="section">
         <span class="section-number">05</span>
@@ -162,9 +172,16 @@
         <h2>Data We Collect</h2>
         <table class="data-table">
           <thead><tr><th>Item</th><th>Purpose</th><th>Method</th></tr></thead>
-          <tbody><tr><td>Email address</td><td>Sending membership verification code</td><td>User input</td></tr></tbody>
+          <tbody>
+            <tr><td>Email address</td><td>Sending membership verification code</td><td>User input</td></tr>
+            <tr><td>Role (student / pro / founder)</td><td>Membership tier classification and access control</td><td>User selection</td></tr>
+            <tr><td>Running records (distance, pace, course, district)</td><td>Community feed display and statistics</td><td>User input</td></tr>
+            <tr><td>Posts (text, photos)</td><td>Community sharing and feed display</td><td>User upload</td></tr>
+            <tr><td>Chat messages</td><td>District-level running community communication</td><td>User input</td></tr>
+            <tr><td>Marketing consent flag</td><td>Managing optional marketing email preferences</td><td>User consent checkbox</td></tr>
+          </tbody>
         </table>
-        <div class="highlight-box"><p>We do not collect or store any personal information on our servers beyond what is described above. App data is stored exclusively in your device's localStorage and is never transmitted externally.</p></div>
+        <div class="highlight-box"><p>Email address, role, running records, posts, and chat messages are stored on Supabase (US) servers. Photos are stored in Supabase Storage (US). Non-authentication local data is stored exclusively in your device's localStorage.</p></div>
         <p style="margin-top:16px;">localStorage data (not personal information):</p>
         <ul>
           <li><strong>arc_v</strong>Verification status</li>
@@ -193,9 +210,12 @@
         <h2>Third-Party Sharing &amp; International Transfer</h2>
         <table class="data-table">
           <thead><tr><th>Processor</th><th>Data</th><th>Purpose</th><th>Location</th></tr></thead>
-          <tbody><tr><td>EmailJS (emailjs.com)</td><td>Email address</td><td>Sending verification code</td><td>United States</td></tr></tbody>
+          <tbody>
+            <tr><td>EmailJS (emailjs.com)</td><td>Email address</td><td>Sending verification code</td><td>United States</td></tr>
+            <tr><td>Supabase, Inc. (supabase.com)</td><td>Email, role, running records, posts, chat messages, photos</td><td>Service data storage and retrieval (DB &amp; Storage)</td><td>United States</td></tr>
+          </tbody>
         </table>
-        <div class="highlight-box"><p>Your email address is transferred to US-based servers solely for verification email delivery. By accepting this Policy, you consent to this transfer. See <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">EmailJS Privacy Policy</a>.</p></div>
+        <div class="highlight-box"><p>Your data is transferred to US-based servers for service operation. By accepting this Policy, you consent to this transfer.<br>See <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">EmailJS Privacy Policy</a> and <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a>.</p></div>
       </div>
       <div class="section">
         <span class="section-number">05</span>

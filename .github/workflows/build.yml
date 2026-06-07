@@ -4,6 +4,10 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  schedule:
+    # Supabase 무료 티어 pause 방지: 매 6일마다 anon endpoint ping
+    # (Supabase는 7일 비활성 시 자동 pause됨)
+    - cron: '0 9 */6 * *'
 
 jobs:
   # ─── 웹 상태 확인 ─────────────────────────────────────────────

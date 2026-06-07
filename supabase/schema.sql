@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS public.users_profile (
   display_name TEXT GENERATED ALWAYS AS (split_part(email, '@', 1)) STORED,
   avatar_url   TEXT,
   district     TEXT,
+  marketing_consent BOOLEAN NOT NULL DEFAULT false,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -167,6 +168,13 @@ CREATE POLICY "posts_insert_own"
   TO authenticated
   WITH CHECK (user_id = auth.uid());
 
+-- 본인만 UPDATE
+CREATE POLICY "posts_update_own"
+  ON public.posts FOR UPDATE
+  TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
 -- 본인만 DELETE
 CREATE POLICY "posts_delete_own"
   ON public.posts FOR DELETE
@@ -237,6 +245,19 @@ CREATE POLICY "storage_select_authenticated"
   ON storage.objects FOR SELECT
   TO authenticated
   USING (bucket_id = 'arc-photos');
+
+-- Storage 정책: 본인 파일만 수정
+CREATE POLICY "storage_update_own"
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'arc-photos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  )
+  WITH CHECK (
+    bucket_id = 'arc-photos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
 -- Storage 정책: 본인 파일만 삭제
 CREATE POLICY "storage_delete_own"
