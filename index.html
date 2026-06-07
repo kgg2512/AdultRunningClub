@@ -169,8 +169,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .v-err{font-size:0.58rem;color:#9B2C2C;margin-top:7px;display:none}
 .v-err.on{display:block}
 .privacy-notice{font-size:0.52rem;color:var(--text-dim);text-align:center;margin-top:10px;letter-spacing:0.06em;line-height:1.8}
-.demo-skip-wrap{text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
-.demo-skip-btn{opacity:1;font-size:0.52rem;max-width:260px;padding:12px 24px;color:var(--text-sub)!important;border-color:var(--border)!important}
 .v-hd-row{display:flex;align-items:center;justify-content:space-between}
 .v-skip-top{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--sans);font-size:0.44rem;letter-spacing:.22em;text-transform:uppercase;padding:6px 14px;cursor:pointer;opacity:0.75}
 .v-skip-top:hover{opacity:1}
@@ -404,7 +402,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <div class="v-hd">
     <div class="v-hd-row">
       <button type="button" class="v-back" onclick="show('s0')">← Back</button>
-      <button type="button" class="v-skip-top" onclick="demoSkip()">Skip</button>
     </div>
     <div class="v-title">Verification</div>
     <div class="v-sub">Prove your adulthood.</div>
@@ -450,10 +447,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
         <p class="v-err" id="v-err">Incorrect code. Try again.</p>
       </div>
       <button class="v-btn" onclick="doVerify()">Verify &amp; Enter</button>
-    </div>
-    <!-- Demo bypass — intentionally de-emphasised -->
-    <div class="demo-skip-wrap">
-      <button class="g-btn g-no demo-skip-btn" onclick="demoSkip()">Skip (Demo Only)</button>
     </div>
   </div>
 </div>
@@ -829,12 +822,6 @@ function doVerify(){
 function goHome(){
   LS.s('arc_v',false); S.verified=false;
   show('s0');
-}
-
-function demoSkip(){
-  S.verified=true; S.role='pro'; S.email='demo@demo.arc';
-  LS.s('arc_v',true); LS.s('arc_r','pro'); LS.s('arc_e','demo@demo.arc');
-  loadMap(); show('s2');
 }
 
 

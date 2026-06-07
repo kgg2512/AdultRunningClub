@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>ARC Maskable Icon Generator</title>
+  <style>
+    body {
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      font-family: sans-serif;
+      color: #fff;
+      gap: 16px;
+    }
+
+    canvas { border: 1px solid #444; }
+
+    button {
+      background: #C9A84C;
+      color: #0A0908;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+    }
+
+    .info {
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="color:#C9A84C;letter-spacing:0.2em">ARC MASKABLE ICON GENERATOR</h2>
+  <p class="info">
+    Maskable 아이콘: 배경이 safe zone(중앙 80%) 밖까지 채워야 함.<br>
+    아래 캔버스가 512×512 maskable 아이콘입니다.
+  </p>
+
+  <!-- 512x512 -->
+  <canvas id="c512" width="512" height="512"></canvas>
+  <button onclick="download('c512','arc-maskable-512.png')">512×512 다운로드</button>
+
+  <!-- 192x192 -->
+  <canvas id="c192" width="192" height="192"></canvas>
+  <button onclick="download('c192','arc-maskable-192.png')">192×192 다운로드</button>
+
+  <p class="info" style="margin-top:8px">
+    다운로드 후 <code>AdultRunningClub/icons/</code> 폴더에 저장<br>
+    그 다음 manifest.webmanifest의 purpose를 "maskable"로 업데이트하세요.
+  </p>
+
+  <script>
+    function drawARC(canvas) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const ctx = canvas.getContext('2d');
+
+      // 배경 — 딥 차콜 (전체 영역 채우기 — maskable 필수)
+      ctx.fillStyle = '#0A0908';
+      ctx.fillRect(0, 0, w, h);
+
+      // safe zone = 중앙 80% (가장자리 10% 여유)
+      const margin = w * 0.1;
+      const sz = w - margin * 2;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      // 배경 원 (safe zone 내 약간 작게)
+      const circleR = sz * 0.42;
+      const grad = ctx.createRadialGradient(cx, cy - circleR * 0.1, 0, cx, cy, circleR);
+      grad.addColorStop(0, '#1a1508');
+      grad.addColorStop(1, '#0A0908');
+      ctx.beginPath();
+      ctx.arc(cx, cy, circleR, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 골드 원 테두리
+      ctx.beginPath();
+      ctx.arc(cx, cy, circleR, 0, Math.PI * 2);
+      ctx.strokeStyle = '#C9A84C';
+      ctx.lineWidth = w * 0.008;
+      ctx.globalAlpha = 0.7;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // ARC 텍스트
+      const fontSize = w * 0.28;
+      ctx.font = `300 ${fontSize}px "Cormorant Garamond", "Georgia", serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // 금박 그라데이션
+      const textGrad = ctx.createLinearGradient(cx - fontSize, cy, cx + fontSize, cy);
+      textGrad.addColorStop(0, '#A07830');
+      textGrad.addColorStop(0.3, '#C9A84C');
+      textGrad.addColorStop(0.5, '#E8D08A');
+      textGrad.addColorStop(0.7, '#C9A84C');
+      textGrad.addColorStop(1, '#9A7030');
+
+      ctx.fillStyle = textGrad;
+      ctx.fillText('ARC', cx, cy - fontSize * 0.05);
+
+      // 하단 구분선
+      const lineY = cy + fontSize * 0.52;
+      const lineW = w * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(cx - lineW / 2, lineY);
+      ctx.lineTo(cx + lineW / 2, lineY);
+      ctx.strokeStyle = '#C9A84C';
+      ctx.lineWidth = w * 0.004;
+      ctx.globalAlpha = 0.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // 하단 서브텍스트
+      const subSize = w * 0.048;
+      ctx.font = `200 ${subSize}px "Raleway", "Arial", sans-serif`;
+      ctx.fillStyle = '#FAF8F4';
+      ctx.globalAlpha = 0.55;
+      ctx.letterSpacing = '0.4em';
+      ctx.fillText('RUNNING CLUB', cx, lineY + subSize * 1.4);
+      ctx.globalAlpha = 1;
+    }
+
+    // 캔버스 렌더링
+    const c512 = document.getElementById('c512');
+    const c192 = document.getElementById('c192');
+    drawARC(c512);
+    drawARC(c192);
+
+    function download(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

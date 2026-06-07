@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Android build outputs
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+
+# Keystore (security)
+android/release.keystore
+
+# iOS
+ios/App/Pods/
+ios/App/App.xcworkspace/
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
