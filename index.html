@@ -471,6 +471,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
         </label>
       </div>
       <div class="consent-row">
+        <input type="checkbox" id="consent-overseas">
+        <label for="consent-overseas">
+          [필수] 이메일 인증을 위해 개인정보(이메일 주소)가 미국 소재 Supabase Inc. 서버로 이전됨에 동의합니다. (개인정보보호법 제28조의8)
+        </label>
+      </div>
+      <div class="consent-row">
         <input type="checkbox" id="emailConsent">
         <label for="emailConsent">
           [선택] 마케팅 및 운영 관련 이메일(런닝 일정, 멤버십 혜택 안내 등) 수신에 동의합니다.
@@ -662,11 +668,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 
 <script>
 // ══════════════════════════════════════════════════════════════
-// SUPABASE 설정 — 회장 직접 입력 필요
-// Supabase Dashboard > Settings > API 에서 확인
+// SUPABASE 설정
+// ⚠️ CISO 보안 지시 (2026-06-08): 실제 키는 이 파일에 하드코딩 금지.
+// Supabase anon key는 설계상 클라이언트 공개 허용이나,
+// git 히스토리 노출 방지를 위해 배포 레포(kgg2512/AdultRunningClub)에서만 설정.
+// 이 모노레포 파일은 플레이스홀더 유지.
+// 배포 레포 설정 경로: AdultRunningClub/index.html (별도 레포)
+// 전제 조건: Supabase Dashboard > Authentication > RLS 정책 반드시 활성화 필요.
 // ══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://yglfqjtkjtusaikbdiex.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnbGZxanRranR1c2Fpa2JkaWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjU1MTEsImV4cCI6MjA5NjQwMTUxMX0.vCuF1e0WiG_Y2rClMwbC1HMt6pcD9kRsdVLaRKMNlAg';
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 let DEMO_MODE = !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
 
 // ── 앱 상태 (Supabase 초기화 전 먼저 정의 — 순서 중요) ──────
@@ -1579,10 +1590,12 @@ function arcSettings() {
     show('s0');
     // DEMO_MODE에서도 인증 체크박스 → send-btn 활성화 필요
     const cb = document.getElementById('consent-terms');
+    const cbOverseas = document.getElementById('consent-overseas');
     const btn = document.getElementById('send-btn');
     const inp = document.getElementById('e-inp');
-    const updateBtn = () => { btn.disabled = !(cb && cb.checked && inp && validEmail(inp.value.trim())); };
+    const updateBtn = () => { btn.disabled = !(cb && cb.checked && cbOverseas && cbOverseas.checked && inp && validEmail(inp.value.trim())); };
     if (cb) cb.addEventListener('change', updateBtn);
+    if (cbOverseas) cbOverseas.addEventListener('change', updateBtn);
     if (inp) inp.addEventListener('input', updateBtn);
     return;
   }
@@ -1603,12 +1616,14 @@ function arcSettings() {
 
   show('s0');
 
-  // 인증 동의 체크박스 → 버튼 활성화
+  // 인증 동의 체크박스 → 버튼 활성화 (이용약관 + 국외이전 필수 동의)
   const cb = document.getElementById('consent-terms');
+  const cbOverseas = document.getElementById('consent-overseas');
   const btn = document.getElementById('send-btn');
   const inp = document.getElementById('e-inp');
-  const updateBtn = () => { btn.disabled = !(cb && cb.checked && inp && validEmail(inp.value.trim())); };
+  const updateBtn = () => { btn.disabled = !(cb && cb.checked && cbOverseas && cbOverseas.checked && inp && validEmail(inp.value.trim())); };
   if (cb) cb.addEventListener('change', updateBtn);
+  if (cbOverseas) cbOverseas.addEventListener('change', updateBtn);
   if (inp) inp.addEventListener('input', updateBtn);
 
   // 세션 변경 리스너 (OTP 인증 완료 콜백)
