@@ -92,11 +92,11 @@
           </tbody>
         </table>
         <div class="highlight-box"><p>이메일 주소, 역할, 러닝 기록, 게시물, 채팅 메시지는 Supabase(미국) 서버에 저장됩니다. 사진은 Supabase Storage(미국)에 저장됩니다. 인증 외 기기 로컬 데이터는 브라우저 localStorage에만 저장됩니다.</p></div>
-        <p style="margin-top:16px;">로컬 저장소에 보관되는 데이터(개인정보 아님):</p>
+        <p style="margin-top:16px;">기기 로컬 저장소에 별도 보관되는 데이터:</p>
         <ul>
-          <li><strong>arc_v</strong>인증 완료 여부 (true/false)</li>
-          <li><strong>arc_r</strong>멤버 역할 구분</li>
-          <li><strong>arc_e</strong>인증에 사용한 이메일 주소 (기기 내 저장, 서버 미전송)</li>
+          <li><strong>arc_v</strong>인증 완료 여부 (true/false) — 개인정보 아님</li>
+          <li><strong>arc_r</strong>멤버 역할 구분 — 개인정보 아님</li>
+          <li><strong>arc_e</strong>인증에 사용한 이메일 주소 (기기 내 저장, 서버 미전송) — 개인정보에 해당하며, 브라우저 데이터 삭제 또는 앱 삭제 시 소멸</li>
         </ul>
       </div>
       <div class="section">
@@ -182,11 +182,11 @@
           </tbody>
         </table>
         <div class="highlight-box"><p>Email address, role, running records, posts, and chat messages are stored on Supabase (US) servers. Photos are stored in Supabase Storage (US). Non-authentication local data is stored exclusively in your device's localStorage.</p></div>
-        <p style="margin-top:16px;">localStorage data (not personal information):</p>
+        <p style="margin-top:16px;">Device localStorage data:</p>
         <ul>
-          <li><strong>arc_v</strong>Verification status</li>
-          <li><strong>arc_r</strong>Member role</li>
-          <li><strong>arc_e</strong>Email used for verification (device-only, never sent to our servers)</li>
+          <li><strong>arc_v</strong>Verification status — not personal information</li>
+          <li><strong>arc_r</strong>Member role — not personal information</li>
+          <li><strong>arc_e</strong>Email used for verification (device-only, never sent to our servers) — constitutes personal information; deleted when browser data or app is removed</li>
         </ul>
       </div>
       <div class="section">
