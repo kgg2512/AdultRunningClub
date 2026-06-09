@@ -145,6 +145,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .g-privacy-link:hover{color:rgba(201,168,76,0.5)}
 .demo-notice{display:none;margin:0 0 20px;padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);text-align:center}
 .demo-notice-label{font-family:var(--sans);font-size:0.5rem;letter-spacing:.15em;color:var(--gold);opacity:.9;text-transform:uppercase;margin-bottom:10px}
+.demo-notice-desc{font-family:var(--sans);font-size:0.5rem;letter-spacing:.08em;color:var(--text-sub);margin-bottom:12px;line-height:1.7}
 .demo-enter-btn{background:var(--gold);color:var(--gate-bg);border:none;padding:12px 28px;font-family:var(--sans);font-size:0.54rem;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;width:100%}
 .demo-enter-btn:hover{background:var(--gold-dark)}
 
@@ -413,21 +414,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 
 <!-- S0 GATE -->
 <div id="s0" class="screen active">
-  <div class="g-eyebrow">Est. 2024 &nbsp;·&nbsp; Global</div>
+  <div class="g-eyebrow">Private &nbsp;·&nbsp; Global</div>
   <div class="g-arc-badge">
     <span class="g-arc-badge-text">ARC</span>
   </div>
   <div class="g-arc-fullname">Adult Running Club</div>
-  <h1 class="g-title">Members<br>Only.</h1>
-  <div class="g-title-sub">Running Club</div>
+  <h1 class="g-title">Run with<br>the Few.</h1>
+  <div class="g-title-sub">Invitation Only</div>
   <div class="g-ornament">
     <div class="g-ornament-line"></div>
     <div class="g-ornament-diamond"></div>
     <div class="g-ornament-line"></div>
   </div>
-  <p class="g-warn">For those who move with purpose.<br>Join those who refuse to stand still.</p>
-  <button type="button" class="g-btn g-yes" onclick="gateYes()">Yes — I am an adult.</button>
-  <button type="button" class="g-btn g-no" onclick="gateNo()">No — I am a kid.</button>
+  <p class="g-warn">진지하게 달리는 사람들만의 공간.<br>당신은 준비되어 있습니까?</p>
+  <button type="button" class="g-btn g-yes" onclick="gateYes()">Enter — I run.</button>
+  <button type="button" class="g-btn g-no" onclick="gateNo()">Not yet.</button>
   <button type="button" class="g-demo-link" onclick="enterDemo()">Try Demo →</button>
   <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris · Sydney</div>
   <div class="g-privacy-bar">
@@ -446,8 +447,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   </div>
   <div class="v-body">
     <div id="demo-notice" class="demo-notice">
-      <p class="demo-notice-label">Demo Mode — Supabase not connected</p>
-      <button type="button" class="demo-enter-btn" onclick="enterDemo()">Enter Demo →</button>
+      <p class="demo-notice-label">Try Demo — No sign-up required</p>
+      <p class="demo-notice-desc">Experience the full app with sample data.<br>Real membership coming soon.</p>
+      <button type="button" class="demo-enter-btn" onclick="enterDemo()">Enter as Guest →</button>
     </div>
     <div class="v-slabel">01 — Who are you?</div>
     <div class="role-grid">
