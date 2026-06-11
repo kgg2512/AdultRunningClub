@@ -73,7 +73,7 @@
   <div class="content">
     <div class="lang-section active" id="lang-ko">
       <div class="section">
-        <span class="section-number">— 시행일: 2026.06.06</span>
+        <span class="section-number">— 시행일: 2026.06.11</span>
         <h2>개요</h2>
         <p>G2 Company Ltd.(이하 "회사")는 <em>Adult Running Club</em>(이하 "서비스")를 운영합니다. 이 개인정보처리방침은 이용자의 개인정보를 어떻게 수집, 이용, 보관, 보호하는지를 설명합니다.</p>
       </div>
@@ -85,7 +85,8 @@
           <tbody>
             <tr><td>이메일 주소</td><td>멤버십 인증 코드 발송, 본인 확인</td><td>이용자 직접 입력</td></tr>
             <tr><td>역할 (student / pro / founder)</td><td>멤버십 등급 분류 및 서비스 접근 제어</td><td>이용자 직접 선택</td></tr>
-            <tr><td>러닝 기록 (거리, 페이스, 코스, 지역)</td><td>커뮤니티 피드 표시 및 통계</td><td>이용자 직접 입력</td></tr>
+            <tr><td>러닝 기록 (거리, 페이스, 코스, 지역)</td><td>커뮤니티 피드 표시 및 통계</td><td>이용자 직접 입력 또는 기기 내 GPS 측정값(거리·시간)</td></tr>
+            <tr><td>경로 모양 데이터 (추상화된 SVG 경로 — 좌표 아님)</td><td>러닝 경로 시각화(루트 아트워크)</td><td>기기 내 GPS 처리 후 자동 생성 (선택 기능)</td></tr>
             <tr><td>게시물 (텍스트, 사진)</td><td>커뮤니티 공유 및 피드 표시</td><td>이용자 직접 업로드</td></tr>
             <tr><td>채팅 메시지</td><td>지역별 러닝 커뮤니티 소통</td><td>이용자 직접 입력</td></tr>
             <tr><td>마케팅 수신 동의 여부</td><td>선택적 마케팅 이메일 발송 여부 관리</td><td>이용자 동의 체크박스</td></tr>
@@ -129,6 +130,17 @@
         <div class="highlight-box"><p>위 처리는 개인정보보호법 제28조의8에 따라 국외이전에 해당합니다. 서비스 이용 및 본 방침 동의 시 위 국외이전에 동의하게 됩니다.<br>EmailJS 개인정보처리방침: <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">emailjs.com/legal/privacy-policy</a><br>Supabase 개인정보처리방침: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a></p></div>
       </div>
       <div class="section">
+        <span class="section-number">04-1</span>
+        <h2>위치정보의 처리 (러닝 기록 기능)</h2>
+        <div class="highlight-box"><p><strong>GPS 좌표는 기기 내에서만 처리되며 서버에 저장·전송되지 않습니다.</strong> 서버에는 좌표가 아닌 추상화된 경로 모양(정규화된 SVG 도형 데이터)만 저장됩니다. 이 데이터로는 실제 위치를 특정하거나 역추적할 수 없습니다.</p></div>
+        <ul>
+          <li><strong>이용 방식</strong>"Record Run" 실행 중에만 기기 GPS를 사용하여 거리·시간·페이스를 측정하고 경로 모양을 그립니다. 백그라운드 위치 추적은 하지 않습니다.</li>
+          <li><strong>좌표 폐기</strong>기록 종료 즉시 원본 GPS 좌표는 기기 메모리에서 폐기됩니다. 시작·종료 구간(약 90초 분량)은 모양 생성에서 제외되어 출발지·도착지가 보호됩니다.</li>
+          <li><strong>동의</strong>위치 이용은 선택 기능이며, 기능 실행 직전 고지 화면에서 동의한 경우에만 사용됩니다. 동의하지 않아도 수동 입력으로 모든 기능을 이용할 수 있습니다.</li>
+          <li><strong>동의 철회</strong>기기 설정(앱 권한 → 위치) 또는 브라우저 사이트 권한에서 언제든 위치 권한을 철회할 수 있습니다. 철회 시 GPS 기록 기능만 비활성화됩니다.</li>
+        </ul>
+      </div>
+      <div class="section">
         <span class="section-number">05</span>
         <h2>정보주체의 권리 및 행사 방법</h2>
         <ul>
@@ -158,12 +170,12 @@
       <div class="section">
         <span class="section-number">08</span>
         <h2>개인정보처리방침 변경</h2>
-        <p>본 방침은 관련 법령 변경 시 사전 고지 후 개정됩니다. 현행 시행일: 2026년 6월 6일</p>
+        <p>본 방침은 관련 법령 변경 시 사전 고지 후 개정됩니다. 현행 시행일: 2026년 6월 11일</p>
       </div>
     </div>
     <div class="lang-section" id="lang-en">
       <div class="section">
-        <span class="section-number">— Effective: 2026.06.06</span>
+        <span class="section-number">— Effective: 2026.06.11</span>
         <h2>Overview</h2>
         <p>G2 Company Ltd. ("Company") operates <em>Adult Running Club</em> ("Service"). This Privacy Policy explains how we collect, use, retain, and protect your personal information.</p>
       </div>
@@ -218,6 +230,17 @@
         <div class="highlight-box"><p>Your data is transferred to US-based servers for service operation. By accepting this Policy, you consent to this transfer.<br>See <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">EmailJS Privacy Policy</a> and <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a>.</p></div>
       </div>
       <div class="section">
+        <span class="section-number">04-1</span>
+        <h2>Location Data (Run Recording)</h2>
+        <div class="highlight-box"><p><strong>GPS coordinates are processed only on your device and are never stored on or transmitted to our servers.</strong> Only an abstract route shape (normalized SVG geometry, not coordinates) is stored. This data cannot be used to identify or reverse-locate your actual position.</p></div>
+        <ul>
+          <li><strong>How it works</strong>Location is used only while you actively record a run, to measure distance, time, and pace and to draw the route shape. No background tracking.</li>
+          <li><strong>Coordinate disposal</strong>Raw GPS coordinates are discarded from device memory immediately when recording ends. The first and last ~90 seconds are excluded from the shape to protect your start and end points.</li>
+          <li><strong>Consent</strong>Location use is optional and occurs only after you accept the in-app disclosure shown before recording. All features remain available via manual entry.</li>
+          <li><strong>Withdrawal</strong>You may revoke location permission at any time in your device settings (App permissions → Location) or browser site permissions.</li>
+        </ul>
+      </div>
+      <div class="section">
         <span class="section-number">05</span>
         <h2>Your Rights</h2>
         <p>You may request access, correction, deletion, or restriction of your data at <a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a>. Local data can be deleted via your browser's site data settings.</p>
@@ -243,11 +266,11 @@
       <div class="section">
         <span class="section-number">08</span>
         <h2>Policy Changes</h2>
-        <p>We may update this policy with advance notice. Effective date: June 6, 2026.</p>
+        <p>We may update this policy with advance notice. Effective date: June 11, 2026.</p>
       </div>
     </div>
   </div>
-  <div class="eff-bar">G2 Company Ltd. · Adult Running Club · Privacy Policy · 2026.06.06</div>
+  <div class="eff-bar">G2 Company Ltd. · Adult Running Club · Privacy Policy · 2026.06.11</div>
   <script>
     function setLang(lang) {
       document.querySelectorAll('.lang-section').forEach(el => el.classList.remove('active'));

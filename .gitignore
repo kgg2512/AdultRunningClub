@@ -23,3 +23,6 @@ ios/App/App.xcworkspace/
 # OS
 .DS_Store
 Thumbs.db
+
+# Supabase CLI temp
+supabase/.temp/

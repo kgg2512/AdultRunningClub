@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arc-v2';
+const CACHE_NAME = 'arc-v3';
 const ASSETS = [
   '/AdultRunningClub/',
   '/AdultRunningClub/index.html',

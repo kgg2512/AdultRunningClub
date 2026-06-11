@@ -43,6 +43,13 @@ CREATE TABLE IF NOT EXISTS public.posts (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- route_path: 루트 아트워크용 정규화 모양 데이터 (viewBox 0~100 SVG path 문자열).
+-- ⚠️ 지리좌표(lat/lng) 아님 — 기기 내에서 GPS를 모양으로 변환 후 좌표는 즉시 폐기.
+--    지리참조 불가능한 추상 모양만 저장 = 위치정보법 준수 설계 (CLO 2026-06-11).
+ALTER TABLE public.posts
+  ADD COLUMN IF NOT EXISTS route_path TEXT
+  CHECK (route_path IS NULL OR char_length(route_path) <= 8000);
+
 CREATE INDEX IF NOT EXISTS posts_district_created_at_idx
   ON public.posts (district, created_at DESC);
 

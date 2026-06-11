@@ -40,4 +40,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 위치: 러닝 기록 중 포그라운드 전용. GPS 좌표는 기기 내 처리 후 즉시 폐기 — 서버 전송 없음.
+         ACCESS_BACKGROUND_LOCATION 절대 추가 금지 (CISO·CLO 2026-06-11) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
