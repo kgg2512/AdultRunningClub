@@ -368,6 +368,21 @@ select.v-inp{appearance:none;-webkit-appearance:none;cursor:pointer}
 .empty-copy{font-family:var(--serif);font-style:italic;font-size:var(--fs-h3);font-weight:300;
   color:var(--text-sub);line-height:1.5;max-width:260px}
 
+/* ══ PREVIEW 배지 바 (V2 .demo-notice 스타일 준용 — T-14) ══ */
+.preview-bar{position:absolute;top:0;left:0;right:0;z-index:200;display:none;
+  align-items:center;justify-content:space-between;gap:10px;padding:7px 14px;
+  background:rgba(10,9,8,.92);border-bottom:1px solid rgba(201,168,76,0.35)}
+.preview-bar.on{display:flex}
+.preview-bar-label{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);
+  color:var(--gold);text-transform:uppercase;line-height:1.5}
+.preview-bar-enter{background:none;border:1px solid rgba(201,168,76,0.4);color:var(--gold);
+  font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-label);
+  text-transform:uppercase;padding:5px 12px;cursor:pointer;line-height:1.5;border-radius:0}
+.preview-bar-enter:hover{background:rgba(201,168,76,0.12)}
+body.preview .screen{padding-top:34px}
+.preview-note{padding:0 20px 6px;font-size:var(--fs-caption);letter-spacing:var(--ls-body);
+  color:var(--text-dim);text-align:center;line-height:1.7}
+
 /* ══ TOAST (V2 이식) ══ */
 .toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
   background:var(--gate-bg);color:var(--gate-text);
@@ -788,6 +803,12 @@ select.v-inp{appearance:none;-webkit-appearance:none;cursor:pointer}
     <span>마이</span>
   </button>
 </nav>
+
+<!-- PREVIEW 모드 배지 (T-14 — ?preview=true) -->
+<div class="preview-bar" id="preview-bar">
+  <span class="preview-bar-label">Preview — 읽기 전용</span>
+  <button type="button" class="preview-bar-enter" id="preview-enter">멤버 입장</button>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

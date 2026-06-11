@@ -12,6 +12,7 @@
 ## 라이브
 
 - **V3 (현행)**: [https://kgg2512.github.io/AdultRunningClub/](https://kgg2512.github.io/AdultRunningClub/) — 초대코드 필요 (폐쇄형)
+- **V3 프리뷰 (읽기 전용)**: [https://kgg2512.github.io/AdultRunningClub/?preview=true](https://kgg2512.github.io/AdultRunningClub/?preview=true) — 대회 캘린더 43건 UI 확인용. 멤버 정보·쓰기 기능 없음
 - **V2 데모 (legacy)**: [https://kgg2512.github.io/AdultRunningClub/legacy/?demo=true](https://kgg2512.github.io/AdultRunningClub/legacy/?demo=true) — 기존 데모 링크는 `/legacy/`로 이동했습니다.
 
 ---

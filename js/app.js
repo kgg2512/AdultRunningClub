@@ -106,8 +106,11 @@ function raceDerived(r) {
 }
 
 /* ── 상태 ────────────────────────────────────────────────── */
+// T-14: 읽기 전용 프리뷰 (?preview=true) — Supabase 호출 0건 보장
+const PREVIEW = new URLSearchParams(location.search).get('preview') === 'true';
+const MSG_MEMBER_ONLY = '멤버 가입 후 이용할 수 있습니다';
 const state = {
-  authed: false, member: false,
+  authed: false, member: false, preview: PREVIEW,
   races: [], hubs: [], meetups: [],
   consents: {}, profile: null,
   calQ: '', calRegion: '전체', hubFilter: null,
@@ -172,12 +175,52 @@ function emptyState(copy) {
  * 캘린더 홈 (SPEC §4.2 / DELTA §2)
  * ══════════════════════════════════════════════════════ */
 async function loadRaces(force) {
+  if (state.preview) return state.races;          // T-14: 부트에서 로컬 시드 로드 완료
   if (!force && state.races.length) return state.races;
   if (!DB.ready()) return [];
   const { data, error } = await DB.raceBoard();
   if (error) { toast('대회 정보를 불러오지 못했습니다'); return state.races; }
   state.races = data;
   return data;
+}
+
+/* ── T-14: 프리뷰 시드 로딩 (fetch → file:// 폴백은 script 주입) ── */
+function normRegStatus(s) {
+  return ['open', 'closed', 'upcoming'].includes(s) ? s : 'unknown';
+}
+async function loadPreviewRaces() {
+  let data = null;
+  try {
+    const res = await fetch('./assets/preview-races.json', { cache: 'no-store' });
+    if (res.ok) data = await res.json();
+  } catch {}
+  if (!data) {
+    // file:// 환경: fetch 차단 → window.PREVIEW_RACES 스크립트 폴백
+    await new Promise(done => {
+      const s = document.createElement('script');
+      s.src = './assets/preview-races.js';
+      s.onload = done; s.onerror = done;
+      document.head.appendChild(s);
+    });
+    data = window.PREVIEW_RACES || null;
+  }
+  if (!data || !Array.isArray(data.races)) return [];
+  const rows = data.races.map((r, i) => {
+    const reg = r.registration || {};
+    return {
+      id: 'preview-' + String(i + 1).padStart(3, '0'),
+      name: r.name, race_date: r.date || null, region: r.region || '',
+      venue: r.venue || null, courses: r.courses || [],
+      reg_start: reg.start || null, reg_end: reg.end || null,
+      reg_status: normRegStatus(reg.status),
+      organizer: r.organizer || null, official_url: r.official_url || null,
+      confidence: r.confidence || null,
+      going_count: 0, i_am_going: false
+    };
+  });
+  // board RPC와 동일 정렬: 날짜 오름차순, 일정 미정은 맨 뒤
+  rows.sort((a, b) => (a.race_date || '9999-99-99') < (b.race_date || '9999-99-99') ? -1 : 1);
+  return rows;
 }
 function buildRegionChips() {
   const wrap = $('#cal-chips');
@@ -226,6 +269,8 @@ function raceCard(r) {
     f.appendChild(el('span', null, '참가 예정'));
     wg.appendChild(f);
     wg.appendChild(el('span', 'whosgoing-count', `· 멤버 ${cnt}명`));
+  } else if (state.preview) {
+    wg.appendChild(el('span', 'whosgoing-count', "Who's Going — 멤버 전용"));
   } else {
     wg.appendChild(el('span', 'whosgoing-count',
       cnt > 0 ? `멤버 ${cnt}명 참가 예정` : '첫 참가자가 되어보세요'));
@@ -316,7 +361,11 @@ async function renderRaceDetail(id) {
   acts.appendChild(shareBtn);
   const mkMeet = el('button', 'dt-btn', '연계 밋업 개설');
   mkMeet.type = 'button';
-  mkMeet.onclick = () => { state.pendingRaceLink = { id: r.id, name: r.name }; nav('#/meetup-new'); };
+  mkMeet.onclick = () => {
+    if (state.preview) { toast(MSG_MEMBER_ONLY); return; }   // T-14
+    state.pendingRaceLink = { id: r.id, name: r.name };
+    nav('#/meetup-new');
+  };
   acts.appendChild(mkMeet);
   body.appendChild(acts);
 
@@ -342,6 +391,7 @@ async function renderRaceDetail(id) {
   };
   applyTgState();
   tg.onclick = async () => {
+    if (state.preview) { toast(MSG_MEMBER_ONLY); return; }   // T-14: 쓰기 차단
     const s = tg.dataset.state;
     if (s === 'closed') return;
     if (s === 'needs-consent') {
@@ -374,6 +424,14 @@ async function renderRaceDetail(id) {
   body.appendChild(moreBtn);
 
   async function loadAttendees(reset) {
+    if (state.preview) {                                     // T-14: 가상 멤버 생성 금지 — 절제된 빈 상태
+      list.textContent = '';
+      const li = el('li');
+      li.appendChild(emptyState('프리뷰에서는 멤버 정보가 표시되지 않습니다.'));
+      list.appendChild(li);
+      moreBtn.hidden = true;
+      return;
+    }
     if (reset) { list.textContent = ''; state.attOffset = 0; }
     const { data } = await DB.raceAttendees(r.id, state.attOffset);
     if (state.attOffset === 0 && !data.length) {
@@ -414,6 +472,7 @@ async function shareText(text) {
  * 밋업 (SPEC §4.4 / DELTA §5)
  * ══════════════════════════════════════════════════════ */
 async function loadHubs() {
+  if (state.preview) return [];                    // T-14: Supabase 호출 차단
   if (state.hubs.length) return state.hubs;
   if (!DB.ready()) return [];
   const { data } = await DB.hubs();
@@ -437,6 +496,11 @@ async function renderMeetups() {
 
   const box = $('#meetup-list');
   box.textContent = '';
+  if (state.preview) {                             // T-14: 기존 빈 상태 + 프리뷰 안내 1줄
+    box.appendChild(emptyState('열린 밋업이 없습니다.'));
+    box.appendChild(el('p', 'preview-note', '밋업 개설·참가는 멤버 가입 후 이용할 수 있습니다.'));
+    return;
+  }
   if (!DB.ready()) { box.appendChild(emptyState('서버 연결 대기 중입니다.')); return; }
   const { data, error } = await DB.meetupBoard(state.hubFilter);
   if (error) { toast('밋업을 불러오지 못했습니다'); return; }
@@ -523,6 +587,14 @@ async function submitMeetup() {
 
 /* ── 밋업 상세 ───────────────────────────────────────────── */
 async function renderMeetupDetail(id) {
+  if (state.preview) {                             // T-14: 프리뷰에 밋업 데이터 없음
+    $('#mt-title').textContent = '밋업';
+    $('#mt-hub').textContent = 'Preview';
+    const pb = $('#mt-body');
+    pb.textContent = '';
+    pb.appendChild(emptyState('프리뷰에서는 밋업이 표시되지 않습니다.'));
+    return;
+  }
   let m = state.meetups.find(x => x.id === id);
   if (!m) {
     const { data } = await DB.meetupBoard(null);
@@ -648,6 +720,11 @@ const NTYPE_ICON = {
 async function renderAlerts() {
   const box = $('#alerts-list');
   box.textContent = '';
+  if (state.preview) {                             // T-14: 절제된 프리뷰 상태
+    box.appendChild(emptyState('새로운 소식이 없습니다.'));
+    box.appendChild(el('p', 'preview-note', '알림은 멤버 가입 후 이용할 수 있습니다.'));
+    return;
+  }
   if (!DB.ready()) { box.appendChild(emptyState('서버 연결 대기 중입니다.')); return; }
   const { data } = await DB.notifications(50);
   if (!data.length) { box.appendChild(emptyState('새로운 소식이 없습니다.')); updateBadge(); return; }
@@ -687,7 +764,7 @@ async function renderAlerts() {
   updateBadge();
 }
 async function updateBadge() {
-  if (!DB.ready() || !state.member) { $('#bnav-dot').hidden = true; return; }
+  if (state.preview || !DB.ready() || !state.member) { $('#bnav-dot').hidden = true; return; }
   try {
     const c = await DB.unreadCount();
     $('#bnav-dot').hidden = !(c > 0);
@@ -700,6 +777,14 @@ async function updateBadge() {
 async function renderProfile() {
   const box = $('#profile-body');
   box.textContent = '';
+  if (state.preview) {                             // T-14: 절제된 프리뷰 상태
+    box.appendChild(emptyState(MSG_MEMBER_ONLY + '.'));
+    const enter = el('button', 'wg-more-btn', '멤버 입장');
+    enter.type = 'button';
+    enter.onclick = () => { location.href = location.pathname; };  // ?preview 제거 → 게이트
+    box.appendChild(enter);
+    return;
+  }
   if (!DB.ready()) { box.appendChild(emptyState('서버 연결 대기 중입니다.')); return; }
   const { data: p } = await DB.myProfile();
   if (!p) { box.appendChild(emptyState('프로필을 불러오지 못했습니다.')); return; }
@@ -1076,12 +1161,17 @@ function showRedeemError(res, errEl) {
 const MEMBER_ROUTES = ['cal', 'race', 'meetups', 'meetup-new', 'meetup', 'alerts', 'profile'];
 async function route() {
   const h = location.hash || '#/join';
-  const m = h.match(/^#\/([a-z-]+)(?:\/([0-9a-fA-F-]+))?/);
+  const m = h.match(/^#\/([a-z-]+)(?:\/([\w-]+))?/);   // T-14: preview-NNN id 허용
   const name = m ? m[1] : 'join';
   const id = m ? m[2] : null;
 
-  if (MEMBER_ROUTES.includes(name) && !(state.authed && state.member)) {
+  if (!state.preview && MEMBER_ROUTES.includes(name) && !(state.authed && state.member)) {
     if (location.hash !== '#/join') { location.hash = '#/join'; return; }
+  }
+  if (state.preview && (name === 'meetup-new' || name === 'join' || name === 'reset')) {
+    // 프리뷰: 쓰기 화면·게이트 진입 차단 (게이트는 '멤버 입장' 버튼이 ?preview 제거로 이동)
+    if (name === 'meetup-new') toast(MSG_MEMBER_ONLY);
+    if (location.hash !== '#/cal') { location.hash = '#/cal'; return; }
   }
   switch (name) {
     case 'join':
@@ -1139,7 +1229,11 @@ async function boot() {
 
   // 4탭 + FAB
   $$('.bnav-btn').forEach(b => { b.onclick = () => nav(b.dataset.tab); });
-  $('#fab-new-meetup').onclick = () => { state.pendingRaceLink = null; nav('#/meetup-new'); };
+  $('#fab-new-meetup').onclick = () => {
+    if (state.preview) { toast(MSG_MEMBER_ONLY); return; }   // T-14: 쓰기 차단
+    state.pendingRaceLink = null;
+    nav('#/meetup-new');
+  };
 
   // 밋업 폼: 정원 stepper + 제출 + 헤더 back
   const capOut = $('#mn-cap');
@@ -1147,6 +1241,18 @@ async function boot() {
   $('#mn-cap-plus').onclick = () => { capOut.textContent = String(Math.min(50, parseInt(capOut.textContent, 10) + 1)); };
   $('#mn-submit').onclick = submitMeetup;
   $$('[data-nav]').forEach(b => { b.onclick = () => nav(b.dataset.nav); });
+
+  // ── T-14: 읽기 전용 프리뷰 — 게이트 생략, Supabase 경로 전면 미진입 ──
+  if (state.preview) {
+    document.body.classList.add('preview');
+    $('#preview-bar').classList.add('on');
+    $('#preview-enter').onclick = () => { location.href = location.pathname; };  // ?preview 제거 → 게이트
+    state.races = await loadPreviewRaces();
+    window.addEventListener('hashchange', route);
+    if (!location.hash || location.hash === '#/join') location.hash = '#/cal';
+    route();
+    return;   // ⛔ 이하 인증/Supabase 부트 경로 진입 금지
+  }
 
   if (!DB.ready()) {
     $('#setup-note').hidden = false;
@@ -1198,5 +1304,5 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   navigator.serviceWorker.register('./sw.js');
 }
 
-/* 검증·디버그용 공개 네임스페이스 (데모 데이터 미포함 — 폐쇄형 유지) */
-window.ARC = { state, show, nav, renderCalendar, renderMeetups, raceDerived, makeAvatar, esc };
+/* 검증·디버그용 공개 네임스페이스 (가상 멤버 데이터 미포함 — 폐쇄형 유지) */
+window.ARC = { state, show, nav, renderCalendar, renderMeetups, raceDerived, makeAvatar, esc, loadPreviewRaces };

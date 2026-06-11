@@ -1,11 +1,13 @@
 // ARC V3 — Service Worker (V2 이식, CACHE_NAME 갱신 + js/ 프리캐시 — TECH_SPEC §1.2)
-const CACHE_NAME = 'arc-v3-1';
+const CACHE_NAME = 'arc-v3-2';   // T-14: 프리뷰 모드 추가 — 캐시 무효화
 const ASSETS = [
   './',
   './index.html',
   './js/config.js',
   './js/db.js',
   './js/app.js',
+  './assets/preview-races.json',
+  './assets/preview-races.js',
   './manifest.webmanifest',
   './privacy.html',
   './terms.html',
