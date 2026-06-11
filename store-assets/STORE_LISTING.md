@@ -1,6 +1,6 @@
 # ARC — Google Play Store Listing
 **Adult Running Club | G2 Company Ltd.**
-작성일: 2026-06-06 | 담당: CMO
+작성일: 2026-06-06 | 갱신일: 2026-06-11 (v2 반영) | 담당: CMO
 
 ---
 
@@ -28,22 +28,19 @@ ARC — Adult Running Club
 
 ### 한국어
 ```
-서울 프리미엄 러닝 멤버십. 코스 아카이브, 커뮤니티, 그리고 격조.
+도시 러닝으로 연결되는 라이프스타일 클럽. 기록은 내 기기 안에만.
 ```
-(39자)
+(38자)
+
+> **변경 근거**: v2 CSO 포지셔닝("러닝하는 사람이 아닌, 러닝으로 연결되는 도시 라이프스타일 클럽") + 기기 내 GPS 처리 프라이버시 강점 반영.
 
 ### 영어
 ```
-Seoul's premier running membership. Courses, community, and class.
+Urban running club for the city lifestyle. Your GPS stays on your device.
 ```
-(83자 → 단축본)
+(73자)
 
-```
-Seoul's premier running membership. Email verified members only.
-```
-(55자)
-
-> **권장**: 영어 단축본 사용. "Email verified members only"로 이메일 인증 기반 멤버십을 즉각적으로 전달.
+> **변경 근거**: 프라이버시(GPS 기기 내 처리) + 도시 라이프스타일 포지셔닝 명시. 실제 구현된 기능만.
 
 ---
 
@@ -56,64 +53,84 @@ Seoul's premier running membership. Email verified members only.
 ```
 ARC — Adult Running Club
 
-이메일 인증 기반 멤버십입니다.
+ARC는 러닝을 하는 사람들의 앱이 아닙니다.
+러닝으로 연결되는 도시적 라이프스타일 클럽입니다.
 
-ARC는 서울에서 시작된 럭셔리 러닝 멤버십입니다.
-가장 성공한 사람들이 가장 이른 아침을 함께 달립니다.
+Strava는 기록을 남깁니다. Nike Run Club은 훈련시킵니다.
+ARC는 도시 안에서 당신이 속할 곳을 만듭니다.
 
 ─────────────────────────
 
 멤버십
 
-ARC는 이메일 인증 기반으로 운영됩니다. 인증 완료 후 커뮤니티에 참여할 수 있으며,
-멤버 구성의 수준을 유지하기 위해 운영됩니다.
-
-러닝은 수단입니다. 진짜 목적은 서울에서 수준 높은 사람들과
-땀을 나누고, 네트워크를 쌓고, 신뢰를 만드는 것입니다.
+ARC는 이메일 인증 기반으로 운영됩니다.
+인증 완료 후 커뮤니티에 참여할 수 있으며,
+멤버 구성의 수준을 유지하기 위해 초청제로 운영됩니다.
 
 ─────────────────────────
 
-코스 & 피드
+5개 도시, 당신의 구역
 
-앱은 ARC 멤버 전용 러닝 코스 아카이브를 제공합니다.
-한강 선릉 북촌 남산 — 서울의 격조 있는 루트들이 큐레이션됩니다.
-멤버들의 러닝 기록과 피드를 통해 서로의 리듬과 일정을 확인할 수 있습니다.
-
-─────────────────────────
-
-네트워크
-
-같은 아침, 같은 코스를 달린다는 것은 같은 기준을 공유한다는 의미입니다.
-ARC 멤버십은 서울 최상위 전문직, 임원, 기업인들로 구성됩니다.
-러닝 이후의 대화가 종종 가장 중요한 미팅이 됩니다.
+서울 · 도쿄 · 뉴욕 · 런던 · 파리
+5개 도시 19개 구역이 준비되어 있습니다.
+각 구역에는 전용 채팅이 있고, 멤버들이 실시간으로 대화합니다.
+출장지에서도 같은 수준의 클럽에 합류할 수 있습니다.
 
 ─────────────────────────
 
-글로벌 러닝 커뮤니티
+세계 지도 위의 내 클럽
 
-ARC는 서울에서 시작하지만, 뉴욕 런던 도쿄의 파트너 클럽과 연결됩니다.
-출장지에서도 같은 수준의 러닝 커뮤니티로 합류할 수 있습니다.
+월드맵에서 5개 도시의 위치를 확인하고 구역을 선택합니다.
+각 구역의 멤버 피드, 러닝 기록, 채팅에 접근할 수 있습니다.
+
+─────────────────────────
+
+루트 아트워크
+
+ARC의 러닝 루트는 단순한 경로가 아닙니다.
+골드 그라데이션으로 시각화된 루트 아트워크가 각 코스를 표현합니다.
+한강 선릉 북촌 남산 — 서울의 격조 있는 루트가 큐레이션됩니다.
+
+─────────────────────────
+
+프라이버시 우선 GPS
+
+좌표는 기기를 떠나지 않습니다.
+
+ARC는 위치 정보를 서버에 전송하지 않습니다.
+GPS 기록은 오직 내 기기 안에서만 처리됩니다.
+러닝 데이터가 외부로 나가지 않는 것이 ARC의 기본 설계입니다.
+
+─────────────────────────
+
+데모 쇼룸
+
+가입 없이 앱을 먼저 경험할 수 있습니다.
+82개 데모 게시글과 구역별 채팅 미리보기가 제공됩니다.
+체험 링크: arc.run/?demo=true (가입 불필요)
 
 ─────────────────────────
 
 멤버 혜택
 
-• 코스 아카이브 — 서울 러닝 코스 큐레이션
-• 커뮤니티 피드 — 멤버 기록 및 커뮤니티 업데이트
-• 멤버 채팅 — 지역별 러닝 커뮤니케이션
+• 월드맵 — 5개 도시 19개 구역 탐색
+• 루트 아트워크 — 골드 그라데이션 코스 시각화
+• 커뮤니티 피드 — 구역별 멤버 기록 및 사진
+• 구역 채팅 — 구역별 실시간 멤버 커뮤니케이션
 • 마이페이지 — 개인 러닝 기록 및 통계
+• 프라이버시 GPS — 좌표 기기 내 처리, 외부 전송 없음
 
 ─────────────────────────
 
 입장 방법
 
 앱을 설치하고 이메일 인증을 완료하면 서비스를 이용할 수 있습니다.
-이메일 인증 코드는 등록한 이메일 주소로 발송됩니다.
+또는 데모 링크로 가입 없이 먼저 경험하세요.
 
 ─────────────────────────
 
 ARC는 러닝 앱이 아닙니다.
-이것은 서울에서 가장 격조 있는 아침을 공유하는 사람들의 클럽입니다.
+러닝으로 연결되는 도시적 라이프스타일 클럽입니다.
 
 ```
 
@@ -124,67 +141,83 @@ ARC는 러닝 앱이 아닙니다.
 ```
 ARC — Adult Running Club
 
-Email verification-based membership.
+ARC is not a running app.
+It is an urban lifestyle club connected through running.
 
-ARC is Seoul's luxury running membership.
-The most accomplished people share the earliest mornings.
+Strava records. Nike Run Club trains.
+ARC gives you a place to belong in the city.
 
 ─────────────────────────
 
 Membership
 
-ARC operates through email verification. Complete verification to join the community.
-Membership is managed to maintain community standards.
-
-Running is the medium. The real purpose is to share sweat with Seoul's
-accomplished professionals, build meaningful networks, and earn trust that
-only physical proximity creates.
+ARC operates through email verification.
+Complete verification to join the community.
+Membership is managed through invitation to maintain community standards.
 
 ─────────────────────────
 
-Courses & Feed
+Five Cities, Your District
 
-The app provides a member-exclusive archive of curated running courses across Seoul —
-Hangang, Seolleung, Bukchon, Namsan, and beyond. Member feeds surface running
-records, attendance, and community rhythm, so you always know when and where
-your peers are moving.
-
-─────────────────────────
-
-Network
-
-Running the same course at the same hour means sharing the same standard.
-ARC membership is composed of Seoul's top-tier professionals, executives,
-and founders. The conversations after the run are often the most important meetings
-of the week.
-
-─────────────────────────
-
-Global Running Community
-
-ARC starts in Seoul, but connects to partner clubs in New York, London, and Tokyo.
+Seoul · Tokyo · New York · London · Paris
+Five cities, nineteen districts — each with its own member feed and chat.
 When you travel, you travel with the same caliber of community.
+
+─────────────────────────
+
+World Map
+
+Navigate the world map to explore all five cities and select your district.
+Access member feeds, running records, and live chat for each zone.
+
+─────────────────────────
+
+Route Artwork
+
+ARC running routes are not just paths.
+Each course is rendered as gold-gradient route artwork —
+a visual language for the club's curated streets.
+
+─────────────────────────
+
+Privacy-First GPS
+
+Your coordinates never leave your device.
+
+ARC does not transmit location data to any server.
+GPS records are processed on-device only.
+Your running data stays where it belongs — with you.
+
+─────────────────────────
+
+Demo Showroom
+
+Experience the app before signing up.
+82 demo posts and district chat previews are available without an account.
+Try it: arc.run/?demo=true
 
 ─────────────────────────
 
 Member Benefits
 
-• Course archive — curated Seoul running routes
-• Community feed — member records and community updates
-• Member chat — regional running communication
+• World map — five cities, nineteen districts
+• Route artwork — gold-gradient course visualization
+• Community feed — member records and photos by district
+• District chat — real-time member communication per zone
 • My page — personal running records and statistics
+• Privacy GPS — on-device only, no external transmission
 
 ─────────────────────────
 
 How to Join
 
 Install the app and complete email verification to access the service.
-A verification code will be sent to your registered email address.
+Or try the demo link — no sign-up required.
 
 ─────────────────────────
 
 ARC is not a running app.
-It is a club for those who share Seoul's most distinguished mornings.
+It is an urban lifestyle club connected through running.
 
 ```
 
@@ -204,10 +237,10 @@ It is a club for those who share Seoul's most distinguished mornings.
 | 4 | 서울 러닝 클럽 | 지역 타겟팅 핵심 |
 | 5 | 러닝 앱 | 범용 검색 트래픽 확보 |
 | 6 | 달리기 모임 | 소셜 러닝 검색층 포착 |
-| 7 | 프리미엄 멤버십 | 고소득층 키워드 |
+| 7 | 라이프스타일 클럽 | v2 포지셔닝 신규 반영 |
 | 8 | 러닝 네트워크 | 비즈니스 목적 러너 타겟 |
 | 9 | 어덜트 러닝 | 브랜드명 직결 |
-| 10 | 러닝 코스 서울 | 코스 큐레이션 기능 강조 |
+| 10 | 도시 러닝 클럽 | 도시 라이프스타일 포지셔닝 반영 |
 
 ### 영어 키워드
 
@@ -217,12 +250,12 @@ It is a club for those who share Seoul's most distinguished mornings.
 | 2 | premium running | 차별화 포지셔닝 |
 | 3 | running membership | 카테고리 독점 |
 | 4 | Seoul running | 지역 타겟팅 |
-| 5 | exclusive running | 독점성 키워드 |
+| 5 | urban running club | v2 포지셔닝 신규 반영 |
 | 6 | luxury fitness | 인접 카테고리 트래픽 |
 | 7 | running community Seoul | 롱테일 정밀 타겟 |
 | 8 | running app | 범용 트래픽 |
 | 9 | adult running club | 브랜드명 직결 |
-| 10 | elite running Seoul | 프리미엄+지역 조합 롱테일 |
+| 10 | private running club | 프라이버시+배타성 조합 |
 
 ---
 
@@ -237,8 +270,7 @@ It is a club for those who share Seoul's most distinguished mornings.
 ### 서브 카테고리
 **Lifestyle (라이프스타일)**
 
-> 사유: ARC는 단순 운동 추적 앱이 아닌 라이프스타일 클럽임.
-> 럭셔리 라이프스타일, 소셜 네트워킹 측면을 강조.
+> 사유: ARC v2 포지셔닝 핵심 — "러닝으로 연결되는 도시적 라이프스타일 클럽".
 > Soho House, Equinox 등 프리미엄 클럽 앱이 이 카테고리에 포지셔닝.
 
 ---
@@ -256,28 +288,44 @@ It is a club for those who share Seoul's most distinguished mornings.
 | 도박 | 없음 |
 | 약물·알코올 | 없음 |
 | 공포 | 없음 |
-| 개인정보 수집 | 위치 정보 (코스 기능), 사용자 프로필 — 표준 수준 |
-| 사용자 간 상호작용 | 멤버 피드, 댓글 — 초청제 폐쇄 커뮤니티로 외부 노출 없음 |
+| 개인정보 수집 | GPS 기기 내 처리 (서버 미전송), 이메일 인증 — 최소 수준 |
+| 사용자 간 상호작용 | 구역 채팅, 멤버 피드 — 초청제 폐쇄 커뮤니티 |
 
-> 실질적 사용자는 성인(30-50대)이지만, 앱 콘텐츠 자체에 성인 제한 요소 없음.
+> v2에서 GPS를 기기 내 처리(서버 미전송)로 설계 변경 — 개인정보 리스크 감소.
 > "모든 이용자" 등급이 Play Store 노출 범위를 최대화하며, 심사 승인 가능성도 높음.
-> 단, 위치정보 수집 관련 개인정보처리방침(privacy.html)은 리스팅 시 명시 필수.
 
 ---
 
-## 부록: 스크린샷 캡션 가이드 (선택)
+## 7. v2 신규 기능 반영 (2026-06-11 기준 — 직접 구현 확인 완료)
+
+> 이 섹션은 스토어 리스팅 카피 근거 문서용. 실제 구현된 기능만 기재.
+
+| v2 신기능 | 리스팅 반영 여부 | 비고 |
+| -------- | ------------- | ---- |
+| 정확한 월드맵 (5개 도시) | 반영 | 한/영 설명 + 키워드 |
+| 루트 아트워크 (골드 SVG) | 반영 | 한/영 설명 |
+| 데모 쇼룸 82개 게시글 | 반영 | 한/영 설명 + 데모 링크 |
+| 구역별 채팅 (19개 구역) | 반영 | 한/영 설명 |
+| GPS 기기 내 처리 | 반영 | 프라이버시 강점으로 부각 |
+| 5개 도시 (Seoul·Tokyo·NY·London·Paris) | 반영 | 한/영 설명 |
+| CSO 포지셔닝 ("도시 라이프스타일 클럽") | 반영 | 짧은 설명 + 전체 설명 오프닝 |
+
+---
+
+## 부록: 스크린샷 캡션 가이드 (v2 갱신)
 
 > 스크린샷 업로드 시 캡션에 사용할 문구 (한/영)
 
 | 화면 | 한국어 캡션 | 영어 캡션 |
 |------|------------|----------|
 | 게이트(인증) 화면 | "검증된 멤버만 입장합니다" | "Verified members only" |
-| 코스 피드 화면 | "서울의 격조 있는 루트, 멤버 전용" | "Seoul's finest routes, members only" |
-| 멤버 피드 화면 | "같은 아침을 달리는 사람들" | "Those who run the same mornings" |
-| 러닝 기록 화면 | "기록이 쌓이면 신뢰가 됩니다" | "Consistency becomes credibility" |
-| 프로필 화면 | "당신이 누구인지, 클럽이 압니다" | "The club knows who you are" |
+| 월드맵 화면 | "5개 도시, 당신의 구역을 선택하세요" | "Five cities. Choose your district." |
+| 루트 아트워크 화면 | "루트가 예술이 됩니다" | "The route becomes the artwork." |
+| 구역 채팅 화면 | "같은 구역을 달리는 사람들과" | "With those who run your district." |
+| 멤버 피드 화면 | "같은 아침을 달리는 사람들" | "Those who run the same mornings." |
+| 마이페이지 화면 | "기록이 쌓이면 신뢰가 됩니다" | "Consistency becomes credibility." |
 
 ---
 
-*CMO — G2 Company Ltd. | 작성: 2026-06-06*
-*승인 전 CLO 검토 권장: 초청제 멤버십 관련 소비자보호법, 개인정보보호법 표현 확인*
+*CMO — G2 Company Ltd. | 최초 작성: 2026-06-06 | v2 갱신: 2026-06-11*
+*승인 전 CLO 검토 권장: 초청제 멤버십, 프라이버시 처리 표현 (Play Store 정책 §4.8 개인정보 섹션)*
