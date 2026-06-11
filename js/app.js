@@ -378,7 +378,7 @@ async function renderRaceDetail(id) {
     const { data } = await DB.raceAttendees(r.id, state.attOffset);
     if (state.attOffset === 0 && !data.length) {
       const li = el('li');
-      li.appendChild(emptyState('아직 참가 표시한 멤버가 없습니다. 첫 번째가 되어보세요.'));
+      li.appendChild(emptyState('아직 참가 표시한 멤버가 없습니다.'));
       list.appendChild(li);
       moreBtn.hidden = true;
       return;
@@ -441,7 +441,7 @@ async function renderMeetups() {
   const { data, error } = await DB.meetupBoard(state.hubFilter);
   if (error) { toast('밋업을 불러오지 못했습니다'); return; }
   state.meetups = data;
-  if (!data.length) { box.appendChild(emptyState('열린 밋업이 없습니다. 첫 밋업을 개설해보세요.')); return; }
+  if (!data.length) { box.appendChild(emptyState('열린 밋업이 없습니다.')); return; }
   data.forEach(m => box.appendChild(meetCard(m)));
 }
 function meetCard(m) {
