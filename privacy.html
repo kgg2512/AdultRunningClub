@@ -1,283 +1,61 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Policy — Adult Running Club</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0A0908; --bg2: #130F0C; --gold: #C9A84C;
-      --gold-dim: rgba(201,168,76,0.55); --gold-line: rgba(201,168,76,0.18);
-      --ivory: #FAF8F4; --ivory-dim: rgba(250,248,244,0.6);
-      --ivory-faint: rgba(250,248,244,0.15);
-      --serif: 'Cormorant Garamond', Georgia, serif;
-      --sans: 'Raleway', system-ui, sans-serif;
-    }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--ivory); font-family: var(--sans); font-weight: 300; font-size: 0.875rem; line-height: 1.9; min-height: 100vh; }
-    .site-header { background: var(--bg2); border-bottom: 1px solid var(--gold-line); padding: 28px 24px 24px; text-align: center; }
-    .site-header .wordmark { font-family: var(--serif); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 10px; }
-    .site-header h1 { font-family: var(--serif); font-size: 1.75rem; font-weight: 300; font-style: italic; color: var(--ivory); letter-spacing: 0.03em; margin-bottom: 6px; }
-    .site-header .meta { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ivory-dim); }
-    .lang-toggle { display: flex; justify-content: center; gap: 0; margin: 24px auto 0; border: 1px solid var(--gold-line); width: fit-content; }
-    .lang-btn { background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 0.6rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ivory-dim); padding: 8px 20px; transition: all 0.2s; }
-    .lang-btn.active { background: var(--gold); color: var(--bg); font-weight: 500; }
-    .lang-btn:not(.active):hover { color: var(--gold); }
-    .divider { width: 1px; background: var(--gold-line); flex-shrink: 0; }
-    .content { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
-    .lang-section { display: none; }
-    .lang-section.active { display: block; }
-    .section { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--ivory-faint); }
-    .section:last-of-type { border-bottom: none; }
-    .section-number { font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 8px; }
-    .section h2 { font-family: var(--serif); font-size: 1.15rem; font-weight: 400; color: var(--ivory); margin-bottom: 16px; letter-spacing: 0.02em; }
-    p { color: var(--ivory-dim); margin-bottom: 12px; }
-    p:last-child { margin-bottom: 0; }
-    ul { color: var(--ivory-dim); padding-left: 0; list-style: none; margin-bottom: 12px; }
-    li { padding: 8px 0 8px 16px; border-left: 1px solid var(--gold-line); margin-bottom: 6px; font-size: 0.85rem; }
-    li strong { color: var(--ivory); font-weight: 400; display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
-    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-    .data-table th { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 400; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--gold-line); background: var(--bg2); }
-    .data-table td { padding: 12px 12px; color: var(--ivory-dim); font-size: 0.82rem; border-bottom: 1px solid var(--ivory-faint); vertical-align: top; }
-    .highlight-box { background: var(--bg2); border-left: 2px solid var(--gold); padding: 16px 20px; margin: 16px 0; }
-    .highlight-box p { color: var(--ivory-dim); margin: 0; font-size: 0.83rem; }
-    a { color: var(--gold); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-block { background: var(--bg2); border: 1px solid var(--gold-line); padding: 24px; margin-top: 16px; }
-    .contact-block .label { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 6px; }
-    .contact-block .value { color: var(--ivory); font-size: 0.88rem; }
-    .contact-item { margin-bottom: 16px; }
-    .contact-item:last-child { margin-bottom: 0; }
-    .back-link { display: block; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ivory-dim); text-decoration: none; padding: 20px 24px; border-bottom: 1px solid var(--ivory-faint); }
-    .back-link:hover { color: var(--gold); }
-    .eff-bar { background: var(--bg2); border-top: 1px solid var(--gold-line); text-align: center; padding: 20px 24px; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ivory-dim); position: fixed; bottom: 0; left: 0; right: 0; }
-    @media (max-width: 480px) { .site-header h1 { font-size: 1.4rem; } .content { padding: 32px 20px 80px; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>개인정보처리방침 — ARC</title>
+<style>
+:root{--bg:#FAF8F4;--gold:#C9A84C;--text:#0D0B08;--text-sub:#6B6459;--border:#E8E2D9}
+body{background:var(--bg);color:var(--text);font-family:'Raleway',system-ui,sans-serif;
+  font-weight:300;line-height:1.8;max-width:680px;margin:0 auto;padding:48px 24px 80px}
+h1{font-family:Georgia,serif;font-style:italic;font-weight:300;font-size:1.7rem;margin-bottom:6px}
+.sub{font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:36px}
+h2{font-size:1rem;font-weight:500;margin:32px 0 10px;padding-top:18px;border-top:1px solid var(--border)}
+p,li{font-size:.85rem;color:var(--text-sub)}
+ul{padding-left:18px}
+.tbd{background:#FBF5E4;border:1px dashed var(--gold);padding:12px 16px;font-size:.8rem;margin:10px 0}
+a{color:var(--gold)}
+</style>
 </head>
 <body>
-  <a class="back-link" href="./index.html">← Back to ARC</a>
-  <div class="site-header">
-    <span class="wordmark">Adult Running Club</span>
-    <h1>Privacy Policy</h1>
-    <p class="meta">개인정보처리방침</p>
-    <div class="lang-toggle">
-      <button type="button" class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
-      <div class="divider"></div>
-      <button type="button" class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
-    </div>
-  </div>
-  <div class="content">
-    <div class="lang-section active" id="lang-ko">
-      <div class="section">
-        <span class="section-number">— 시행일: 2026.06.11</span>
-        <h2>개요</h2>
-        <p>G2 Company Ltd.(이하 "회사")는 <em>Adult Running Club</em>(이하 "서비스")를 운영합니다. 이 개인정보처리방침은 이용자의 개인정보를 어떻게 수집, 이용, 보관, 보호하는지를 설명합니다.</p>
-      </div>
-      <div class="section">
-        <span class="section-number">01</span>
-        <h2>수집하는 개인정보 항목 및 수집 방법</h2>
-        <table class="data-table">
-          <thead><tr><th>항목</th><th>목적</th><th>수집 방법</th></tr></thead>
-          <tbody>
-            <tr><td>이메일 주소</td><td>멤버십 인증 코드 발송, 본인 확인</td><td>이용자 직접 입력</td></tr>
-            <tr><td>역할 (student / pro / founder)</td><td>멤버십 등급 분류 및 서비스 접근 제어</td><td>이용자 직접 선택</td></tr>
-            <tr><td>러닝 기록 (거리, 페이스, 코스, 지역)</td><td>커뮤니티 피드 표시 및 통계</td><td>이용자 직접 입력 또는 기기 내 GPS 측정값(거리·시간)</td></tr>
-            <tr><td>경로 모양 데이터 (추상화된 SVG 경로 — 좌표 아님)</td><td>러닝 경로 시각화(루트 아트워크)</td><td>기기 내 GPS 처리 후 자동 생성 (선택 기능)</td></tr>
-            <tr><td>게시물 (텍스트, 사진)</td><td>커뮤니티 공유 및 피드 표시</td><td>이용자 직접 업로드</td></tr>
-            <tr><td>채팅 메시지</td><td>지역별 러닝 커뮤니티 소통</td><td>이용자 직접 입력</td></tr>
-            <tr><td>마케팅 수신 동의 여부</td><td>선택적 마케팅 이메일 발송 여부 관리</td><td>이용자 동의 체크박스</td></tr>
-          </tbody>
-        </table>
-        <div class="highlight-box"><p>이메일 주소, 역할, 러닝 기록, 게시물, 채팅 메시지는 Supabase(미국) 서버에 저장됩니다. 사진은 Supabase Storage(미국)에 저장됩니다. 인증 외 기기 로컬 데이터는 브라우저 localStorage에만 저장됩니다.</p></div>
-        <p style="margin-top:16px;">기기 로컬 저장소에 별도 보관되는 데이터:</p>
-        <ul>
-          <li><strong>arc_v</strong>인증 완료 여부 (true/false) — 개인정보 아님</li>
-          <li><strong>arc_r</strong>멤버 역할 구분 — 개인정보 아님</li>
-          <li><strong>arc_e</strong>인증에 사용한 이메일 주소 (기기 내 저장, 서버 미전송) — 개인정보에 해당하며, 브라우저 데이터 삭제 또는 앱 삭제 시 소멸</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">02</span>
-        <h2>개인정보 수집 및 이용 목적</h2>
-        <ul>
-          <li><strong>목적</strong>멤버십 자격 확인 및 인증 코드 1회 발송</li>
-          <li><strong>근거</strong>개인정보보호법 제15조 제1항 — 이용자 동의</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">03</span>
-        <h2>개인정보 보유 및 이용 기간</h2>
-        <ul>
-          <li><strong>서버 측</strong>인증 코드 발송 완료 즉시 파기. 서버에 영구 저장하지 않습니다.</li>
-          <li><strong>기기 로컬</strong>브라우저 데이터 삭제 또는 앱 삭제 시 소멸</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">04</span>
-        <h2>개인정보의 제3자 제공 및 국외이전</h2>
-        <p>인증 코드 발송을 위해 아래 서비스에 이메일 주소가 전달됩니다.</p>
-        <table class="data-table">
-          <thead><tr><th>수탁사</th><th>이전 항목</th><th>이전 목적</th><th>서버 위치</th></tr></thead>
-          <tbody>
-            <tr><td>EmailJS (emailjs.com)</td><td>이메일 주소</td><td>인증 코드 이메일 발송</td><td>미국 (US)</td></tr>
-            <tr><td>Supabase, Inc. (supabase.com)</td><td>이메일 주소, 역할, 러닝 기록, 게시물, 채팅 메시지, 사진</td><td>서비스 데이터 저장·조회 (DB 및 Storage)</td><td>미국 (US)</td></tr>
-          </tbody>
-        </table>
-        <div class="highlight-box"><p>위 처리는 개인정보보호법 제28조의8에 따라 국외이전에 해당합니다. 서비스 이용 및 본 방침 동의 시 위 국외이전에 동의하게 됩니다.<br>EmailJS 개인정보처리방침: <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">emailjs.com/legal/privacy-policy</a><br>Supabase 개인정보처리방침: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a></p></div>
-      </div>
-      <div class="section">
-        <span class="section-number">04-1</span>
-        <h2>위치정보의 처리 (러닝 기록 기능)</h2>
-        <div class="highlight-box"><p><strong>GPS 좌표는 기기 내에서만 처리되며 서버에 저장·전송되지 않습니다.</strong> 서버에는 좌표가 아닌 추상화된 경로 모양(정규화된 SVG 도형 데이터)만 저장됩니다. 이 데이터로는 실제 위치를 특정하거나 역추적할 수 없습니다.</p></div>
-        <ul>
-          <li><strong>이용 방식</strong>"Record Run" 실행 중에만 기기 GPS를 사용하여 거리·시간·페이스를 측정하고 경로 모양을 그립니다. 백그라운드 위치 추적은 하지 않습니다.</li>
-          <li><strong>좌표 폐기</strong>기록 종료 즉시 원본 GPS 좌표는 기기 메모리에서 폐기됩니다. 시작·종료 구간(약 90초 분량)은 모양 생성에서 제외되어 출발지·도착지가 보호됩니다.</li>
-          <li><strong>동의</strong>위치 이용은 선택 기능이며, 기능 실행 직전 고지 화면에서 동의한 경우에만 사용됩니다. 동의하지 않아도 수동 입력으로 모든 기능을 이용할 수 있습니다.</li>
-          <li><strong>동의 철회</strong>기기 설정(앱 권한 → 위치) 또는 브라우저 사이트 권한에서 언제든 위치 권한을 철회할 수 있습니다. 철회 시 GPS 기록 기능만 비활성화됩니다.</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">05</span>
-        <h2>정보주체의 권리 및 행사 방법</h2>
-        <ul>
-          <li><strong>열람·정정·삭제·처리정지</strong>아래 이메일로 요청하시면 지체 없이 조치합니다.</li>
-          <li><strong>로컬 데이터 삭제</strong>브라우저 설정 → 사이트 데이터 삭제에서 직접 삭제 가능</li>
-        </ul>
-        <p>문의: <a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></p>
-      </div>
-      <div class="section">
-        <span class="section-number">06</span>
-        <h2>기술적 보호 조치</h2>
-        <ul>
-          <li><strong>HTTPS</strong>모든 통신 구간 TLS 암호화</li>
-          <li><strong>최소 수집</strong>서비스에 필요한 최소 정보만 수집</li>
-          <li><strong>즉시 파기</strong>인증 완료 후 서버 측 이메일 즉시 삭제</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">07</span>
-        <h2>개인정보 보호책임자</h2>
-        <div class="contact-block">
-          <div class="contact-item"><span class="label">회사명</span><span class="value">G2 Company Ltd.</span></div>
-          <div class="contact-item"><span class="label">개인정보 보호책임자</span><span class="value">강경구 (대표)</span></div>
-          <div class="contact-item"><span class="label">이메일</span><span class="value"><a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></span></div>
-        </div>
-      </div>
-      <div class="section">
-        <span class="section-number">08</span>
-        <h2>개인정보처리방침 변경</h2>
-        <p>본 방침은 관련 법령 변경 시 사전 고지 후 개정됩니다. 현행 시행일: 2026년 6월 11일</p>
-      </div>
-    </div>
-    <div class="lang-section" id="lang-en">
-      <div class="section">
-        <span class="section-number">— Effective: 2026.06.11</span>
-        <h2>Overview</h2>
-        <p>G2 Company Ltd. ("Company") operates <em>Adult Running Club</em> ("Service"). This Privacy Policy explains how we collect, use, retain, and protect your personal information.</p>
-      </div>
-      <div class="section">
-        <span class="section-number">01</span>
-        <h2>Data We Collect</h2>
-        <table class="data-table">
-          <thead><tr><th>Item</th><th>Purpose</th><th>Method</th></tr></thead>
-          <tbody>
-            <tr><td>Email address</td><td>Sending membership verification code</td><td>User input</td></tr>
-            <tr><td>Role (student / pro / founder)</td><td>Membership tier classification and access control</td><td>User selection</td></tr>
-            <tr><td>Running records (distance, pace, course, district)</td><td>Community feed display and statistics</td><td>User input</td></tr>
-            <tr><td>Posts (text, photos)</td><td>Community sharing and feed display</td><td>User upload</td></tr>
-            <tr><td>Chat messages</td><td>District-level running community communication</td><td>User input</td></tr>
-            <tr><td>Marketing consent flag</td><td>Managing optional marketing email preferences</td><td>User consent checkbox</td></tr>
-          </tbody>
-        </table>
-        <div class="highlight-box"><p>Email address, role, running records, posts, and chat messages are stored on Supabase (US) servers. Photos are stored in Supabase Storage (US). Non-authentication local data is stored exclusively in your device's localStorage.</p></div>
-        <p style="margin-top:16px;">Device localStorage data:</p>
-        <ul>
-          <li><strong>arc_v</strong>Verification status — not personal information</li>
-          <li><strong>arc_r</strong>Member role — not personal information</li>
-          <li><strong>arc_e</strong>Email used for verification (device-only, never sent to our servers) — constitutes personal information; deleted when browser data or app is removed</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">02</span>
-        <h2>How We Use Your Data</h2>
-        <ul>
-          <li><strong>Purpose</strong>Verifying membership and sending a one-time verification code</li>
-          <li><strong>Legal basis</strong>Your explicit consent at the time of collection</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">03</span>
-        <h2>Data Retention</h2>
-        <ul>
-          <li><strong>Server-side</strong>Deleted immediately after the verification code is sent.</li>
-          <li><strong>Device-local</strong>Until you clear browser data or uninstall the app.</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">04</span>
-        <h2>Third-Party Sharing &amp; International Transfer</h2>
-        <table class="data-table">
-          <thead><tr><th>Processor</th><th>Data</th><th>Purpose</th><th>Location</th></tr></thead>
-          <tbody>
-            <tr><td>EmailJS (emailjs.com)</td><td>Email address</td><td>Sending verification code</td><td>United States</td></tr>
-            <tr><td>Supabase, Inc. (supabase.com)</td><td>Email, role, running records, posts, chat messages, photos</td><td>Service data storage and retrieval (DB &amp; Storage)</td><td>United States</td></tr>
-          </tbody>
-        </table>
-        <div class="highlight-box"><p>Your data is transferred to US-based servers for service operation. By accepting this Policy, you consent to this transfer.<br>See <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">EmailJS Privacy Policy</a> and <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a>.</p></div>
-      </div>
-      <div class="section">
-        <span class="section-number">04-1</span>
-        <h2>Location Data (Run Recording)</h2>
-        <div class="highlight-box"><p><strong>GPS coordinates are processed only on your device and are never stored on or transmitted to our servers.</strong> Only an abstract route shape (normalized SVG geometry, not coordinates) is stored. This data cannot be used to identify or reverse-locate your actual position.</p></div>
-        <ul>
-          <li><strong>How it works</strong>Location is used only while you actively record a run, to measure distance, time, and pace and to draw the route shape. No background tracking.</li>
-          <li><strong>Coordinate disposal</strong>Raw GPS coordinates are discarded from device memory immediately when recording ends. The first and last ~90 seconds are excluded from the shape to protect your start and end points.</li>
-          <li><strong>Consent</strong>Location use is optional and occurs only after you accept the in-app disclosure shown before recording. All features remain available via manual entry.</li>
-          <li><strong>Withdrawal</strong>You may revoke location permission at any time in your device settings (App permissions → Location) or browser site permissions.</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">05</span>
-        <h2>Your Rights</h2>
-        <p>You may request access, correction, deletion, or restriction of your data at <a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a>. Local data can be deleted via your browser's site data settings.</p>
-      </div>
-      <div class="section">
-        <span class="section-number">06</span>
-        <h2>Security</h2>
-        <ul>
-          <li><strong>HTTPS</strong>All communications encrypted via TLS</li>
-          <li><strong>Minimal collection</strong>Only data strictly necessary for the service</li>
-          <li><strong>Immediate deletion</strong>Email addresses deleted from servers after verification</li>
-        </ul>
-      </div>
-      <div class="section">
-        <span class="section-number">07</span>
-        <h2>Data Controller</h2>
-        <div class="contact-block">
-          <div class="contact-item"><span class="label">Company</span><span class="value">G2 Company Ltd.</span></div>
-          <div class="contact-item"><span class="label">DPO</span><span class="value">Kyunggu Kang</span></div>
-          <div class="contact-item"><span class="label">Email</span><span class="value"><a href="mailto:kgg2512@gmail.com">kgg2512@gmail.com</a></span></div>
-        </div>
-      </div>
-      <div class="section">
-        <span class="section-number">08</span>
-        <h2>Policy Changes</h2>
-        <p>We may update this policy with advance notice. Effective date: June 11, 2026.</p>
-      </div>
-    </div>
-  </div>
-  <div class="eff-bar">G2 Company Ltd. · Adult Running Club · Privacy Policy · 2026.06.11</div>
-  <script>
-    function setLang(lang) {
-      document.querySelectorAll('.lang-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('lang-' + lang).classList.add('active');
-      document.getElementById('btn-' + lang).classList.add('active');
-    }
-  </script>
+<h1>개인정보처리방침</h1>
+<p class="sub">ARC — Members' Running Network</p>
+
+<div class="tbd">⚠️ 본 문서는 골격(skeleton)입니다. 확정 본문은 법무(CLO) 산출물 수령 후 교체됩니다. 교체 전까지 서비스는 비공개 베타(초대 멤버 한정)로 운영됩니다.</div>
+
+<h2>1. 수집하는 개인정보 항목</h2>
+<ul>
+  <li>필수: 실명, 이메일, 소속, 생년월일(성인 확인 목적)</li>
+  <li>서비스 이용 과정 생성: 대회 참가예정 표시, 밋업 RSVP, 인앱 알림 기록</li>
+  <li>수집하지 않음: 프로필 사진, GPS 위치, 좌표 정보, 연락처</li>
+</ul>
+
+<h2>2. 수집·이용 목적</h2>
+<ul>
+  <li>폐쇄형 멤버 네트워크 운영 (초대코드·화이트리스트 기반 멤버 확인)</li>
+  <li>대회 캘린더 Who's Going 표시 및 Hub 밋업 운영</li>
+  <li>서비스 알림(선택 동의 시), 마케팅 정보(선택 동의 시 — 동의 일시 기록)</li>
+</ul>
+
+<h2 id="disclosure">3. 멤버 간 정보 공개</h2>
+<p>가입 시 별도 동의(필수3)에 따라 실명·소속·대회 참가예정 정보가 <b>인증된 멤버에게만</b> 공개됩니다. 비회원·외부 검색엔진에는 일절 공개되지 않습니다. 프로필 공개 설정에서 숨김을 선택할 수 있습니다.</p>
+
+<h2>4. 보유·파기</h2>
+<p>회원 탈퇴 시 프로필·참가예정·RSVP·동의·알림 기록이 즉시 삭제됩니다.</p>
+
+<h2>5. 동의 철회</h2>
+<p>선택 동의(서비스 알림·마케팅)는 마이페이지에서 언제든 철회할 수 있으며 철회 즉시 반영되고 철회 일시가 기록됩니다.</p>
+
+<h2>6. 처리 위탁</h2>
+<ul>
+  <li>Supabase Inc. — 데이터베이스·인증 인프라</li>
+</ul>
+
+<h2>7. 문의</h2>
+<div class="tbd">개인정보 보호책임자·연락처: CLO 산출물 수령 후 기재 (TBD)</div>
+
+<p style="margin-top:40px;font-size:.75rem">시행일: TBD · © 2026 G2 Company Ltd.</p>
+<p><a href="./">← ARC로 돌아가기</a></p>
 </body>
 </html>

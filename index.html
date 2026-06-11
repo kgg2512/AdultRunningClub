@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Adult Running Club</title>
+<meta name="robots" content="noindex">
+<!-- 폐쇄형 멤버 네트워크 — 참가예정·멤버 정보 외부 색인 금지 (CLO 금지2 / DELTA §8.2-8) -->
+<title>ARC — Members' Running Network</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#C9A84C">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
-<!-- Supabase JS SDK -->
+<link rel="icon" type="image/png" href="./icons/icon-192.png">
+<!-- Supabase JS SDK (V2 동일 — 외부 의존성은 SDK + Google Fonts만) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,181 +21,103 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Base — 웜 아이보리 (Bottega Veneta 톤) */
+  /* ── V2 디자인 토큰 — 수정 없이 그대로 (TECH_SPEC §5 / DELTA §0.2) ── */
   --bg:#FAF8F4;
   --bg-card:#FFFFFF;
   --bg-surface:#F0EDE6;
-
-  /* Primary — 샴페인 골드 */
   --gold:#C9A84C;
   --gold-light:#F7F1E3;
   --gold-dark:#A8892F;
   --gold-glow:rgba(201,168,76,0.15);
-
-  /* Accent — 딥 버건디 */
   --burgundy:#6B2D3E;
   --burgundy-light:#F5EEF0;
-
-  /* Gate / Dark Mode */
   --gate-bg:#0A0908;
   --gate-bg2:#130F0C;
   --gate-text:rgba(250,248,244,0.92);
   --gate-text-dim:rgba(250,248,244,0.4);
   --gate-border:rgba(201,168,76,0.22);
-
-  /* Text */
   --text:#0D0B08;
   --text-sub:#6B6459;
   --text-dim:#A89E93;
-
-  /* Border & Shadow */
   --border:#E8E2D9;
   --shadow-sm:0 1px 3px rgba(13,11,8,0.06),0 1px 2px rgba(13,11,8,0.03);
   --shadow-md:0 4px 16px rgba(13,11,8,0.08),0 2px 6px rgba(13,11,8,0.04);
   --shadow-lg:0 12px 40px rgba(13,11,8,0.10);
-
-  /* Fonts */
   --serif:'Cormorant Garamond',Georgia,serif;
   --sans:'Raleway',system-ui,sans-serif;
-
-  /* ── Typography Scale v2 (스펙 §1.2 — 이 9단계 외 신설 금지) ── */
-  --fs-display:3rem;       /* 48px — 게이트 히어로 전용 */
-  --fs-h1:2.25rem;         /* 36px — 모달 타이틀 */
-  --fs-h2:1.5rem;          /* 24px — 섹션 세리프 타이틀 */
-  --fs-h3:1.125rem;        /* 18px — 카드 타이틀·로고·챗 타이틀 */
-  --fs-body:0.9375rem;     /* 15px */
-  --fs-body-sm:0.8125rem;  /* 13px */
-  --fs-caption:0.75rem;    /* 12px */
-  --fs-label:0.6875rem;    /* 11px */
-  --fs-micro:0.625rem;     /* 10px — 절대 하한선 */
-  --fs-stat:3.5rem;        /* 56px — 온도 숫자 전용 */
+  --fs-display:3rem;
+  --fs-h1:2.25rem;
+  --fs-h2:1.5rem;
+  --fs-h3:1.125rem;
+  --fs-body:0.9375rem;
+  --fs-body-sm:0.8125rem;
+  --fs-caption:0.75rem;
+  --fs-label:0.6875rem;
+  --fs-micro:0.625rem;
+  --fs-stat:3.5rem;
   --ls-eyebrow:.35em;
   --ls-wide:.25em;
   --ls-label:.16em;
   --ls-micro:.12em;
   --ls-body:.02em;
-
-  /* tier (§6.4) */
   --tier-bronze:#A1815A; --tier-silver:#8C8C94;
   --tier-gold:#C9A84C;   --tier-platinum:#6B2D3E;
-  /* city moods (일러스트 전용 — UI 사용 금지) */
-  --mood-seoul:#C98A5E; --mood-tokyo:#4A4E6E; --mood-ny:#5E6672;
-  --mood-london:#7A8073; --mood-paris:#8E7E8A;
+  /* ── V3 상태 색 (캘린더/RSVP 전용 — DELTA §0.2 허용 신규) ── */
+  --status-open:#5E7A52;
+  --status-soon:#A8892F;
+  --status-closed:#A89E93;
 }
 .icon{display:block;color:inherit;flex-shrink:0}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;overflow:hidden}
-#app{
-  width:100%;max-width:480px;height:100dvh;margin:0 auto;
-  position:relative;overflow:hidden;background:var(--bg);
-}
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column}
+#app{width:100%;max-width:480px;height:100dvh;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;padding-bottom:84px}
 .screen.active{display:flex}
+.screen > *{flex-shrink:0}
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--border)}
 
-/* ══ BOTTOM NAV ══ */
-.bottom-nav{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:480px;
-  height:64px;padding-bottom:env(safe-area-inset-bottom);
+/* ══ BOTTOM NAV — 4탭 (DELTA §1) ══ */
+.bnav{
+  position:absolute;bottom:0;left:0;right:0;height:64px;
+  padding-bottom:env(safe-area-inset-bottom);
   background:var(--bg-card);border-top:1px solid var(--border);
-  display:none;
-  align-items:center;justify-content:space-around;
+  display:none;align-items:center;justify-content:space-around;
   z-index:100;box-shadow:0 -2px 20px rgba(13,11,8,0.05);
 }
-.bottom-nav.on{display:flex}
+.bnav.on{display:flex}
 .bnav-btn{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  background:none;border:none;cursor:pointer;
-  color:var(--text-dim);font-family:var(--sans);
-  font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;
-  padding:8px 20px;min-width:80px;line-height:1.5;
-  transition:color .2s;
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:0;
+  background:none;border:none;cursor:pointer;color:var(--text-dim);font-family:var(--sans);
+  padding:8px 16px;min-width:72px;line-height:1.5;transition:color .2s;
 }
+.bnav-btn span{font-size:var(--fs-label);letter-spacing:0;text-transform:none;margin-top:3px}
 .bnav-btn:active{opacity:.7}
 .bnav-btn.active{color:var(--gold);box-shadow:inset 0 2px 0 var(--gold)}
-.bnav-post{
-  width:52px!important;height:52px!important;border-radius:50%!important;
-  background:var(--gold)!important;color:var(--gate-bg)!important;
-  box-shadow:0 4px 20px rgba(201,168,76,.35);
-  padding:0!important;min-width:unset!important;
-  justify-content:center;
-}
+.bnav-dot{position:absolute;top:8px;right:calc(50% - 14px);width:5px;height:5px;border-radius:50%;background:var(--gold)}
 
-/* ══ S0 GATE ══ */
-#s0{
-  background:var(--gate-bg);
-  color:var(--gate-text);
-  align-items:center;justify-content:center;
-  text-align:center;padding:60px 32px;
-  gap:0;overflow:hidden;
-  position:relative;
-}
-#s0::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 60% at 50% 30%, rgba(201,168,76,0.07) 0%, transparent 70%);
-  pointer-events:none;
-}
-#s0::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(to right,transparent,var(--gold),transparent);
-  opacity:0.25;
-}
-.g-eyebrow{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-eyebrow);color:var(--gold);opacity:.6;text-transform:uppercase;margin-bottom:28px;line-height:1.5}
-.g-arc-badge{
-  width:64px;height:64px;
-  border:1px solid rgba(201,168,76,0.3);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 28px;
-  background:rgba(201,168,76,0.06);
-  position:relative;
-}
+/* ══ GATE / 온보딩 (V2 s0·s1 무드 이식 + DELTA §6) ══ */
+.gate{background:var(--gate-bg);color:var(--gate-text);padding:0}
+.gate::before{content:'';position:fixed;inset:0;max-width:480px;margin:0 auto;
+  background:radial-gradient(ellipse 70% 60% at 50% 20%, rgba(201,168,76,0.07) 0%, transparent 70%);pointer-events:none}
+.g-head{text-align:center;padding:52px 32px 8px;position:relative}
+.g-eyebrow{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-eyebrow);color:var(--gold);opacity:.6;text-transform:uppercase;margin-bottom:24px;line-height:1.5}
+.g-arc-badge{width:64px;height:64px;border:1px solid rgba(201,168,76,0.3);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+  background:rgba(201,168,76,0.06);position:relative}
 .g-arc-badge::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(201,168,76,0.10)}
 .g-arc-badge-text{font-family:var(--serif);font-size:1.05rem;font-style:italic;color:var(--gold);letter-spacing:.06em}
-.g-arc-fullname{font-family:var(--sans);font-size:var(--fs-micro);font-weight:300;letter-spacing:var(--ls-eyebrow);color:var(--gold);opacity:.75;text-transform:uppercase;margin-bottom:22px;line-height:1.5}
-.g-title{font-family:var(--serif);font-size:var(--fs-display);font-weight:300;font-style:italic;line-height:1.05;color:var(--gate-text);margin-bottom:6px;letter-spacing:0.01em}
-.g-title-sub{font-family:var(--sans);font-size:var(--fs-label);font-weight:200;letter-spacing:var(--ls-eyebrow);color:var(--gold);opacity:.7;margin-bottom:30px;text-transform:uppercase;line-height:1.5}
-.g-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:28px}
+.g-arc-fullname{font-family:var(--sans);font-size:var(--fs-micro);font-weight:300;letter-spacing:var(--ls-eyebrow);color:var(--gold);opacity:.75;text-transform:uppercase;margin-bottom:14px;line-height:1.6}
+.g-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin:6px 0 4px}
 .g-ornament-line{flex:1;max-width:55px;height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,0.3))}
 .g-ornament-line:last-child{background:linear-gradient(to left,transparent,rgba(201,168,76,0.3))}
 .g-ornament-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.5}
-.g-warn{font-family:var(--sans);font-size:var(--fs-body-sm);font-weight:300;letter-spacing:var(--ls-body);line-height:1.65;color:var(--gate-text-dim);max-width:280px;margin:0 auto 44px}
-.g-btn{display:block;width:100%;max-width:300px;margin:0 auto 12px;padding:19px 32px;font-family:var(--sans);font-size:var(--fs-label);font-weight:400;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border:none;transition:all .3s;border-radius:0;line-height:1.5}
-.g-btn:active{transform:translateY(1px)}
-.g-btn:disabled{opacity:.45;cursor:not-allowed}
-.g-yes{background:var(--gold);color:var(--gate-bg)}
-.g-yes:hover{background:var(--gold-dark);box-shadow:0 4px 24px rgba(201,168,76,.25)}
-.g-no{background:transparent;color:var(--gate-text-dim);border:1px solid rgba(201,168,76,0.18)}
-.g-no:hover{border-color:rgba(201,168,76,0.4);color:rgba(250,248,244,0.6)}
-.g-demo-link{background:none;border:none;color:var(--gate-text-dim);font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;cursor:pointer;padding:8px 0;opacity:.45;transition:opacity .2s;line-height:1.5}
-.g-demo-link:hover{opacity:.8}
-.g-footer-cities{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:rgba(250,248,244,0.18);text-transform:uppercase;z-index:1;line-height:1.5}
-.g-privacy-bar{position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2}
-.g-privacy-link{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-micro);color:rgba(250,248,244,0.18);text-decoration:none;text-transform:uppercase;transition:color 0.2s;line-height:1.5}
-.g-privacy-link:hover{color:rgba(201,168,76,0.5)}
-.demo-notice{display:none;margin:0 0 20px;padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);text-align:center}
-.demo-notice-label{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--gold);opacity:.9;text-transform:uppercase;margin-bottom:10px;line-height:1.5}
-.demo-notice-desc{font-family:var(--sans);font-size:var(--fs-caption);letter-spacing:var(--ls-body);color:var(--text-sub);margin-bottom:12px;line-height:1.6}
-.demo-enter-btn{background:var(--gold);color:var(--gate-bg);border:none;padding:12px 28px;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;cursor:pointer;width:100%;line-height:1.5}
-.demo-enter-btn:hover{background:var(--gold-dark)}
-
-/* ══ S1 VERIFY ══ */
-#s1{background:var(--bg)}
-.v-hd{padding:48px 28px 32px;background:var(--gate-bg);color:var(--gate-text);position:relative}
-.v-hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:0.2}
-.v-back{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold);opacity:.7;text-transform:uppercase;cursor:pointer;background:none;border:none;margin-bottom:22px;padding:0;font-family:var(--sans);line-height:1.5}
-.v-back:hover{opacity:1}
+.ob-step{padding:22px 28px 48px;position:relative}
+.ob-lead{font-size:var(--fs-body-sm);color:var(--gate-text-dim);letter-spacing:var(--ls-body);line-height:1.65;margin-bottom:22px}
 .v-title{font-family:var(--serif);font-size:1.9rem;font-weight:300;font-style:italic;color:var(--gate-text);margin-bottom:6px}
-.v-sub{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--gold);opacity:.6;text-transform:uppercase;line-height:1.5}
-.v-body{padding:28px 28px;flex:1}
-.v-slabel{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:14px;line-height:1.5}
-.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:28px}
-.role-btn{padding:14px 6px;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--text-sub);background:var(--bg-card);border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center;border-radius:0;line-height:1.5}
-.role-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
-.role-btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
+.v-sub{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--gold);opacity:.6;text-transform:uppercase;line-height:1.5;margin-bottom:8px}
 .v-ig{margin-bottom:18px}
 .v-lbl{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-sub);margin-bottom:8px;display:block;line-height:1.5}
+.gate .v-lbl{color:var(--gate-text-dim)}
 .v-inp{width:100%;padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:1rem;font-weight:300;outline:none;transition:border-color .2s;border-radius:0}
 .v-inp:focus{border-color:var(--gold)}
 .v-inp::placeholder{color:var(--text-dim)}
@@ -201,327 +126,283 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .v-btn:hover{background:var(--gold-dark)}
 .v-btn:active{transform:translateY(1px)}
 .v-btn:disabled{opacity:0.45;cursor:not-allowed}
-.code-box{margin:18px 0;padding:22px;background:var(--gold-light);border:1px solid rgba(201,168,76,0.2);text-align:center;display:none;border-radius:0}
-.code-box.on{display:block}
-.code-box p{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--text-sub);text-transform:uppercase;margin-bottom:12px;line-height:1.5}
-.code-num{font-family:var(--serif);font-size:2.8rem;color:var(--gold);letter-spacing:.35em;font-weight:300}
-.v-err{font-size:var(--fs-caption);color:#9B2C2C;margin-top:7px;display:none;letter-spacing:var(--ls-body);line-height:1.6}
+.v-err{font-size:var(--fs-caption);color:#C76A6A;margin-top:7px;display:none;letter-spacing:var(--ls-body);line-height:1.6}
 .v-err.on{display:block}
-.privacy-notice{font-size:var(--fs-caption);color:var(--text-dim);text-align:center;margin-top:10px;letter-spacing:var(--ls-body);line-height:1.6}
-.v-hd-row{display:flex;align-items:center;justify-content:space-between}
-.v-skip-top{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-label);text-transform:uppercase;padding:6px 14px;cursor:pointer;opacity:0.75;line-height:1.5}
-.v-skip-top:hover{opacity:1}
-.privacy-notice a{color:var(--gold);text-decoration:underline}
-.consent-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0 8px;cursor:pointer}
-.consent-row input[type=checkbox]{width:14px;height:14px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
-.consent-row label{font-size:var(--fs-caption);color:var(--text-sub);letter-spacing:var(--ls-body);line-height:1.6;cursor:pointer}
-.consent-row label a{color:var(--gold);text-decoration:underline}
+.v-back{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold);opacity:.7;text-transform:uppercase;cursor:pointer;background:none;border:none;margin-bottom:18px;padding:0;font-family:var(--sans);line-height:1.5}
+.v-back:hover{opacity:1}
+.ob-link{background:none;border:none;color:var(--gate-text-dim);font-family:var(--sans);font-size:var(--fs-caption);letter-spacing:var(--ls-body);cursor:pointer;padding:10px 0;text-decoration:underline;display:block;margin:12px auto 0}
+.ob-link:hover{color:var(--gold)}
+.ob-setup{margin:14px 28px 0;padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);
+  font-size:var(--fs-caption);color:var(--gate-text-dim);letter-spacing:var(--ls-body);line-height:1.7;text-align:center}
+.ob-setup b{color:var(--gold);font-weight:500}
+/* 초대코드 입력 (DELTA §6.2) */
+.code-input{width:100%;padding:18px 16px;background:var(--bg-card);border:1px solid var(--border);
+  color:var(--text);font-family:var(--serif);font-size:1.6rem;font-weight:300;text-align:center;
+  letter-spacing:.28em;outline:none;border-radius:0;transition:border-color .2s}
+.code-input:focus{border-color:var(--gold)}
+.code-input::placeholder{color:var(--text-dim);letter-spacing:.2em}
+/* 동의 (DELTA §6.3) */
+.consent-all{display:flex;align-items:center;gap:12px;padding:16px;margin-bottom:14px;
+  background:var(--gate-bg2);border:1px solid rgba(201,168,76,.25);cursor:pointer}
+.consent-all-txt{font-family:var(--sans);font-size:var(--fs-body-sm);color:var(--gate-text);letter-spacing:var(--ls-body)}
+.consent-all-txt em{color:var(--text-dim);font-style:normal;font-size:var(--fs-caption)}
+.consent-list{display:flex;flex-direction:column;gap:2px;margin-bottom:22px}
+.consent-item{display:flex;align-items:center;gap:11px;padding:12px 4px;
+  border-bottom:1px solid rgba(201,168,76,.12);cursor:pointer}
+.consent-label{flex:1;font-size:var(--fs-caption);color:var(--gate-text-dim);letter-spacing:var(--ls-body);line-height:1.55}
+.consent-label b{color:var(--gold);font-weight:500}
+.consent-view{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;
+  color:var(--gold);opacity:.7;text-decoration:underline;flex-shrink:0}
+.consent-item input,.consent-all input{position:absolute;opacity:0;width:0;height:0}
+.consent-box,.consent-all-box{width:18px;height:18px;border:1px solid rgba(201,168,76,.4);
+  flex-shrink:0;position:relative;transition:all .15s}
+.consent-item input:checked + .consent-box,
+.consent-all input:checked + .consent-all-box{background:var(--gold);border-color:var(--gold)}
+.consent-item input:checked + .consent-box::after,
+.consent-all input:checked + .consent-all-box::after{content:'';position:absolute;
+  left:5px;top:1px;width:5px;height:10px;border:solid var(--gate-bg);border-width:0 2px 2px 0;transform:rotate(45deg)}
+/* 라이트 화면용 동의 변형 (프로필 동의 관리) */
+.consent-item--light{border-bottom-color:var(--border)}
+.consent-item--light .consent-label{color:var(--text-sub)}
+.consent-item--light .consent-box{border-color:var(--border)}
+.consent-item--light input:checked + .consent-box::after{border-color:var(--bg-card)}
 
-/* ══ OTP 입력 안내 ══ */
-.otp-info{font-size:var(--fs-caption);color:var(--text-sub);letter-spacing:var(--ls-body);line-height:1.6;padding:14px;background:var(--gold-light);border:1px solid rgba(201,168,76,0.2);margin-bottom:14px;display:none}
-.otp-info.on{display:block}
+/* ══ 라이트 화면 공통 헤더 ══ */
+.top-hd{padding:26px 20px 8px;display:flex;align-items:baseline;justify-content:space-between}
+.top-hd-title{font-family:var(--serif);font-size:var(--fs-h2);font-style:italic;font-weight:300;color:var(--text)}
+.top-hd-eyebrow{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);opacity:.8}
+/* 상세 화면 다크 헤더 (V2 v-hd 이식) */
+.d-hd{padding:20px 20px 18px;background:var(--gate-bg);color:var(--gate-text);position:relative;flex-shrink:0}
+.d-hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:0.2}
+.d-hd .v-back{margin-bottom:10px}
+.d-hd-title{font-family:var(--serif);font-size:var(--fs-h2);font-weight:300;font-style:italic;color:var(--gate-text);line-height:1.25}
+.d-hd-sub{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--gold);opacity:.6;text-transform:uppercase;line-height:1.5;margin-top:6px}
 
-/* ══ S2 MAP ══ */
-#s2{padding-bottom:80px}
-.m-hd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg-card);box-shadow:var(--shadow-sm)}
-.m-hd-left{display:flex;flex-direction:column;gap:3px}
-.m-hd-right{display:flex;align-items:center;gap:8px}
-.m-logo{font-family:var(--serif);font-size:var(--fs-h3);color:var(--text);font-style:italic;letter-spacing:.04em}
-.m-member-badge{display:flex;align-items:center;gap:5px}
-.m-member-role{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;color:var(--gold);opacity:.8;line-height:1.5}
-.m-member-sep{color:var(--text-dim);font-size:var(--fs-micro)}
-.m-member-name{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);color:var(--text-sub);line-height:1.5}
-.m-bc{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--text-sub);text-transform:uppercase;line-height:1.5}
-.m-profile-btn{width:30px;height:30px;background:none;border:1px solid var(--border);cursor:pointer;border-radius:0}
-.m-vis{position:relative;height:220px;flex-shrink:0;overflow:hidden;background:#F0EDE6;border-bottom:1px solid var(--border)}
-.m-back{position:absolute;top:11px;left:14px;font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold);text-transform:uppercase;cursor:pointer;background:rgba(250,248,244,.95);border:1px solid var(--border);padding:5px 12px;z-index:10;display:none;font-family:var(--sans);border-radius:0;line-height:1.5;align-items:center;gap:5px}
-.m-back.on{display:inline-flex}
-.m-back:hover{border-color:var(--gold)}
-.world-bg{width:100%;height:100%;display:block}
-/* ── SVG 내부 핀 (스펙 §3.4) ── */
-.city-pin{cursor:pointer}
-.pin-halo{animation:pinPulse 2.8s ease-out infinite;transform-origin:center;transform-box:fill-box}
-@keyframes pinPulse{0%{transform:scale(1);opacity:.3}100%{transform:scale(2.2);opacity:0}}
-@media (prefers-reduced-motion:reduce){.pin-halo{animation:none;opacity:0}}
-.city-pin:hover .pin-core{transform:scale(1.4);transform-origin:center;transform-box:fill-box;transition:transform .2s}
-.city-pin.active .pin-core{fill:#6B2D3E}
-.city-pin.active .pin-ring{opacity:1}
-.m-list{flex:1;overflow-y:auto;padding:14px}
-.m-ltitle{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--text-dim);text-transform:uppercase;margin-bottom:10px;padding:0 4px;line-height:1.5}
-.r-card{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .2s;border-radius:0}
-.r-card:hover{border-color:rgba(201,168,76,.45);box-shadow:var(--shadow-md)}
-.r-name{font-family:var(--sans);font-size:var(--fs-body);font-weight:400;color:var(--text);letter-spacing:var(--ls-body)}
-.r-meta{display:flex;align-items:center;gap:14px}
-.r-likes{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-label);letter-spacing:var(--ls-micro);color:var(--gold);line-height:1.5}
-.r-arr{color:var(--text-dim);font-size:0.75rem}
+/* ══ 캘린더 검색 + 칩 (DELTA §7.3) ══ */
+.cal-search{display:flex;align-items:center;gap:9px;margin:14px 20px 4px;padding:0 14px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:0}
+.cal-search .icon{color:var(--text-dim)}
+.cal-search-inp{flex:1;border:none;background:none;outline:none;padding:13px 0;
+  font-family:var(--sans);font-size:1rem;color:var(--text)}
+.cal-search-inp::placeholder{color:var(--text-dim);font-size:var(--fs-body-sm)}
+.chip-row{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 4px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-body);
+  color:var(--text-sub);border:1px solid var(--border);background:var(--bg-card);
+  padding:7px 14px;border-radius:0;cursor:pointer;transition:all .2s;line-height:1.5}
+.chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
 
-/* ══ S3 FEED ══ */
-#s3{padding-bottom:80px}
-.f-hd{padding:16px 18px 0;flex-shrink:0;background:var(--bg-card);box-shadow:var(--shadow-sm)}
-.f-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.f-loc{display:flex;align-items:center;gap:10px}
-.f-bk{background:none;border:none;color:var(--text-sub);cursor:pointer;padding:0;line-height:1;font-family:var(--sans)}
-.f-bk:hover{color:var(--gold)}
-.f-title-wrap{display:flex;flex-direction:column;gap:2px}
-.f-lname{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--text)}
-.f-profile-line{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;color:var(--text-sub);line-height:1.5}
-.f-chat{background:none;border:1px solid var(--border);color:var(--text-sub);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;border-radius:0}
-.f-chat:hover{border-color:var(--gold);color:var(--gold)}
-.f-filter{display:flex;border-bottom:1px solid var(--border);margin-bottom:0}
-.ftab{padding:8px 14px;font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--text-dim);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;font-family:var(--sans);line-height:1.5}
-.ftab:first-child{padding-left:0}
-.ftab.on{color:var(--gold);border-bottom-color:var(--gold)}
-.ftab:hover:not(.on){color:var(--text)}
+/* ══ 대회 카드 (DELTA §2) ══ */
+.race-month{display:flex;align-items:center;gap:10px;padding:22px 20px 10px}
+.race-month-en{font-family:var(--serif);font-style:italic;font-size:var(--fs-h3);color:var(--gold);font-weight:300}
+.race-month-ko{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-dim)}
+.race-month-rule{flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent)}
+.race-card{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:0;
+  padding:18px 18px 14px;margin:0 20px 14px;box-shadow:var(--shadow-sm);
+  transition:box-shadow .2s,border-color .2s;cursor:pointer}
+.race-card:hover{box-shadow:var(--shadow-md);border-color:rgba(201,168,76,.45)}
+.race-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.race-dday{font-family:var(--serif);font-style:italic;font-size:var(--fs-h3);color:var(--gold);font-weight:400}
+.race-name{font-family:var(--serif);font-size:var(--fs-h3);font-weight:400;color:var(--text);line-height:1.3;margin-bottom:7px}
+.race-meta{display:flex;gap:7px;align-items:center;font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body)}
+.race-sep{color:var(--text-dim)}
+.race-venue{font-size:var(--fs-caption);color:var(--text-dim);letter-spacing:var(--ls-body);margin:4px 0 12px}
+.race-courses{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.course-chip{font-family:var(--sans);font-size:var(--fs-micro);font-weight:500;letter-spacing:var(--ls-label);
+  text-transform:uppercase;color:var(--text-sub);border:1px solid var(--border);
+  padding:3px 9px;border-radius:0;background:var(--bg)}
+.course-chip[data-c="Full"]{border-color:rgba(107,45,62,.4);color:var(--tier-platinum)}
+.race-status{font-size:var(--fs-micro);font-weight:500;letter-spacing:var(--ls-label);
+  text-transform:uppercase;padding:3px 9px;border-radius:0;border:1px solid currentColor}
+.race-status--open{color:var(--status-open)}
+.race-status--soon{color:var(--status-soon)}
+.race-status--closed{color:var(--status-closed)}
+.race-status--upcoming{color:var(--tier-platinum)}
+.race-status--tba{color:var(--text-dim);border-style:dashed}
+.race-card[data-confidence="low"]{border-style:dashed}
+.race-card[data-confidence="low"]::after{content:'정보 확인중';position:absolute;top:-9px;right:14px;
+  font-size:var(--fs-micro);letter-spacing:var(--ls-micro);color:var(--text-dim);background:var(--bg);padding:0 6px}
+.race-card[data-status="done"]{opacity:.62}
+.race-card[data-status="done"] .race-dday{color:var(--text-dim)}
+.race-card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)}
+.whosgoing{display:flex;align-items:center;gap:8px}
+.whosgoing-count{font-size:var(--fs-caption);color:var(--text-sub);letter-spacing:var(--ls-body)}
+.race-chev{color:var(--text-dim)}
+.race-flag{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-size:var(--fs-micro);
+  letter-spacing:var(--ls-label);text-transform:uppercase}
+.cal-notice{padding:18px 20px 8px;font-size:var(--fs-micro);letter-spacing:var(--ls-body);
+  color:var(--text-dim);text-align:center;line-height:1.7}
 
-/* Feed cards */
-.f-list{flex:1;overflow-y:auto;padding:12px 14px 20px}
-.post{
-  display:flex;flex-direction:column;
-  border-radius:0;border:1px solid var(--border);
-  background:var(--bg-card);box-shadow:var(--shadow-sm);
-  margin-bottom:12px;overflow:hidden;
-  transition:box-shadow .2s,border-color .2s;
-}
-.post:hover{box-shadow:var(--shadow-md);border-color:rgba(201,168,76,.45)}
-.post-visuals{
-  display:grid;grid-template-columns:1fr 1fr;
-  aspect-ratio:2/1;
-}
-.post-map{
-  background:var(--bg-surface);
-  position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-}
-.post-map svg{width:100%;height:100%;display:block}
-.post-photo{
-  background:var(--bg-surface);border-left:1px solid var(--border);
-  position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-}
-.post-photo img{width:100%;height:100%;object-fit:cover}
-.post-photo svg{width:100%;height:100%;display:block}
-/* DEMO 배지 (스펙 §6.5) */
-.demo-badge{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);background:rgba(250,248,244,.92);border:1px solid var(--gold);padding:3px 8px;border-radius:0;line-height:1.5}
-.demo-badge-cell{position:absolute;top:8px;left:8px;z-index:2}
-.post-footer{
-  padding:13px 16px;
-  display:flex;align-items:center;justify-content:space-between;
-  border-top:1px solid var(--border);
-}
-.post-user-info{display:flex;flex-direction:column;gap:2px}
-.post-username{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-body-sm);font-weight:500;color:var(--text);letter-spacing:var(--ls-body)}
-.post-course{font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body)}
-.post-stats-row{display:flex;gap:14px;align-items:center}
-.pstat-inline{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.ps-val-sm{font-family:var(--serif);font-size:1rem;color:var(--text);font-weight:400}
-.ps-lbl-sm{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;color:var(--text-dim);line-height:1.5}
-.like-btn{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:var(--fs-body-sm);padding:0;transition:color .2s;font-family:var(--sans)}
-.like-btn.on{color:var(--gold)}
-.like-btn.on .icon{--heart-fill:currentColor}
-.like-btn:hover{color:var(--gold)}
+/* ══ 이니셜 아바타 (DELTA §3) ══ */
+.avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+  color:#F7F1E3;font-family:var(--sans);font-weight:500;letter-spacing:.02em;
+  flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.ava-stack{display:inline-flex;align-items:center}
+.ava-stacked{border:1.5px solid var(--bg-card)}
+.ava-more{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+  background:var(--bg);color:var(--text-sub);border:1.5px solid var(--bg-card);
+  font-family:var(--sans);font-weight:500}
 
-/* Loading indicator */
-.feed-loading{text-align:center;padding:32px;font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--text-dim);line-height:1.5}
+/* ══ Who's Going (DELTA §4) ══ */
+.wg-head{display:flex;align-items:baseline;gap:8px;padding:20px 20px 12px}
+.wg-title{font-family:var(--serif);font-style:italic;font-size:var(--fs-h2);color:var(--text)}
+.wg-count{font-family:var(--serif);font-size:var(--fs-h3);color:var(--gold)}
+.wg-toggle{display:flex;align-items:center;gap:10px;width:calc(100% - 40px);margin:0 20px 18px;
+  padding:14px 16px;border-radius:0;border:1px solid var(--border);background:var(--bg-card);
+  font-family:var(--sans);font-size:var(--fs-body-sm);letter-spacing:var(--ls-body);
+  color:var(--text-sub);cursor:pointer;transition:all .2s;min-height:48px}
+.wg-toggle:hover{border-color:var(--gold);background:var(--gold-light)}
+.wg-toggle .wg-toggle-ico svg{transition:transform .2s}
+.wg-toggle[data-state="idle"] .wg-toggle-ico{color:var(--gold)}
+.wg-toggle[data-state="going"]{background:var(--gold);border-color:var(--gold);color:var(--gate-bg)}
+.wg-toggle[data-state="going"] .wg-toggle-ico svg{transform:rotate(45deg)}
+.wg-toggle[data-state="closed"]{opacity:.45;cursor:not-allowed;pointer-events:none}
+.wg-toggle[data-state="needs-consent"]{border-style:dashed;border-color:var(--status-soon)}
+.wg-toggle[data-state="needs-consent"] .wg-toggle-ico{color:var(--status-soon)}
+.wg-list{list-style:none;margin:0;padding:0 0 8px}
+.wg-row{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid var(--border)}
+.wg-row-main{flex:1;display:flex;flex-direction:column;gap:2px}
+.wg-row-name{font-size:var(--fs-body);color:var(--text);font-weight:500}
+.wg-row-org{font-size:var(--fs-caption);letter-spacing:var(--ls-body);color:var(--text-dim)}
+.wg-more-btn{display:block;margin:10px auto 0;background:none;border:1px solid var(--border);
+  color:var(--text-sub);font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);
+  text-transform:uppercase;padding:10px 24px;cursor:pointer;line-height:1.5}
+.wg-more-btn:hover{border-color:var(--gold);color:var(--gold)}
 
-/* ══ WELCOME MODAL ══ */
-.welcome-modal{position:fixed;inset:0;background:rgba(250,248,244,0.98);z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;text-align:center;padding:40px 36px}
-.welcome-modal.on{display:flex}
-.wm-badge{width:72px;height:72px;border:1px solid rgba(201,168,76,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:28px;background:var(--gold-light);position:relative}
-.wm-badge::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(201,168,76,0.12);animation:wm-glow 2.8s ease-in-out infinite;transform-origin:center;will-change:transform,opacity}
-@keyframes wm-glow{0%,100%{transform:scale(1);opacity:0.3}50%{transform:scale(1.18);opacity:0}}
-.wm-badge-inner{font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--gold)}
-.wm-eyebrow{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);color:var(--gold);text-transform:uppercase;opacity:.7;margin-bottom:12px;line-height:1.5}
-.wm-title{font-family:var(--serif);font-size:var(--fs-h1);font-weight:300;font-style:italic;color:var(--text);line-height:1.1;margin-bottom:6px}
-.wm-name{font-family:var(--serif);font-size:1.35rem;font-weight:300;font-style:italic;color:var(--text-sub);margin-bottom:24px}
-.wm-ornament{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:18px}
-.wm-ornament-line{flex:1;max-width:48px;height:1px;background:linear-gradient(to right,transparent,var(--border))}
-.wm-ornament-line.r{background:linear-gradient(to left,transparent,var(--border))}
-.wm-ornament-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.5}
-.wm-role-badge{display:inline-block;padding:5px 18px;border:1px solid rgba(201,168,76,0.3);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);margin-bottom:28px;line-height:1.5}
-.wm-desc{font-size:var(--fs-body-sm);letter-spacing:var(--ls-body);line-height:1.65;color:var(--text-sub);max-width:255px;margin-bottom:38px}
-.wm-btn{width:100%;max-width:255px;padding:17px 32px;background:var(--gold);color:var(--gate-bg);font-family:var(--sans);font-size:var(--fs-label);font-weight:500;letter-spacing:var(--ls-label);text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;border-radius:0;line-height:1.5}
-.wm-btn:hover{background:var(--gold-dark)}
+/* ══ 상세 공통 ══ */
+.dt-body{padding:20px}
+.dt-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:var(--fs-body-sm);letter-spacing:var(--ls-body)}
+.dt-row-k{width:84px;flex-shrink:0;font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-dim);padding-top:2px}
+.dt-row-v{flex:1;color:var(--text-sub);line-height:1.6}
+.dt-actions{display:flex;gap:10px;padding:18px 20px 6px}
+.dt-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;
+  border:1px solid var(--border);background:var(--bg-card);color:var(--text-sub);
+  font-family:var(--sans);font-size:var(--fs-label);font-weight:500;letter-spacing:var(--ls-label);
+  text-transform:uppercase;cursor:pointer;border-radius:0;transition:all .2s;min-height:48px;line-height:1.5;text-decoration:none}
+.dt-btn:hover{border-color:var(--gold);color:var(--gold)}
+.dt-btn--primary{background:var(--gold);border-color:var(--gold);color:var(--gate-bg)}
+.dt-btn--primary:hover{background:var(--gold-dark);color:var(--gate-bg)}
+.dt-btn--danger{color:var(--tier-platinum)}
+.dt-btn--danger:hover{border-color:var(--tier-platinum);color:var(--tier-platinum)}
 
-/* ══ CHAT OVERLAY ══ */
-.chat-ov{position:fixed;inset:0;background:rgba(13,11,8,.5);z-index:200;display:none;flex-direction:column;max-width:480px;margin:0 auto}
-.chat-ov.on{display:flex}
-.chat-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg-card)}
-.chat-ttl{font-family:var(--serif);font-size:var(--fs-h3);font-style:italic;color:var(--text)}
-.chat-x{background:none;border:none;color:var(--text-sub);cursor:pointer;padding:4px}
-.chat-x:hover{color:var(--text)}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px;background:var(--bg)}
-.cmsg{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.cmsg-u{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);opacity:.85;line-height:1.5}
-.cmsg-t{font-size:var(--fs-body-sm);color:var(--text);line-height:1.6;background:var(--bg-card);border:1px solid var(--border);padding:9px 13px;max-width:78%;border-radius:0;letter-spacing:var(--ls-body)}
-.cmsg.mine{align-items:flex-end}
-.cmsg.mine .cmsg-t{background:var(--gold-light);border:1px solid rgba(201,168,76,0.25);color:var(--text)}
-.chat-div{display:flex;align-items:center;gap:10px;margin:6px 0}
-.chat-div::before,.chat-div::after{content:'';flex:1;height:1px;background:var(--border)}
-.chat-div span{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-dim);line-height:1.5}
-.chat-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text-dim)}
-.chat-empty-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:.5}
-.chat-empty p{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;line-height:1.5}
-.chat-ia{padding:14px;border-top:1px solid var(--border);display:flex;gap:9px;flex-shrink:0;background:var(--bg-card)}
-.chat-inp{flex:1;padding:11px 14px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:1rem;outline:none;border-radius:0}
-.chat-inp:focus{border-color:var(--gold)}
-.chat-inp::placeholder{color:var(--text-dim);font-size:var(--fs-body-sm)}
-.chat-send{padding:0 18px;background:var(--gold);color:var(--gate-bg);border:none;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;cursor:pointer;white-space:nowrap;border-radius:0;font-weight:500;line-height:1.5}
-.chat-send:hover{background:var(--gold-dark)}
-.chat-send:disabled{opacity:0.45;cursor:not-allowed}
+/* ══ 밋업 (DELTA §5) ══ */
+.meet-card{background:var(--bg-card);border:1px solid var(--border);border-radius:0;
+  padding:18px;margin:0 20px 14px;box-shadow:var(--shadow-sm);cursor:pointer;
+  transition:box-shadow .2s,border-color .2s}
+.meet-card:hover{box-shadow:var(--shadow-md);border-color:rgba(201,168,76,.45)}
+.meet-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.meet-hub{font-family:var(--sans);font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold)}
+.meet-state{font-size:var(--fs-micro);font-weight:500;letter-spacing:var(--ls-label);text-transform:uppercase;
+  padding:3px 9px;border:1px solid currentColor;border-radius:0}
+.meet-state--open{color:var(--status-open)}
+.meet-state--full{color:var(--tier-platinum)}
+.meet-title{font-family:var(--serif);font-size:var(--fs-h3);font-weight:400;color:var(--text);margin-bottom:6px}
+.meet-when{font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body);margin-bottom:4px}
+.meet-loc{font-size:var(--fs-caption);color:var(--text-dim);letter-spacing:var(--ls-body);margin-bottom:12px}
+.meet-host{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.meet-host-name{font-size:var(--fs-caption);color:var(--text-sub);letter-spacing:var(--ls-body)}
+.meet-cap{display:flex;align-items:center;gap:10px}
+.meet-cap-bar{flex:1;height:3px;background:var(--border);border-radius:0;overflow:hidden}
+.meet-cap-fill{display:block;height:100%;background:var(--gold);transition:width .3s}
+.meet-cap[data-full="true"] .meet-cap-fill{background:var(--tier-platinum)}
+.meet-cap-num{font-family:var(--serif);font-size:var(--fs-body-sm);color:var(--text-sub);flex-shrink:0;font-variant-numeric:tabular-nums}
+.meet-rsvp{width:calc(100% - 40px);margin:14px 20px 6px;padding:14px;border:none;border-radius:0;cursor:pointer;
+  font-family:var(--sans);font-size:var(--fs-label);font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;background:var(--gold);color:var(--gate-bg);transition:background .2s;min-height:48px;line-height:1.5}
+.meet-rsvp:hover{background:var(--gold-dark)}
+.meet-rsvp[data-state="joined"]{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.35)}
+.meet-rsvp[data-state="full"]{background:var(--bg);color:var(--text-dim);cursor:not-allowed}
+.meet-rsvp[data-state="closed"]{opacity:.45;cursor:not-allowed}
+.fab{position:absolute;bottom:84px;right:20px;width:52px;height:52px;z-index:90;
+  background:var(--gold);color:var(--gate-bg);border:none;cursor:pointer;border-radius:0;
+  display:none;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:background .2s}
+.fab:hover{background:var(--gold-dark)}
+.fab.on{display:flex}
+/* 정원 stepper (DELTA §5.3) */
+.cap-step{display:flex;align-items:center;gap:14px}
+.cap-step button{width:40px;height:40px;border:1px solid var(--border);background:var(--bg-card);
+  font-size:var(--fs-h3);color:var(--gold);cursor:pointer;border-radius:0;font-family:var(--sans)}
+.cap-step output{font-family:var(--serif);font-size:var(--fs-h2);color:var(--text);min-width:30px;text-align:center}
+textarea.v-inp{resize:vertical;min-height:84px;line-height:1.6}
+select.v-inp{appearance:none;-webkit-appearance:none;cursor:pointer}
+.form-body{padding:22px 28px 48px}
+.form-body .v-lbl{color:var(--text-sub)}
 
-/* ══ S4 MYPAGE ══ */
-#s4{background:var(--bg);padding-bottom:80px}
-.mp-hd{
-  padding:48px 24px 32px;
-  background:var(--gate-bg);
-  color:var(--gate-text);
-  flex-shrink:0;
-  position:relative;
-}
-.mp-hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:0.2}
-.mp-hd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
-.mp-back{background:none;border:none;color:rgba(250,248,244,0.6);cursor:pointer;padding:0;line-height:1;font-family:var(--sans)}
-.mp-back:hover{color:var(--gate-text)}
-.mp-title{font-family:var(--serif);font-size:var(--fs-h3);font-style:italic;color:var(--gate-text);letter-spacing:.04em}
-.mp-settings{background:none;border:1px solid rgba(201,168,76,0.25);color:rgba(250,248,244,0.6);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border-radius:0}
-.mp-settings:hover{border-color:var(--gold);color:var(--gold)}
-.mp-body{flex:1;overflow-y:auto;padding:0 0 20px}
-.temp-card{background:var(--bg-card);border-radius:0;box-shadow:var(--shadow-md);padding:26px;margin:-20px 16px 16px;border:1px solid var(--border)}
-.mp-divider{display:flex;align-items:center;gap:10px;margin:16px 16px 12px}
-.mp-div-line{flex:1;height:1px;background:var(--border)}
-.mp-div-text{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);opacity:.8;white-space:nowrap;line-height:1.5}
-.mp-member-email{font-family:var(--serif);font-size:1.08rem;font-style:italic;color:var(--text);margin-bottom:4px}
-.mp-member-role{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-sub);margin-bottom:18px;line-height:1.5}
-.mp-temp-num{font-family:var(--serif);font-size:var(--fs-stat);font-weight:300;line-height:1;margin-bottom:12px;letter-spacing:-.01em;color:var(--grade-color,var(--gold))}
-.temp-bar-bg{width:100%;height:6px;background:var(--bg-surface);margin-bottom:12px;overflow:hidden;border-radius:0}
-.temp-bar-fill{height:100%;background:var(--grade-color,var(--gold));transition:width .6s ease;border-radius:0}
-.mp-temp-grade{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;opacity:.85;color:var(--grade-color,var(--gold));line-height:1.5}
-.stats-section{background:var(--bg-card);border-radius:0;margin:0 16px 12px;padding:22px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
-.mp-stats{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.mp-stat{display:flex;flex-direction:column;gap:4px}
-.mp-stat-lbl{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-sub);line-height:1.5}
-.mp-stat-val{font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--text);line-height:1}
-.mp-stat-unit{font-size:var(--fs-micro);color:var(--text-dim);margin-left:2px}
-.mp-run-card{background:var(--bg-card);border-radius:0;padding:13px 15px;margin:0 16px 6px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
-.mp-run-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
-.mp-run-course{font-family:var(--serif);font-size:0.98rem;font-style:italic;color:var(--text)}
-.mp-run-km{font-family:var(--serif);font-size:0.98rem;color:var(--gold)}
-.mp-run-meta{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;color:var(--text-sub);line-height:1.5}
+/* ══ 알림함 (DELTA §7.1) ══ */
+.alert-list{list-style:none;margin:0;padding:8px 0 0}
+.alert-row{display:flex;gap:13px;padding:15px 20px;border-bottom:1px solid var(--border);position:relative;cursor:pointer}
+.alert-row[data-unread="true"]{background:var(--gold-light)}
+.alert-row[data-unread="true"]::before{content:'';position:absolute;left:8px;top:21px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.alert-ico{width:34px;height:34px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;border-radius:0}
+.alert-main{flex:1;display:flex;flex-direction:column;gap:3px}
+.alert-txt{font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body);line-height:1.5}
+.alert-txt b{color:var(--text);font-weight:500}
+.alert-time{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);color:var(--text-dim);text-transform:uppercase}
+.alert-x{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;align-self:flex-start}
+.alert-x:hover{color:var(--tier-platinum)}
 
-/* ══ POST MODAL ══ */
-.pmodal{position:fixed;inset:0;background:rgba(13,11,8,.5);z-index:300;display:none;flex-direction:column;max-width:480px;margin:0 auto}
-.pmodal.on{display:flex}
-.pm-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg-card)}
-.pm-ttl{font-family:var(--serif);font-size:var(--fs-h3);font-style:italic;color:var(--text)}
-.pm-x{background:none;border:none;color:var(--text-sub);cursor:pointer;padding:4px}
-.pm-x:hover{color:var(--text)}
-.pm-body{flex:1;overflow-y:auto;padding:18px;background:var(--bg)}
-.pm-preview{display:grid;grid-template-columns:1fr 1fr;height:175px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden;border-radius:0;background:var(--bg-surface)}
-.pm-photo{background:var(--bg-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
-.pm-ph-hint{text-align:center;color:var(--text-dim);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px}
-.pm-ph-hint p{font-size:var(--fs-micro);letter-spacing:var(--ls-micro);text-transform:uppercase;margin-top:3px;line-height:1.5}
-#pm-img{width:100%;height:100%;object-fit:cover;display:none}
-.pm-run{background:var(--bg-card);border-left:1px solid var(--border);padding:11px 10px;display:flex;flex-direction:column;gap:8px}
-.pm-ri{background:var(--bg);border:1px solid var(--border);border-radius:0;color:var(--text);font-family:var(--sans);font-size:1rem;padding:7px 10px;outline:none;width:100%}
-.pm-ri:focus{border-color:var(--gold)}
-.pm-ri::placeholder{color:var(--text-dim);font-size:var(--fs-body-sm)}
-.pm-sub{width:100%;padding:16px;background:var(--gold);color:var(--gate-bg);border:none;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border-radius:0;margin-top:4px;font-weight:500;line-height:1.5}
-.pm-sub:hover{background:var(--gold-dark)}
-.pm-sub:active{transform:translateY(1px)}
-.pm-sub:disabled{opacity:0.45;cursor:not-allowed}
-.pm-rec{width:100%;padding:13px;background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.35);font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;cursor:pointer;border-radius:0;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;line-height:1.5}
-.pm-rec:hover{border-color:rgba(201,168,76,.7);background:var(--gold-light)}
-.pm-rec-done{font-size:var(--fs-caption);letter-spacing:var(--ls-body);color:var(--text-sub);text-align:center;margin-top:8px;display:none;line-height:1.6}
-#pm-canvas{display:none}
-#photo-in{display:none}
+/* ══ 프로필 ══ */
+.pf-head{display:flex;align-items:center;gap:16px;padding:24px 20px 18px}
+.pf-name{font-family:var(--serif);font-size:var(--fs-h2);font-style:italic;color:var(--text);line-height:1.2}
+.pf-org{font-size:var(--fs-caption);letter-spacing:var(--ls-body);color:var(--text-sub);margin-top:3px}
+.pf-cohort{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);margin-top:5px}
+.pf-bio{padding:0 20px 14px;font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body);line-height:1.7}
+.pf-sec{padding:16px 20px 6px;font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);opacity:.85}
+.pf-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 20px;border-bottom:1px solid var(--border);
+  font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body)}
+.pf-row button,.pf-row select{font-family:var(--sans)}
+.pf-action{width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);
+  padding:14px 20px;font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body);cursor:pointer;font-family:var(--sans)}
+.pf-action:hover{color:var(--gold)}
+.pf-action--danger{color:var(--tier-platinum)}
+.pf-mini-list{list-style:none;margin:0;padding:0}
+.pf-mini{padding:11px 20px;border-bottom:1px solid var(--border);font-size:var(--fs-body-sm);color:var(--text-sub);cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.pf-mini:hover{color:var(--gold)}
+.pf-mini-sub{color:var(--text-dim);font-size:var(--fs-caption);flex-shrink:0}
+.vis-sel{border:1px solid var(--border);background:var(--bg-card);color:var(--text-sub);padding:8px 10px;font-size:var(--fs-body-sm);border-radius:0}
 
-/* ══ GPS RECORDER (Phase 1 — 기기 내 전용, 좌표 서버 미전송) ══ */
-.gps-ov{position:fixed;inset:0;background:rgba(13,11,8,.55);z-index:500;display:none;align-items:center;justify-content:center;max-width:480px;margin:0 auto;padding:28px}
-.gps-ov.on{display:flex}
-.gps-card{background:var(--bg-card);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:30px 26px;width:100%;text-align:center;border-radius:0}
-.gps-eyebrow{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--gold);margin-bottom:14px;line-height:1.5}
-.gps-title{font-family:var(--serif);font-size:var(--fs-h2);font-style:italic;font-weight:300;color:var(--text);margin-bottom:14px}
-.gps-desc{font-size:var(--fs-caption);letter-spacing:var(--ls-body);line-height:1.6;color:var(--text-sub);margin-bottom:22px;text-align:left}
-.gps-desc strong{color:var(--text);font-weight:500}
-.gps-btn{width:100%;padding:15px;border:none;border-radius:0;font-family:var(--sans);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;cursor:pointer;margin-bottom:8px;line-height:1.5}
-.gps-btn.pri{background:var(--gold);color:var(--gate-bg);font-weight:500}
-.gps-btn.pri:hover{background:var(--gold-dark)}
-.gps-btn.sec{background:transparent;color:var(--text-sub);border:1px solid var(--border)}
-.gps-btn.sec:hover{border-color:rgba(201,168,76,.45);color:var(--gold)}
-.gps-stat-num{font-family:var(--serif);font-size:var(--fs-stat);font-weight:300;line-height:1;color:var(--text);margin-bottom:4px}
-.gps-stat-lbl{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-sub);margin-bottom:18px;line-height:1.5}
-.gps-row{display:flex;justify-content:center;gap:34px;margin-bottom:24px}
-.gps-row .v{font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--text);line-height:1}
-.gps-row .l{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-dim);margin-top:4px;line-height:1.5}
-.gps-paused{font-size:var(--fs-micro);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--burgundy);margin-bottom:14px;display:none;line-height:1.5}
-.gps-paused.on{display:block}
+/* ══ 빈 상태 (DELTA §7.2) ══ */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:64px 40px;text-align:center;gap:18px}
+.empty-orn{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);opacity:.5}
+.empty-copy{font-family:var(--serif);font-style:italic;font-size:var(--fs-h3);font-weight:300;
+  color:var(--text-sub);line-height:1.5;max-width:260px}
 
-/* ══ UTILITY ══ */
-.hidden-step{display:none}
-.hidden-step.visible{display:block}
-.code-step-spacing{margin-top:18px}
-.v-otp-inp{letter-spacing:.3em;font-size:1.2rem;text-align:center}
-.m-logo-clickable{cursor:pointer}
-.f-top-actions{display:flex;gap:8px}
-
-/* ══ TOAST ══ */
-.toast{
-  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+/* ══ TOAST (V2 이식) ══ */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
   background:var(--gate-bg);color:var(--gate-text);
   padding:10px 20px;font-size:var(--fs-label);letter-spacing:var(--ls-label);
   z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;
-  white-space:nowrap;max-width:90%;text-align:center;
-}
+  white-space:nowrap;max-width:90%;text-align:center}
 .toast.show{opacity:1}
+
+/* ══ 모달 ══ */
+.modal-ovl{position:absolute;inset:0;background:rgba(10,9,8,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:32px}
+.modal-ovl.on{display:flex}
+.modal{background:var(--bg);border:1px solid var(--border);box-shadow:var(--shadow-lg);width:100%;max-width:340px;padding:26px 22px 20px}
+.modal-title{font-family:var(--serif);font-size:var(--fs-h3);font-style:italic;color:var(--text);margin-bottom:10px}
+.modal-body{font-size:var(--fs-body-sm);color:var(--text-sub);letter-spacing:var(--ls-body);line-height:1.7;margin-bottom:20px}
+.modal-row{display:flex;gap:10px}
+.modal-btn{flex:1;padding:13px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-sub);
+  font-family:var(--sans);font-size:var(--fs-label);font-weight:500;letter-spacing:var(--ls-label);
+  text-transform:uppercase;cursor:pointer;border-radius:0;line-height:1.5;min-height:44px}
+.modal-btn--primary{background:var(--gold);border-color:var(--gold);color:var(--gate-bg)}
+.modal-btn--primary:hover{background:var(--gold-dark)}
+.modal-consent{display:flex;align-items:center;gap:11px;margin-bottom:18px;cursor:pointer}
 </style>
 </head>
 <body>
-<!-- ══ SVG ICON SPRITE (스펙 §2.1 — 이모지 전면 대체) + 멤버 배지 (§6.4) ══ -->
+<!-- ══ SVG ICON SPRITE — V2 재사용 + V3 신규 7종 (DELTA §1.2·§9, SPEC §5) ══ -->
 <svg id="arc-icons" style="display:none" xmlns="http://www.w3.org/2000/svg">
-  <symbol id="i-map" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4Z"/>
-      <path d="M9 4v14M15 6v14"/>
-    </g>
-  </symbol>
-  <symbol id="i-feed" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="4" y="4" width="16" height="6.5"/>
-      <rect x="4" y="13.5" width="16" height="6.5"/>
-    </g>
-  </symbol>
   <symbol id="i-profile" viewBox="0 0 24 24">
     <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="8" r="3.25"/>
       <path d="M5.5 19.5c.8-3.4 3.4-5.25 6.5-5.25s5.7 1.85 6.5 5.25"/>
     </g>
   </symbol>
-  <symbol id="i-heart" viewBox="0 0 24 24">
-    <g fill="var(--heart-fill,none)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 19.5c-4.8-3.1-7.5-6-7.5-9.2 0-2.3 1.8-4.05 4-4.05 1.4 0 2.7.7 3.5 1.9.8-1.2 2.1-1.9 3.5-1.9 2.2 0 4 1.75 4 4.05 0 3.2-2.7 6.1-7.5 9.2Z"/>
-    </g>
-  </symbol>
-  <symbol id="i-chat" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 5.5h16v11H10l-4.5 3.5v-3.5H4v-11Z"/>
-    </g>
-  </symbol>
-  <symbol id="i-camera" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 7.5h3.5L9 5.5h6l1.5 2H20v11H4v-11Z"/>
-      <circle cx="12" cy="13" r="3.25"/>
-    </g>
-  </symbol>
   <symbol id="i-plus" viewBox="0 0 24 24">
     <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 5v14M5 12h14"/>
-    </g>
-  </symbol>
-  <symbol id="i-settings" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 6.5h9M17 6.5h3"/><circle cx="15" cy="6.5" r="2"/>
-      <path d="M4 12h3M11 12h9"/><circle cx="9" cy="12" r="2"/>
-      <path d="M4 17.5h9M17 17.5h3"/><circle cx="15" cy="17.5" r="2"/>
     </g>
   </symbol>
   <symbol id="i-back" viewBox="0 0 24 24">
@@ -532,6 +413,49 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <symbol id="i-close" viewBox="0 0 24 24">
     <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="m6 6 12 12M18 6 6 18"/>
+    </g>
+  </symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="5.5" width="16" height="14.5"/>
+      <path d="M4 9.5h16M8 3.5v4M16 3.5v4"/>
+      <path d="M7.5 13h2M11 13h2M14.5 13h2M7.5 16.5h2M11 16.5h2"/>
+    </g>
+  </symbol>
+  <symbol id="i-meetup" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="8.5" cy="8" r="2.6"/>
+      <circle cx="15.5" cy="8" r="2.6"/>
+      <path d="M3.5 19c.6-2.7 2.5-4.2 5-4.2s4.4 1.5 5 4.2"/>
+      <path d="M13 14.9c.7-.1 1.6-.1 2.5-.1 2.5 0 4.4 1.5 5 4.2"/>
+    </g>
+  </symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 17V11.5c0-3.3 2.7-6 6-6s6 2.7 6 6V17l2 2.5H4L6 17Z"/>
+      <path d="M10 19.5c.4 1.2 1.1 1.8 2 1.8s1.6-.6 2-1.8"/>
+    </g>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9.5 5.5 16 12l-6.5 6.5"/>
+    </g>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4 4"/>
+    </g>
+  </symbol>
+  <symbol id="i-share" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 14.5V4.5M8.5 8 12 4.5 15.5 8"/>
+      <path d="M5.5 11.5v8h13v-8"/>
+    </g>
+  </symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6.5 21V4.5"/>
+      <path d="M6.5 5h11l-2.5 3.5L17.5 12h-11"/>
     </g>
   </symbol>
   <symbol id="b-bronze" viewBox="0 0 24 24">
@@ -555,2134 +479,351 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <circle cx="12" cy="12" r="3.9" fill="none" stroke="#C9A84C" stroke-width=".9"/>
     <path d="M12 9.8 14 12l-2 2.2L10 12Z" fill="#6B2D3E"/>
   </symbol>
-  <symbol id="b-bronze-sm" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="8" fill="none" stroke="#A1815A" stroke-width="2"/>
-  </symbol>
-  <symbol id="b-silver-sm" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="8" fill="none" stroke="#8C8C94" stroke-width="2"/>
-  </symbol>
-  <symbol id="b-gold-sm" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="8" fill="none" stroke="#C9A84C" stroke-width="2"/>
-  </symbol>
-  <symbol id="b-platinum-sm" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="8" fill="none" stroke="#6B2D3E" stroke-width="2"/>
-    <circle cx="12" cy="12" r="2.6" fill="#6B2D3E"/>
-  </symbol>
 </svg>
+
 <div id="app">
 
-<!-- S0 GATE -->
-<div id="s0" class="screen active">
-  <div class="g-eyebrow">Private &nbsp;·&nbsp; Global</div>
-  <div class="g-arc-badge">
-    <span class="g-arc-badge-text">ARC</span>
+<!-- ══ #/join — 온보딩 게이트 (SPEC §4.1 / DELTA §6) ══ -->
+<div id="scr-join" class="screen gate active">
+  <div class="g-head">
+    <div class="g-eyebrow">Private · Invitation Only</div>
+    <div class="g-arc-badge"><span class="g-arc-badge-text">ARC</span></div>
+    <div class="g-arc-fullname">Members' Running Network</div>
+    <div class="g-ornament">
+      <div class="g-ornament-line"></div>
+      <div class="g-ornament-diamond"></div>
+      <div class="g-ornament-line"></div>
+    </div>
   </div>
-  <div class="g-arc-fullname">Adult Running Club</div>
-  <h1 class="g-title">Run with<br>the Few.</h1>
-  <div class="g-title-sub">Invitation Only</div>
-  <div class="g-ornament">
-    <div class="g-ornament-line"></div>
-    <div class="g-ornament-diamond"></div>
-    <div class="g-ornament-line"></div>
+  <div class="ob-setup" id="setup-note" hidden>
+    <b>서버 연결 대기</b><br>
+    운영자가 js/config.js에 Supabase 키를 입력하면 가입·로그인이 활성화됩니다.
   </div>
-  <p class="g-warn">진지하게 달리는 사람들만의 공간.<br>당신은 준비되어 있습니까?</p>
-  <button type="button" class="g-btn g-yes" onclick="gateYes()">Enter — I run.</button>
-  <button type="button" class="g-btn g-no" onclick="gateNo()">Not yet.</button>
-  <button type="button" class="g-demo-link" onclick="enterDemo()">Try Demo →</button>
-  <div class="g-footer-cities">Seoul · Tokyo · New York · London · Paris</div>
-  <div class="g-privacy-bar">
-    <a href="./privacy.html" class="g-privacy-link">Privacy Policy</a>
+
+  <!-- J1 초대코드 -->
+  <div class="ob-step" id="ob-j1">
+    <p class="v-sub">Invitation Required</p>
+    <h2 class="v-title">초대코드를 입력하세요</h2>
+    <p class="ob-lead">ARC는 초대받은 멤버만 입장할 수 있습니다.</p>
+    <input class="code-input" id="j1-code" inputmode="text" autocomplete="off"
+           maxlength="14" placeholder="XXXX-XXXX-XXXX" aria-label="초대코드">
+    <p class="v-hint">대시(-)는 자동 입력됩니다</p>
+    <p class="v-err" id="j1-err"></p>
+    <button class="v-btn" id="j1-next" disabled>입장</button>
+    <button class="ob-link" id="go-login" type="button">이미 멤버입니다 — 로그인</button>
+  </div>
+
+  <!-- J2 동의 5체크 (필수3 + 선택2 — CLO) -->
+  <div class="ob-step" id="ob-j2" hidden>
+    <button type="button" class="v-back" data-back="j1"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+    <p class="v-sub">Agreement</p>
+    <h2 class="v-title">약관 및 개인정보 동의</h2>
+    <label class="consent-all">
+      <input type="checkbox" id="consent-all">
+      <span class="consent-all-box"></span>
+      <span class="consent-all-txt">전체 동의 <em>(선택 항목 포함)</em></span>
+    </label>
+    <div class="consent-list" id="consent-list">
+      <label class="consent-item" data-req="true">
+        <input type="checkbox" data-key="required_pii">
+        <span class="consent-box"></span>
+        <span class="consent-label"><b>[필수]</b> 실명·이메일·소속 수집·이용</span>
+        <a class="consent-view" href="./terms.html" target="_blank" rel="noopener noreferrer">보기</a>
+      </label>
+      <label class="consent-item" data-req="true">
+        <input type="checkbox" data-key="required_activity">
+        <span class="consent-box"></span>
+        <span class="consent-label"><b>[필수]</b> 대회 참가예정·밋업 RSVP 수집·이용</span>
+        <a class="consent-view" href="./privacy.html" target="_blank" rel="noopener noreferrer">보기</a>
+      </label>
+      <label class="consent-item" data-req="true">
+        <input type="checkbox" data-key="required_disclosure">
+        <span class="consent-box"></span>
+        <span class="consent-label"><b>[필수]</b> 멤버 간 정보공개 동의 (실명·소속·참가예정)</span>
+        <a class="consent-view" href="./privacy.html#disclosure" target="_blank" rel="noopener noreferrer">보기</a>
+      </label>
+      <label class="consent-item">
+        <input type="checkbox" data-key="service_notif">
+        <span class="consent-box"></span>
+        <span class="consent-label"><b>[선택]</b> 서비스 알림 수신 (RSVP·대회 리마인드)</span>
+      </label>
+      <label class="consent-item">
+        <input type="checkbox" data-key="marketing_email">
+        <span class="consent-box"></span>
+        <span class="consent-label"><b>[선택]</b> 마케팅 정보 수신</span>
+      </label>
+    </div>
+    <button class="v-btn" id="j2-next" disabled>동의하고 계속</button>
+  </div>
+
+  <!-- J3 프로필 -->
+  <div class="ob-step" id="ob-j3" hidden>
+    <button type="button" class="v-back" data-back="j2"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+    <p class="v-sub">Profile</p>
+    <h2 class="v-title">멤버 정보</h2>
+    <div class="v-ig">
+      <label class="v-lbl" for="j3-name">실명</label>
+      <input class="v-inp" id="j3-name" type="text" placeholder="홍길동" autocomplete="name" maxlength="40">
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="j3-org">소속</label>
+      <input class="v-inp" id="j3-org" type="text" placeholder="KAIST Wellness Club" autocomplete="organization" maxlength="60">
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="j3-birth">생년월일</label>
+      <input class="v-inp" id="j3-birth" type="date">
+      <p class="v-err" id="j3-err"></p>
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="j3-bio">한줄소개 (선택)</label>
+      <input class="v-inp" id="j3-bio" type="text" placeholder="주말 아침 러너" maxlength="300">
+    </div>
+    <button class="v-btn" id="j3-next" disabled>다음</button>
+  </div>
+
+  <!-- J4 계정 -->
+  <div class="ob-step" id="ob-j4" hidden>
+    <button type="button" class="v-back" data-back="j3"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+    <p class="v-sub">Account</p>
+    <h2 class="v-title">계정 생성</h2>
+    <p class="ob-lead">확인 이메일은 발송되지 않습니다. 즉시 입장합니다.</p>
+    <div class="v-ig">
+      <label class="v-lbl" for="j4-email">이메일</label>
+      <input class="v-inp" id="j4-email" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email">
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="j4-pw">비밀번호 (8자 이상)</label>
+      <input class="v-inp" id="j4-pw" type="password" autocomplete="new-password" minlength="8">
+    </div>
+    <p class="v-err" id="j4-err"></p>
+    <button class="v-btn" id="j4-submit" disabled>가입 완료</button>
+  </div>
+
+  <!-- 로그인 -->
+  <div class="ob-step" id="ob-login" hidden>
+    <button type="button" class="v-back" data-back="j1"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+    <p class="v-sub">Members</p>
+    <h2 class="v-title">로그인</h2>
+    <div class="v-ig">
+      <label class="v-lbl" for="li-email">이메일</label>
+      <input class="v-inp" id="li-email" type="email" autocomplete="email" inputmode="email">
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="li-pw">비밀번호</label>
+      <input class="v-inp" id="li-pw" type="password" autocomplete="current-password">
+    </div>
+    <p class="v-err" id="li-err"></p>
+    <button class="v-btn" id="li-submit">로그인</button>
+    <button class="ob-link" id="go-forgot" type="button">비밀번호를 잊으셨나요?</button>
+  </div>
+
+  <!-- 비밀번호 복구 요청 -->
+  <div class="ob-step" id="ob-forgot" hidden>
+    <button type="button" class="v-back" data-back="login"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+    <p class="v-sub">Recovery</p>
+    <h2 class="v-title">비밀번호 재설정</h2>
+    <p class="ob-lead">가입 이메일로 재설정 링크를 보냅니다.</p>
+    <div class="v-ig">
+      <label class="v-lbl" for="fg-email">이메일</label>
+      <input class="v-inp" id="fg-email" type="email" autocomplete="email" inputmode="email">
+    </div>
+    <p class="v-err" id="fg-err"></p>
+    <button class="v-btn" id="fg-submit">재설정 링크 발송</button>
   </div>
 </div>
 
-<!-- S1 VERIFY -->
-<div id="s1" class="screen">
-  <div class="v-hd">
-    <div class="v-hd-row">
-      <button type="button" class="v-back" onclick="show('s0')"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
-    </div>
-    <div class="v-title">Verification</div>
-    <div class="v-sub">Prove your adulthood.</div>
+<!-- ══ #/cal — 캘린더 홈 (SPEC §4.2) ══ -->
+<div id="scr-cal" class="screen">
+  <div class="top-hd">
+    <span class="top-hd-title">Race Calendar</span>
+    <span class="top-hd-eyebrow">ARC</span>
   </div>
-  <div class="v-body">
-    <div id="demo-notice" class="demo-notice">
-      <p class="demo-notice-label">Try Demo — No sign-up required</p>
-      <p class="demo-notice-desc">Experience the full app with sample data.<br>Real membership coming soon.</p>
-      <button type="button" class="demo-enter-btn" onclick="enterDemo()">Enter as Guest →</button>
+  <div class="cal-search">
+    <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+    <input class="cal-search-inp" id="cal-q" type="search" placeholder="대회명·지역 검색" inputmode="search" aria-label="대회 검색">
+  </div>
+  <div class="chip-row" id="cal-chips"></div>
+  <div id="cal-list"></div>
+  <p class="cal-notice">일정·접수 정보는 변동될 수 있습니다. 공식 사이트를 확인하세요.</p>
+</div>
+
+<!-- ══ #/race/{id} — 대회 상세 (SPEC §4.3) ══ -->
+<div id="scr-race" class="screen">
+  <div class="d-hd">
+    <button type="button" class="v-back" data-nav="#/cal"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Calendar</button>
+    <div class="d-hd-title" id="race-title"></div>
+    <div class="d-hd-sub" id="race-dday"></div>
+  </div>
+  <div id="race-body"></div>
+</div>
+
+<!-- ══ #/meetups — 밋업 리스트 (SPEC §4.4) ══ -->
+<div id="scr-meetups" class="screen">
+  <div class="top-hd">
+    <span class="top-hd-title">Hub Meetups</span>
+    <span class="top-hd-eyebrow">ARC</span>
+  </div>
+  <div class="chip-row" id="hub-chips"></div>
+  <div id="meetup-list"></div>
+</div>
+
+<!-- ══ 밋업 개설 (SPEC §4.4) ══ -->
+<div id="scr-meetup-new" class="screen">
+  <div class="d-hd">
+    <button type="button" class="v-back" data-nav="#/meetups"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Meetups</button>
+    <div class="d-hd-title">밋업 개설</div>
+    <div class="d-hd-sub">Host a Meetup</div>
+  </div>
+  <div class="form-body">
+    <div class="v-ig">
+      <label class="v-lbl" for="mn-title">밋업 제목</label>
+      <input class="v-inp" id="mn-title" type="text" placeholder="일요일 모닝 이지런" maxlength="80">
     </div>
-    <div class="v-slabel">01 — Who are you?</div>
-    <div class="role-grid">
-      <button type="button" class="role-btn" onclick="pickRole('student',this)">Student</button>
-      <button type="button" class="role-btn" onclick="pickRole('pro',this)">Worker</button>
-      <button type="button" class="role-btn" onclick="pickRole('founder',this)">Founder</button>
+    <div class="v-ig">
+      <label class="v-lbl" for="mn-hub">거점 (Hub)</label>
+      <select class="v-inp" id="mn-hub"></select>
     </div>
-    <div id="email-step" class="hidden-step">
-      <div class="v-slabel">02 — Your email</div>
-      <div class="v-ig">
-        <label class="v-lbl" id="e-lbl">Email</label>
-        <input class="v-inp" type="email" id="e-inp" placeholder="your@email.com">
-        <p class="v-hint" id="e-hint"></p>
-      </div>
-      <div class="consent-row">
-        <input type="checkbox" id="consent-terms">
-        <label for="consent-terms">
-          [Required] I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and
-          <a href="privacy.html" target="_blank">Privacy Policy</a>,
-          and consent to the collection of my email for verification.
-        </label>
-      </div>
-      <div class="consent-row">
-        <input type="checkbox" id="consent-overseas">
-        <label for="consent-overseas">
-          [필수] 이메일 인증을 위해 개인정보(이메일 주소)가 미국 소재 Supabase Inc. 서버로 이전됨에 동의합니다. (개인정보보호법 제28조의8)
-        </label>
-      </div>
-      <div class="consent-row">
-        <input type="checkbox" id="emailConsent">
-        <label for="emailConsent">
-          [선택] 마케팅 및 운영 관련 이메일(런닝 일정, 멤버십 혜택 안내 등) 수신에 동의합니다.
-        </label>
-      </div>
-      <button class="v-btn" type="button" onclick="sendCode()" id="send-btn" disabled>Send Verification Code</button>
+    <div class="v-ig">
+      <label class="v-lbl" for="mn-date">일시</label>
+      <input class="v-inp" id="mn-date" type="datetime-local">
     </div>
-    <!-- OTP 전송 후 안내 메시지 -->
-    <div class="otp-info" id="otp-info">
-      A verification code has been sent. Check your inbox — and spam folder.
+    <div class="v-ig">
+      <label class="v-lbl" for="mn-loc">집결 장소 (텍스트)</label>
+      <input class="v-inp" id="mn-loc" type="text" placeholder="반포대교 남단 진입로 계단 앞" maxlength="120">
+      <p class="v-hint">지도·좌표는 사용하지 않습니다. 장소를 글로 설명해 주세요.</p>
     </div>
-    <div id="code-step" class="hidden-step code-step-spacing">
-      <div class="v-slabel">03 — Enter OTP code</div>
-      <div class="v-ig">
-        <input class="v-inp v-otp-inp" type="text" id="c-inp" placeholder="6-digit OTP" maxlength="6">
-        <p class="v-err" id="v-err">Incorrect code. Try again.</p>
+    <div class="v-ig">
+      <label class="v-lbl">정원 (2~50)</label>
+      <div class="cap-step">
+        <button type="button" id="mn-cap-minus" aria-label="정원 감소">−</button>
+        <output id="mn-cap">10</output>
+        <button type="button" id="mn-cap-plus" aria-label="정원 증가">+</button>
       </div>
-      <button type="button" class="v-btn" id="verify-btn" onclick="doVerify()">Verify &amp; Enter</button>
     </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="mn-desc">설명 (선택)</label>
+      <textarea class="v-inp" id="mn-desc" maxlength="1000" placeholder="페이스, 코스, 준비물 등"></textarea>
+    </div>
+    <div class="v-ig" id="mn-race-wrap" hidden>
+      <label class="v-lbl">연계 대회</label>
+      <p class="v-hint" id="mn-race-name" style="margin-top:0"></p>
+    </div>
+    <p class="v-err" id="mn-err"></p>
+    <button class="v-btn" id="mn-submit">개설하기</button>
   </div>
 </div>
 
-<!-- S2 MAP -->
-<div id="s2" class="screen">
-  <div class="m-hd">
-    <div class="m-hd-left">
-      <span class="m-logo m-logo-clickable" onclick="goHome()">Adult Running Club</span>
-      <div class="m-member-badge">
-        <span class="m-member-role" id="m-member-role"></span>
-        <span class="m-member-sep">·</span>
-        <span class="m-member-name" id="m-member-name"></span>
-      </div>
-    </div>
-    <div class="m-hd-right">
-      <span class="demo-badge" id="demo-badge" style="display:none">Demo</span>
-      <span class="m-bc" id="m-bc">World</span>
-    </div>
+<!-- ══ #/meetup/{id} — 밋업 상세 ══ -->
+<div id="scr-meetup" class="screen">
+  <div class="d-hd">
+    <button type="button" class="v-back" data-nav="#/meetups"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-back"/></svg> Meetups</button>
+    <div class="d-hd-title" id="mt-title"></div>
+    <div class="d-hd-sub" id="mt-hub"></div>
   </div>
-  <div class="m-vis">
-    <!-- World map — equirectangular viewBox 0 0 1000 500 (스펙 §3)
-         x=(lng+180)/360*1000, y=(90-lat)/180*500. Natural Earth 110m 단순화 기반 직접 작성. -->
-    <svg class="world-bg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1000" height="500" fill="#F0EDE6"/>
-      <g fill="#C9A84C" fill-opacity=".30">
-        <!-- North America (Alaska·Hudson Bay·Florida·Baja·Central America) -->
-        <path d="M33 69 67 53 125 56 194 58 250 61 244 92 281 108 278 82 300 72 339 100 353 117 322 128 294 137 290 153 272 167 276 181 264 171 250 169 231 178 231 192 258 190 254 200 279 225 272 228 242 208 208 197 189 172 194 186 183 164 167 156 156 139 154 117 119 89 97 82 78 89 61 81Z"/>
-        <!-- Greenland -->
-        <path d="M311 39 340 21 408 19 450 39 439 56 381 83 353 67Z"/>
-        <!-- Iceland -->
-        <path d="M444 67 456 66 458 72 448 74 442 71Z"/>
-        <!-- South America -->
-        <path d="M286 228 294 219 328 222 361 250 403 264 403 272 393 286 383 314 353 344 328 358 314 378 308 400 292 389 301 342 306 300 275 264 278 247Z"/>
-        <!-- Cuba / Hispaniola -->
-        <path d="M272 186 294 194 290 197 270 189Z"/>
-        <path d="M299 196 309 197 307 201 298 199Z"/>
-        <!-- Eurasia (이베리아·이탈리아 부츠·스칸디나비아·아라비아·인도·한반도 포함) -->
-        <path d="M474 143 474 131 497 122 488 115 500 112 504 108 522 101 529 90 536 100 558 94 578 83 564 71 547 79 536 89 519 89 514 78 539 61 572 53 611 61 667 47 792 36 889 47 958 53 1000 64 1000 75 953 83 935 108 894 86 881 100 867 131 857 142 859 153 851 146 848 140 827 143 840 147 838 167 825 186 800 190 801 206 791 226 779 213 788 246 773 228 762 206 753 189 723 214 715 228 702 197 689 189 669 181 658 176 633 168 643 183 657 177 661 194 625 214 621 215 608 194 596 172 597 167 597 158 600 148 583 150 575 147 572 139 563 147 556 140 544 131 536 124 545 134 551 139 546 142 544 144 540 136 529 129 525 127 511 130 499 140 493 148 484 150 475 147Z"/>
-        <!-- British Isles (대륙 분리 섬) -->
-        <path d="M486 87 495 90 499 99 505 103 504 108 493 109 484 111 487 102 485 96Z"/>
-        <!-- Ireland -->
-        <path d="M479 96 483 101 475 107 472 100Z"/>
-        <!-- Africa -->
-        <path d="M484 151 528 146 553 165 583 163 590 167 601 189 611 208 620 218 643 217 627 244 610 268 613 292 591 322 586 333 556 347 551 344 540 311 538 283 525 250 517 238 481 238 451 209 453 192 479 157Z"/>
-        <!-- Madagascar -->
-        <path d="M637 283 641 295 633 313 626 321 622 303 629 288Z"/>
-        <!-- Japan — Hokkaido / Honshu·Kyushu (호 형태, 한반도와 분리) -->
-        <path d="M894 124 904 131 896 134 889 133 889 127Z"/>
-        <path d="M893 136 892 144 888 151 877 157 863 164 857 160 869 151 881 146 889 139Z"/>
-        <!-- Sri Lanka -->
-        <path d="M723 219 727 224 724 229 720 224Z"/>
-        <!-- Sumatra / Java / Borneo / Sulawesi / New Guinea / Luzon -->
-        <path d="M765 235 778 250 794 267 788 269 772 252 760 240Z"/>
-        <path d="M796 269 818 273 818 276 797 272Z"/>
-        <path d="M803 247 815 232 826 239 822 256 810 261Z"/>
-        <path d="M834 247 838 250 836 264 832 258Z"/>
-        <path d="M864 254 891 257 897 273 884 270 868 262Z"/>
-        <path d="M836 203 840 208 838 216 834 209Z"/>
-        <!-- Australia (대륙 윤곽 유지 — 핀·데이터 없음) + Tasmania -->
-        <path d="M817 311 853 289 863 284 889 297 896 280 905 297 926 325 920 344 916 354 899 358 864 338 843 344 820 346 821 339Z"/>
-        <path d="M905 365 911 368 908 374 902 370Z"/>
-        <!-- New Zealand -->
-        <path d="M986 352 992 360 986 365Z"/>
-        <path d="M983 368 978 374 968 379 974 370Z"/>
-      </g>
-      <g id="map-pins"></g>
-    </svg>
-    <button type="button" class="m-back" id="m-back" onclick="mapBack()"><svg class="icon" width="14" height="14" aria-hidden="true"><use href="#i-back"/></svg> Back</button>
+  <div id="mt-body"></div>
+</div>
+
+<!-- ══ #/alerts — 알림함 (SPEC §4.6) ══ -->
+<div id="scr-alerts" class="screen">
+  <div class="top-hd">
+    <span class="top-hd-title">Alerts</span>
+    <span class="top-hd-eyebrow">ARC</span>
   </div>
-  <div class="m-list">
-    <div class="m-ltitle" id="m-ltitle">Select a region</div>
-    <div id="r-list"></div>
+  <div id="alerts-list"></div>
+</div>
+
+<!-- ══ #/profile — 마이 (SPEC §4.5) ══ -->
+<div id="scr-profile" class="screen">
+  <div class="top-hd">
+    <span class="top-hd-title">Me</span>
+    <span class="top-hd-eyebrow">ARC</span>
+  </div>
+  <div id="profile-body"></div>
+</div>
+
+<!-- ══ #/reset — 새 비밀번호 설정 ══ -->
+<div id="scr-reset" class="screen gate">
+  <div class="g-head">
+    <div class="g-eyebrow">Recovery</div>
+    <div class="g-arc-badge"><span class="g-arc-badge-text">ARC</span></div>
+  </div>
+  <div class="ob-step">
+    <p class="v-sub">New Password</p>
+    <h2 class="v-title">새 비밀번호 설정</h2>
+    <div class="v-ig">
+      <label class="v-lbl" for="rs-pw">새 비밀번호 (8자 이상)</label>
+      <input class="v-inp" id="rs-pw" type="password" autocomplete="new-password" minlength="8">
+    </div>
+    <div class="v-ig">
+      <label class="v-lbl" for="rs-pw2">비밀번호 확인</label>
+      <input class="v-inp" id="rs-pw2" type="password" autocomplete="new-password" minlength="8">
+    </div>
+    <p class="v-err" id="rs-err"></p>
+    <button class="v-btn" id="rs-submit">변경하기</button>
   </div>
 </div>
 
-<!-- S4 MYPAGE -->
-<div id="s4" class="screen">
-  <div class="mp-hd">
-    <div class="mp-hd-top">
-      <button type="button" class="mp-back" onclick="show(prevScreen)" title="Back"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-back"/></svg></button>
-      <span class="mp-title">My Profile</span>
-      <button type="button" class="mp-settings" onclick="arcSettings()" title="Settings"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-settings"/></svg></button>
-    </div>
-  </div>
-  <div class="mp-body" id="mp-body">
-    <!-- injected by renderMyPage() -->
-  </div>
-</div>
+<!-- 플로팅 밋업 개설 버튼 -->
+<button class="fab" id="fab-new-meetup" aria-label="밋업 개설">
+  <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-plus"/></svg>
+</button>
 
-<!-- S3 FEED -->
-<div id="s3" class="screen">
-  <div class="f-hd">
-    <div class="f-top">
-      <div class="f-loc">
-        <button type="button" class="f-bk" onclick="feedBack()"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-back"/></svg></button>
-        <div class="f-title-wrap">
-          <span class="f-lname" id="f-lname">Community</span>
-          <span class="f-profile-line" id="f-profile-line"></span>
-        </div>
-      </div>
-      <div class="f-top-actions">
-        <button class="f-chat" type="button" onclick="openChat()" title="Chat"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-chat"/></svg></button>
-      </div>
-    </div>
-    <div class="f-filter">
-      <button type="button" class="ftab on" onclick="setFilter('pop',this)">Popular</button>
-      <button type="button" class="ftab" onclick="setFilter('new',this)">Newest</button>
-      <button type="button" class="ftab" onclick="setFilter('old',this)">Oldest</button>
-    </div>
-  </div>
-  <div class="f-list" id="f-list"></div>
-</div>
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav" id="bottom-nav">
-  <button type="button" class="bnav-btn" id="bnav-map" onclick="goBNavMap()">
-    <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-map"/></svg>
-    <span>Explore</span>
+<!-- 하단 4탭 (DELTA §1.3) -->
+<nav class="bnav" id="bnav">
+  <button class="bnav-btn" data-tab="#/cal">
+    <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-calendar"/></svg>
+    <span>대회</span>
   </button>
-  <button type="button" class="bnav-btn bnav-post" id="bnav-post" onclick="openPost()" aria-label="New Post">
-    <svg class="icon" width="24" height="24" aria-hidden="true"><use href="#i-plus"/></svg>
+  <button class="bnav-btn" data-tab="#/meetups">
+    <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-meetup"/></svg>
+    <span>밋업</span>
   </button>
-  <button type="button" class="bnav-btn" id="bnav-profile" onclick="goBNavProfile()">
+  <button class="bnav-btn" data-tab="#/alerts">
+    <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-bell"/></svg>
+    <span>알림</span>
+    <span class="bnav-dot" id="bnav-dot" hidden></span>
+  </button>
+  <button class="bnav-btn" data-tab="#/profile">
     <svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-profile"/></svg>
-    <span>Me</span>
+    <span>마이</span>
   </button>
 </nav>
 
-<!-- CHAT -->
-<div class="chat-ov" id="chat-ov">
-  <div class="chat-hd">
-    <span class="chat-ttl" id="chat-ttl">Community Chat</span>
-    <button type="button" class="chat-x" onclick="closeChat()" aria-label="Close"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-  </div>
-  <div class="chat-msgs" id="chat-msgs"></div>
-  <div class="chat-ia">
-    <input class="chat-inp" id="chat-inp" placeholder="Say something..." maxlength="500" onkeydown="if(event.key==='Enter')sendChat()">
-    <button type="button" class="chat-send" id="chat-send-btn" onclick="sendChat()">Send</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- 범용 확인 모달 -->
+<div class="modal-ovl" id="modal-ovl">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-row">
+      <button class="modal-btn" id="modal-cancel">취소</button>
+      <button class="modal-btn modal-btn--primary" id="modal-ok">확인</button>
+    </div>
   </div>
 </div>
 
-<!-- POST MODAL -->
-<div class="pmodal" id="pmodal">
-  <div class="pm-hd">
-    <span class="pm-ttl">New Post</span>
-    <button type="button" class="pm-x" onclick="closePost()" aria-label="Close"><svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-close"/></svg></button>
-  </div>
-  <div class="pm-body">
-    <div class="pm-preview">
-      <div class="pm-photo" onclick="document.getElementById('photo-in').click()">
-        <div class="pm-ph-hint"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-camera"/></svg><p>Tap to add photo</p></div>
-        <img id="pm-img" src="" alt="">
-      </div>
-      <div class="pm-run">
-        <input class="pm-ri" id="ri-course" placeholder="Course / Route">
-        <input class="pm-ri" id="ri-km" placeholder="Distance (km)" type="number" step="0.1">
-        <input class="pm-ri" id="ri-min" placeholder="Time (min)" type="number">
-        <input class="pm-ri" id="ri-pace" placeholder="Pace (min/km)">
-      </div>
+<!-- 멤버 간 정보공개 동의 모달 (DELTA §6.4 — needs-consent 안전망) -->
+<div class="modal-ovl" id="consent-ovl">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="consent-m-title">
+    <div class="modal-title" id="consent-m-title">멤버 간 정보공개 동의</div>
+    <div class="modal-body">참가 예정으로 표시하면 다른 멤버에게 당신의 실명·소속이 공개됩니다.</div>
+    <label class="modal-consent consent-item consent-item--light" style="border-bottom:none;padding:0 0 14px">
+      <input type="checkbox" id="consent-m-chk">
+      <span class="consent-box"></span>
+      <span class="consent-label" style="color:var(--text-sub)">동의합니다</span>
+    </label>
+    <div class="modal-row">
+      <button class="modal-btn" id="consent-m-cancel">취소</button>
+      <button class="modal-btn modal-btn--primary" id="consent-m-ok" disabled>동의하고 표시</button>
     </div>
-    <button type="button" class="pm-rec" id="pm-rec-btn" onclick="openGpsDisclosure()">
-      <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-map"/></svg>
-      Record Run — GPS
-    </button>
-    <p class="pm-rec-done" id="pm-rec-done">Route recorded on this device. Shape attached — coordinates never leave your phone.</p>
-    <canvas id="pm-canvas"></canvas>
-    <input type="file" id="photo-in" accept="image/jpeg,image/png,image/webp" onchange="onPhoto(event)">
-    <button type="button" class="pm-sub" id="pm-sub-btn" onclick="submitPost()">Post to Community</button>
   </div>
 </div>
 
-<!-- GPS PROMINENT DISCLOSURE (CISO·CLO 필수 — 권한 요청 직전 목적 고지) -->
-<div class="gps-ov" id="gps-disclosure">
-  <div class="gps-card">
-    <div class="gps-eyebrow">Location · On-Device Only</div>
-    <div class="gps-title">Record your run</div>
-    <div class="gps-desc">
-      ARC uses your location <strong>only while you record a run</strong>, to draw the shape of your route and measure distance and pace.<br><br>
-      <strong>Your GPS coordinates never leave this device.</strong> Only an abstract route shape (no geographic coordinates) is attached to your post. No background tracking.<br><br>
-      러닝 경로 시각화를 위해 위치 정보를 사용합니다. 경로 좌표는 기기를 떠나지 않으며, 서버에는 좌표가 아닌 추상화된 경로 모양만 저장됩니다. 백그라운드 추적은 하지 않습니다.
-    </div>
-    <button type="button" class="gps-btn pri" onclick="gpsConsentStart()">Allow &amp; Start Recording</button>
-    <button type="button" class="gps-btn sec" onclick="closeGpsDisclosure()">Not Now — Enter Manually</button>
-  </div>
-</div>
-
-<!-- GPS RECORDER (기기 내 전용) -->
-<div class="gps-ov" id="gps-recorder">
-  <div class="gps-card">
-    <div class="gps-eyebrow">Recording — On Device</div>
-    <div class="gps-stat-num" id="gps-km">0.00</div>
-    <div class="gps-stat-lbl">Kilometers</div>
-    <div class="gps-row">
-      <div><div class="v" id="gps-time">0:00</div><div class="l">Time</div></div>
-      <div><div class="v" id="gps-pace">—</div><div class="l">Pace /km</div></div>
-    </div>
-    <p class="gps-paused" id="gps-paused">Paused — screen left or locked</p>
-    <button type="button" class="gps-btn pri" id="gps-finish-btn" onclick="gpsFinish()">Finish Run</button>
-    <button type="button" class="gps-btn sec" id="gps-pause-btn" onclick="gpsTogglePause()">Pause</button>
-    <button type="button" class="gps-btn sec" onclick="gpsCancel()">Discard</button>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-</div><!-- #app -->
-
-<script>
-// ══════════════════════════════════════════════════════════════
-// SUPABASE 설정
-// ⚠️ CISO 보안 지시 (2026-06-08): 실제 키는 이 파일에 하드코딩 금지.
-// Supabase anon key는 설계상 클라이언트 공개 허용이나,
-// git 히스토리 노출 방지를 위해 배포 레포(kgg2512/AdultRunningClub)에서만 설정.
-// 이 모노레포 파일은 플레이스홀더 유지.
-// 배포 레포 설정 경로: AdultRunningClub/index.html (별도 레포)
-// 전제 조건: Supabase Dashboard > Authentication > RLS 정책 반드시 활성화 필요.
-// ══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-// ?demo=true 딥링크 — Gate 생략, 데모 쇼룸 즉시 진입 (CSO 전략)
-const DEMO_PARAM = new URLSearchParams(location.search).get('demo') === 'true';
-let DEMO_MODE = DEMO_PARAM || !SUPABASE_URL || SUPABASE_URL.startsWith('YOUR_');
-
-// ── 앱 상태 (Supabase 초기화 전 먼저 정의 — 순서 중요) ──────
-const S = {
-  session: null,
-  profile: null,
-  lvl: 0,
-  path: [],
-  district: null,
-  filter: 'pop',
-  pendingEmail: null,
-  pendingRole: null,
-  likedPosts: new Set()
-};
-
-// Supabase 클라이언트 초기화
-let db;
-if (!DEMO_MODE) {
-  try {
-    const { createClient } = supabase;
-    db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
-    (async () => {
-      try { await db.from('posts').select('id').limit(1); } catch(e) {}
-    })();
-  } catch(e) { console.warn('Supabase init failed:', e); }
-}
-
-// ── 로컬 폴백 (미인증 상태 임시 저장용) ─────────────────────
-const LS = {
-  g: (k, d) => { try { const v = localStorage.getItem(k); return v != null ? JSON.parse(v) : d; } catch { return d; } },
-  s: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-};
-
-// ── TOAST ─────────────────────────────────────────────────────
-function toast(msg, dur = 2800) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), dur);
-}
-
-// ── 이스케이프 헬퍼 ───────────────────────────────────────────
-function esc(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// ── WORLD DATA ────────────────────────────────────────────────
-// 핀 좌표 = equirectangular SVG 유닛 (스펙 §3.2 — x=(lng+180)/360*1000, y=(90-lat)/180*500)
-// ldy = 라벨 dy (충돌 회피 — §3.5). Sydney/Australia 데이터 제거 (CSO — 대륙 윤곽만 지도에 유지)
-const WD = {
-  'Korea': { likes: 247, px: 852.75, py: 145.69, ldy: -20, cities: {
-    'Seoul': { likes: 183, px: 852.75, py: 145.69, ldy: -20, districts: { 'Gangnam': { likes: 87 }, 'Hongdae': { likes: 62 }, 'Itaewon': { likes: 34 } } },
-    'Busan': { likes: 64, px: 858.56, py: 152.28, ldy: 32, districts: { 'Haeundae': { likes: 41 }, 'Gwangalli': { likes: 23 } } }
-  }},
-  'Japan': { likes: 198, px: 888.03, py: 150.89, ldy: 32, cities: {
-    'Tokyo': { likes: 142, px: 888.03, py: 150.89, ldy: 32, districts: { 'Shibuya': { likes: 56 }, 'Shinjuku': { likes: 48 }, 'Ginza': { likes: 38 } } },
-    'Osaka': { likes: 56, px: 876.39, py: 153.64, ldy: -20, districts: { 'Namba': { likes: 32 }, 'Umeda': { likes: 24 } } }
-  }},
-  'USA': { likes: 312, px: 294.42, py: 136.92, ldy: 32, cities: {
-    'New York': { likes: 187, px: 294.42, py: 136.92, ldy: 32, districts: { 'Manhattan': { likes: 98 }, 'Brooklyn': { likes: 89 } } },
-    'Los Angeles': { likes: 125, px: 171.56, py: 155.42, ldy: 32, districts: { 'Santa Monica': { likes: 74 }, 'Hollywood': { likes: 51 } } }
-  }},
-  'UK': { likes: 156, px: 499.64, py: 106.92, ldy: -20, cities: {
-    'London': { likes: 156, px: 499.64, py: 106.92, ldy: -20, districts: { 'Chelsea': { likes: 64 }, 'Notting Hill': { likes: 52 }, 'Shoreditch': { likes: 40 } } }
-  }},
-  'France': { likes: 134, px: 506.53, py: 114.28, ldy: 32, cities: {
-    'Paris': { likes: 134, px: 506.53, py: 114.28, ldy: 32, districts: { 'Le Marais': { likes: 67 }, 'Saint-Germain': { likes: 67 } } }
-  }}
-};
-
-// ══════════════════════════════════════════════════════════════
-// 도시 매핑
-// ══════════════════════════════════════════════════════════════
-const CITY_OF = { Gangnam:'Seoul', Hongdae:'Seoul', Itaewon:'Seoul', Haeundae:'Busan', Gwangalli:'Busan',
-  Shibuya:'Tokyo', Shinjuku:'Tokyo', Ginza:'Tokyo', Namba:'Osaka', Umeda:'Osaka',
-  Manhattan:'New York', Brooklyn:'New York', 'Santa Monica':'Los Angeles', Hollywood:'Los Angeles',
-  Chelsea:'London', 'Notting Hill':'London', Shoreditch:'London',
-  'Le Marais':'Paris', 'Saint-Germain':'Paris' };
-const SCENE_CITY = { Seoul:'seoul', Busan:'seoul', Tokyo:'tokyo', Osaka:'tokyo', 'New York':'ny', 'Los Angeles':'ny', London:'london', Paris:'paris' };
-const TIER_IDS = ['bronze','silver','gold','platinum'];
-
-// ══════════════════════════════════════════════════════════════
-// 루트 아트워크 엔진 (스펙 §4) — 난수 지그재그 폐기, 큐레이션 루트 뱅크
-// 모든 path = viewBox 0~100 정규화 모양 데이터 (지리좌표 아님 — 위치정보법 준수 설계)
-// ══════════════════════════════════════════════════════════════
-const ROUTE_BANK = {
-  hangang:    { km:5.2, loop:true,  path:'M18 52C23 45 34 40.5 48 40 62 39.5 76 43 83 49.5 79 56.5 66 60.5 51 61 37 61.5 24 58.5 18 52Z',
-                water:'M0 41C18 37 34 45 50 43 66 41 82 46 100 42v19C82 65 66 59 50 61 34 63 18 57 0 60Z', park:{cx:50,cy:50,rx:26,ry:8.5} },
-  riverside:  { km:6.4, loop:false, path:'M16 56C26 46 36 64 48 54 60 44 70 62 84 50',
-                water:'M0 64C20 60 40 68 60 64 80 60 92 66 100 63v37H0Z', park:null },
-  namsan:     { km:7.8, loop:false, path:'M22 76C36 72 46 68 40 61 34 54 42 49 54 47 66 45 62 39 52 37 46 35 50 28 64 24',
-                water:null, park:{cx:48,cy:52,rx:30,ry:24} },
-  kokyo:      { km:5.0, loop:true,  path:'M50 22C66 24 76 34 76 48 76 62 66 72 50 74 34 72 24 62 24 48 24 34 34 24 50 22Z',
-                water:null, park:{cx:50,cy:48,rx:20,ry:19} },
-  parkloop:   { km:4.2, loop:true,  path:'M30 30L64 30C74 30 80 34 80 42L80 60C80 68 74 72 64 72L34 72C26 72 20 68 20 60L20 38C20 32 24 30 30 30Z',
-                water:null, park:{cx:50,cy:51,rx:24,ry:16} },
-  centralpark:{ km:9.7, loop:true,  path:'M40 18L58 18C64 18 66 22 66 28L66 70C66 78 62 82 52 82 42 82 34 78 34 70L34 26C34 20 36 18 40 18Z',
-                water:null, park:{cx:50,cy:50,rx:22,ry:34} },
-  bridge:     { km:4.8, loop:false, path:'M16 72C26 72 32 70 38 63L58 39C64 32 72 30 84 30',
-                water:'M0 44C20 40 40 48 60 44 80 40 92 46 100 43v18C80 65 60 59 40 63 20 67 8 61 0 64Z', park:null },
-  griddiag:   { km:6.1, loop:false, path:'M18 80C30 72 33 66 41 58 43 56 47 54 53 52 65 48 71 38 82 22',
-                water:null, park:null },
-  crescent:   { km:5.5, loop:false, path:'M16 62C24 44 40 34 52 34 64 34 76 42 84 58',
-                water:'M0 70C20 62 50 58 70 62 86 65 94 68 100 70v30H0Z', park:null },
-  twinloop:   { km:8.4, loop:true,  path:'M50 50C42 41 28 40 25 48 22 56 34 64 44 58 47 56 49 53 50 50 51 47 53 44 56 42 66 36 78 40 76 48 74 56 60 60 50 50Z',
-                water:null, park:null },
-  hyde:       { km:6.8, loop:true,  path:'M30 28L62 24C72 23 78 28 78 36L80 58C80 66 72 72 62 72L36 74C28 74 22 68 22 60L22 36C22 30 25 29 30 28Z',
-                water:'M18 46C32 41 46 50 60 46 72 42 80 46 86 44L86 49C80 51 72 47 60 51 46 55 32 46 18 51Z', park:{cx:50,cy:50,rx:26,ry:20} },
-  seine:      { km:7.0, loop:false, path:'M14 58C28 54 40 60 52 56 64 52 74 56 86 52',
-                water:'M0 66C20 62 40 68 60 64 80 60 92 64 100 62v38H0Z', park:null }
-};
-const ROUTE_IDS = Object.keys(ROUTE_BANK);
-
-function strHash(s) {
-  let h = 0; s = String(s || '');
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-}
-// 텍스트 입력 게시글: 코스명 해시 → 템플릿 선택 (난수 좌표 금지 — 스펙 §4.4)
-function routeIdForCourse(course) { return ROUTE_IDS[strHash(course || 'My Run') % ROUTE_IDS.length]; }
-
-// route_path 화이트리스트 (서버 값 SVG 주입 전 검증 — XSS 차단)
-const SAFE_PATH_RE = /^[MLCQZmlcqz0-9 ,.\-]{8,8000}$/;
-
-let _routeUid = 0;
-function makeRouteArt(o) {
-  const uid = 'rt' + (++_routeUid);
-  const km = Math.max(0.1, parseFloat(o.km) || 5);
-  let ticks = '', startDot = '', endDot = '';
-  try {
-    const tp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tp.setAttribute('d', o.path);
-    const total = tp.getTotalLength();
-    if (total > 1) {
-      const step = km > 10 ? 5 : 1;
-      let t = '';
-      for (let k = step; k < km; k += step) {
-        const pt = tp.getPointAtLength(total * (k / km));
-        t += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r=".9"/>`;
-      }
-      if (t) ticks = `<g fill="#A8892F" opacity=".6">${t}</g>`;
-      const sp = tp.getPointAtLength(0), ep = tp.getPointAtLength(total);
-      if (o.loop) {
-        startDot = `<circle cx="${sp.x.toFixed(1)}" cy="${sp.y.toFixed(1)}" r="3.4" fill="none" stroke="#C9A84C" stroke-width=".8"/><circle cx="${sp.x.toFixed(1)}" cy="${sp.y.toFixed(1)}" r="2" fill="#6B2D3E"/>`;
-      } else {
-        startDot = `<circle cx="${sp.x.toFixed(1)}" cy="${sp.y.toFixed(1)}" r="2" fill="#6B2D3E"/>`;
-        endDot = `<circle cx="${ep.x.toFixed(1)}" cy="${ep.y.toFixed(1)}" r="2" fill="#C9A84C"/>`;
-      }
-    }
-  } catch (e) { /* detached geometry 미지원 환경 — 틱·닷 생략 */ }
-  const water = o.water ? `<path d="${o.water}" fill="#E3DDD0" opacity=".75"/>` : '';
-  const park = o.park ? `<ellipse cx="${o.park.cx}" cy="${o.park.cy}" rx="${o.park.rx}" ry="${o.park.ry}" fill="#EDE5CF" opacity=".5"/>` : '';
-  const kmTxt = km % 1 === 0 ? km.toFixed(0) : km.toFixed(1);
-  // 라벨 폭 제한 (viewBox 100 유닛 초과 방지): 코스+도시 21자 초과 시 도시 생략, 코스 단독도 21자 컷
-  let course = String(o.course || 'Route').toUpperCase();
-  const cityUp = o.city ? String(o.city).toUpperCase() : '';
-  let labelRaw = cityUp && (course.length + cityUp.length + 3) <= 21 ? course + ' — ' + cityUp : course;
-  if (labelRaw.length > 21) labelRaw = labelRaw.slice(0, 20) + '…';
-  const label = esc(labelRaw);
-  return `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(o.course || 'Route')} ${kmTxt}km">
-  <defs>
-    <linearGradient id="${uid}g" gradientUnits="userSpaceOnUse" x1="18" y1="40" x2="83" y2="61">
-      <stop offset="0" stop-color="#D9BC6B"/><stop offset=".55" stop-color="#C9A84C"/><stop offset="1" stop-color="#A8892F"/>
-    </linearGradient>
-    <linearGradient id="${uid}s" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#F0EDE6" stop-opacity="0"/><stop offset="1" stop-color="#F0EDE6" stop-opacity=".92"/>
-    </linearGradient>
-  </defs>
-  <rect width="100" height="100" fill="#F0EDE6"/>
-  ${water}${park}
-  <path d="${o.path}" fill="none" stroke="#2A1F14" stroke-width="3.6" opacity=".07" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,.8)"/>
-  <path d="${o.path}" fill="none" stroke="url(#${uid}g)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-  ${ticks}${startDot}${endDot}
-  <text x="95" y="14" text-anchor="end" font-family="Cormorant Garamond,serif" font-style="italic" font-size="9" fill="#C9A84C" opacity=".18">ARC</text>
-  <rect y="72" width="100" height="28" fill="url(#${uid}s)"/>
-  <text x="8" y="90" font-family="Cormorant Garamond,serif" font-weight="300" font-size="14" fill="#0D0B08">${kmTxt}<tspan dx="1.5" dy="-1" font-family="Raleway,sans-serif" font-size="5.6" letter-spacing=".8" fill="#6B6459">KM</tspan></text>
-  <text x="8" y="96.5" font-family="Raleway,sans-serif" font-size="5.6" letter-spacing=".9" fill="#6B6459">${label}</text>
-</svg>`;
-}
-
-// 우선순위: route_path(기기내 GPS 정규화 모양) → routeId(데모 큐레이션) → 코스명 해시 템플릿
-function routeArtForPost(p, district) {
-  const city = CITY_OF[district] || '';
-  if (p.route_path && SAFE_PATH_RE.test(p.route_path)) {
-    return makeRouteArt({ path: p.route_path, km: p.km, course: p.course, city, loop: false, water: null, park: null });
-  }
-  const spec = ROUTE_BANK[p.routeId] || ROUTE_BANK[routeIdForCourse(p.course)];
-  return makeRouteArt({ path: spec.path, km: p.km || spec.km, course: p.course, city, loop: spec.loop, water: spec.water, park: spec.park });
-}
-
-// ══════════════════════════════════════════════════════════════
-// 씬 일러스트 엔진 — "Gilded Pictogram" (스펙 §5)
-// 러너 = 100% 실루엣. 얼굴·실존 인물·타사 로고 묘사 금지 (CLO)
-// ══════════════════════════════════════════════════════════════
-const RUNNER_POSES = {
-  sprint: { head:[120,92], rim:'M116.5 101 109 128', limbs:['M118 99 110 129','M116 106 105 113 110 121','M117 107 130 110 138 102','M111 128 95 137 85 130','M112 129 123 145 119 161'] },
-  stride: { head:[119,90], rim:'M115.5 99 111 128', limbs:['M117 97 112 129','M115 104 105 112 111 119','M116 105 128 110 136 104','M113 128 99 139 91 134','M114 129 122 146 120 161'] },
-  uphill: { head:[117,94], rim:'M113.5 103 105 129', limbs:['M115 101 106 130','M113 108 102 116 108 123','M114 109 126 109 134 100','M107 129 92 135 83 126','M108 130 119 144 114 160'] }
-};
-
-function sceneProps(list) {
-  let out = '';
-  (list || []).forEach(p => {
-    const t = p[0];
-    if (t === 'bridge') {
-      const y = p[1]; let posts = '';
-      for (let x = 16; x <= 310; x += 42) posts += `M${x} ${y}v6`;
-      out += `<g stroke="#2E2118" opacity=".5" fill="none"><path d="M0 ${y}h320" stroke-width="2"/><path d="${posts}" stroke-width="1.4"/></g>`;
-    } else if (t === 'birds') {
-      out += `<g stroke="#3A2B22" stroke-width="1.1" fill="none" opacity=".4" stroke-linecap="round"><path d="M${p[1]} ${p[2]}c3-3 6-3 9 0M${p[1]+16} ${p[2]-8}c2.5-2.5 5-2.5 7.5 0"/></g>`;
-    } else if (t === 'lamps') {
-      p[1].forEach(x => { out += `<circle cx="${x}" cy="${p[2]}" r="10" fill="#E8C97A" opacity=".22"/><circle cx="${x}" cy="${p[2]}" r="2.4" fill="#E8C97A" opacity=".9"/><path d="M${x} ${p[2]}V${p[2]+34}" stroke="#241A12" stroke-width="2"/>`; });
-    } else if (t === 'arcs') {
-      for (let i = 0; i < 3; i++) out += `<path d="M${p[1]-30-i*14} ${p[2]} Q${p[1]} ${p[2]-26-i*10} ${p[1]+30+i*14} ${p[2]}" fill="none" stroke="#C9A84C" stroke-width="1.2" stroke-dasharray="1.5 4" opacity=".55"/>`;
-    } else if (t === 'dots') {
-      let d = ''; p[3].forEach(q => d += `<circle cx="${q[0]}" cy="${q[1]}" r="${q[2] || 1.6}"/>`);
-      out += `<g fill="${p[1]}" opacity="${p[2]}">${d}</g>`;
-    } else if (t === 'stripes') {
-      let d = ''; [126,133,141,150].forEach((y,i)=>{ const w = 150 + i*44; d += `<rect x="${160-w/2}" y="${y}" width="${w}" height="${3+i*1.2}"/>`; });
-      out += `<g fill="#F2E3CC" opacity=".5">${d}</g>`;
-    } else if (t === 'cables') {
-      let d = ''; for (let i = 0; i < 5; i++) d += `M${p[1]} 36L${p[1]-90+i*38} 112`;
-      out += `<path d="${d}" stroke="#C9A84C" stroke-width="1" opacity=".5" fill="none"/><path d="M${p[1]} 30V112" stroke="#2E2118" stroke-width="3" opacity=".6"/>`;
-    } else if (t === 'posts') {
-      let d = ''; for (let x = 26; x <= 150; x += 17) d += `M${x} ${p[1]}v${10 + (x % 3) * 2}`;
-      out += `<path d="${d}" stroke="#241A12" stroke-width="3.4" opacity=".8" fill="none"/>`;
-    } else if (t === 'steam') {
-      out += `<path d="M${p[1]} 158c-3-10 4-14 1-24 3-8-4-12-1-22" fill="none" stroke="#F2E3CC" stroke-width="2.4" opacity=".3" stroke-linecap="round"/>`;
-    } else if (t === 'swans') {
-      out += `<g fill="#F2E3CC" opacity=".75"><path d="M${p[1]} ${p[2]}q-1-7 4-8 4-1 4 3l-1 3q6 0 7 2-3 3-8 3t-6-3Z"/><path d="M${p[1]+22} ${p[2]+4}q-1-6 3-7 4-1 4 2.5l-1 2.5q5 0 6 2-3 2.6-7 2.6t-5-2.6Z"/></g>`;
-    } else if (t === 'arch') {
-      out += `<path d="M${p[1]-p[2]} 112 Q${p[1]} ${112-p[2]*.9} ${p[1]+p[2]} 112" fill="none" stroke="#2E2118" stroke-width="5" opacity=".55"/>`;
-    } else if (t === 'stairs') {
-      let d = '', x = 60, y = 158;
-      for (let i = 0; i < 7; i++) { d += `M${x} ${y}h26`; x += 18; y -= 7; }
-      out += `<path d="${d}" stroke="#2E2118" stroke-width="2.2" opacity=".55" fill="none"/>`;
-    } else if (t === 'gate') {
-      out += `<path d="M${p[1]-52} 112 C${p[1]-30} 52 ${p[1]+30} 52 ${p[1]+52} 112" fill="none" stroke="#4A3328" stroke-width="9" opacity=".45"/>`;
-    } else if (t === 'boat') {
-      out += `<path d="M${p[1]} ${p[2]}h44l-5 7h-34Z" fill="#241A12" opacity=".8"/>`;
-    } else if (t === 'mist') {
-      out += `<rect y="${p[1]}" width="320" height="14" fill="#F2E3CC" opacity=".25"/><rect y="${p[1]+22}" width="320" height="10" fill="#F2E3CC" opacity=".18"/>`;
-    }
-  });
-  return out;
-}
-
-let _sceneUid = 0;
-function makeSceneArt(s, crop) {
-  const uid = 'sc' + (++_sceneUid);
-  const pose = RUNNER_POSES[s.pose || 'sprint'];
-  const dx = (s.rx != null ? s.rx : 112) - 112;
-  const hz = s.hz || 112;
-  const ground = s.ground === 'solid'
-    ? `<rect y="${hz}" width="320" height="${158 - hz}" fill="#2E2118"/>`
-    : `<rect y="${hz}" width="320" height="${158 - hz}" fill="url(#${uid}w)"/>`;
-  const reflect = s.ground === 'solid' ? '' :
-    `<g stroke="#C9A84C" stroke-width="1.6" opacity=".3" stroke-linecap="round"><path d="M${s.lx-6} ${hz+8}h12M${s.lx-2} ${hz+15}h9M${s.lx-7} ${hz+22}h11M${s.lx-1} ${hz+29}h7"/></g>`;
-  const limbs = pose.limbs.map(d => `<path d="${d}"/>`).join('');
-  return `<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid ${crop ? 'slice' : 'meet'}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(s.lab || 'Run scene')}">
-  <defs>
-    <linearGradient id="${uid}k" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${s.top}"/><stop offset=".55" stop-color="${s.mid}"/><stop offset="1" stop-color="#F2E3CC"/>
-    </linearGradient>
-    <linearGradient id="${uid}w" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3A2B22"/><stop offset="1" stop-color="#241A12"/>
-    </linearGradient>
-    <radialGradient id="${uid}l"><stop offset="0" stop-color="#E8C97A" stop-opacity=".9"/><stop offset=".5" stop-color="#E8C97A" stop-opacity=".25"/><stop offset="1" stop-color="#E8C97A" stop-opacity="0"/></radialGradient>
-    <filter id="${uid}n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .05 0"/></filter>
-  </defs>
-  <rect width="320" height="${hz}" fill="url(#${uid}k)"/>
-  <circle cx="${s.lx}" cy="${s.ly}" r="${(s.lr * 2.6).toFixed(0)}" fill="url(#${uid}l)"/>
-  <circle cx="${s.lx}" cy="${s.ly}" r="${s.lr}" fill="#E8C97A"/>
-  ${s.sky ? `<path d="${s.sky}" fill="#4A3328" opacity=".4"/>` : ''}
-  ${ground}
-  ${reflect}
-  ${sceneProps(s.props)}
-  <rect y="158" width="320" height="22" fill="#1C140D"/>
-  <g transform="translate(${dx},0)">
-    <g fill="none" stroke="#160F0A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${limbs}</g>
-    <circle cx="${pose.head[0]}" cy="${pose.head[1]}" r="6" fill="#160F0A"/>
-    <path d="${pose.rim}" stroke="#C9A84C" stroke-width="1.1" opacity=".65" fill="none"/>
-  </g>
-  <rect width="320" height="180" filter="url(#${uid}n)"/>
-</svg>`;
-}
-
-// 도시별 씬 파라미터 (스펙 §5.7 — 20종). 무드 컬러는 일러스트 전용.
-const SCENES = {
-  seoul: [
-    { top:'#6E4A3F', mid:'#C98A5E', lx:205, ly:98, lr:13, pose:'sprint', rx:112,
-      sky:'M0 112V104h28v-6h14v6h22v-4h18v4h30v-7h12v7h36v-5h16v5h22l6-3 6 3h26v-13h10v13h20v-4h18v4h36v8H0Z',
-      props:[['bridge',113],['birds',236,46]], lab:'Dawn run along the Han River, Seoul' },
-    { top:'#2A1F2A', mid:'#C98A5E', lx:258, ly:42, lr:9, pose:'stride', rx:100,
-      sky:'M0 112v-6h36v-9h12v9h44v-5h18v5h54v-8h14v8h60v-4h22v4h60v6H0Z',
-      props:[['bridge',114],['arcs',160,108]], lab:'Night fountain run at Banpo Bridge, Seoul' },
-    { top:'#7A5546', mid:'#C98A5E', lx:236, ly:60, lr:10, hz:118, pose:'uphill', rx:118, ground:'solid',
-      sky:'M0 118v-8h70v-5h26v5h28l6-44h5l2 16h6v31h52v-7h22v7h63v8H0Z',
-      props:[['mist',96],['birds',60,40]], lab:'Uphill run toward Namsan Tower, Seoul' },
-    { top:'#5C4337', mid:'#C98A5E', lx:84, ly:90, lr:11, pose:'stride', rx:200, ground:'solid',
-      sky:'M0 112v-6h58v6h200v-4h62v4Z',
-      props:[['gate',176],['birds',250,52]], lab:'Olympic Park gate run, Seoul' },
-    { top:'#6E4A3F', mid:'#C98A5E', lx:160, ly:86, lr:10, pose:'sprint', rx:96, ground:'solid',
-      sky:'M0 112c22-16 46-16 66-7 17 8 38 9 58 2 24-8 49-8 70 0 20 8 44 8 64 1 21-7 42-5 62 4v0H0Z',
-      props:[['dots','#C9A84C',.55,[[60,80,1.6],[96,64,1.3],[140,74,1.7],[180,58,1.2],[210,82,1.5],[252,66,1.3],[284,88,1.6],[120,92,1.2],[226,96,1.4]]]], lab:'Golden ginkgo run in Seoul Forest' }
-  ],
-  tokyo: [
-    { top:'#23253A', mid:'#4A4E6E', lx:235, ly:92, lr:11, pose:'stride', rx:108,
-      sky:'M0 112v-5h30c8-9 20-14 34-14 12 0 24 4 32 12l4 2 2 5h66v-7h16v7h54v-4h26v4h56v5H0Z',
-      props:[['birds',254,44]], lab:'Imperial Palace moat loop at dusk, Tokyo' },
-    { top:'#33364E', mid:'#4A4E6E', lx:96, ly:70, lr:9, hz:120, pose:'sprint', rx:150, ground:'solid',
-      sky:'M0 120V86h26V72h16v14h26v22h32V56h12v52h40V90h26v18h34V82h14v26h40V98h18v10h36v12H0Z',
-      props:[['stripes']], lab:'Shibuya crossing at first light, Tokyo' },
-    { top:'#4A3B50', mid:'#4A4E6E', lx:60, ly:84, lr:10, pose:'stride', rx:190,
-      sky:'M0 112c24-10 48-10 70-3 18 6 40 6 60 0 24-7 50-7 72 1 20 7 40 7 58 0l60 2v0H0Z',
-      props:[['dots','#F2E3CC',.6,[[80,60,1.4],[120,48,1.2],[150,68,1.6],[200,52,1.3],[240,70,1.4],[100,80,1.2],[180,84,1.5],[262,60,1.2]]],['dots','#C9A84C',.7,[[70,104,1.8],[140,102,1.8],[210,104,1.8],[278,102,1.8]]]], lab:'Cherry blossom dawn along the Meguro River, Tokyo' },
-    { top:'#3A3E5C', mid:'#4A4E6E', lx:210, ly:96, lr:12, pose:'sprint', rx:96,
-      sky:'M0 112v-5h74v5h96v-3h30l8-42h4l8 42h22v3h42v5H0Z',
-      props:[['bridge',113],['birds',60,50]], lab:'Odaiba sunrise by the bay bridge, Tokyo' }
-  ],
-  ny: [
-    { top:'#3A4350', mid:'#5E6672', lx:226, ly:90, lr:11, pose:'stride', rx:104,
-      sky:'M0 112v-7h18v-12h10v12h16v-20h12v20h20v-9h14v9h24v-16h10v16h26v-24h12v24h22v-12h14v12h26v-18h10v18h24v-8h16v8h26v7H0Z',
-      props:[['birds',60,42]], lab:'Central Park reservoir at dawn, New York' },
-    { top:'#4A3E40', mid:'#5E6672', lx:84, ly:88, lr:12, pose:'sprint', rx:170, ground:'solid',
-      sky:'M0 112v-6h44v6h36v-4h60v4Z',
-      props:[['cables',208],['birds',260,46]], lab:'Brooklyn Bridge boardwalk at sunrise, New York' },
-    { top:'#46505C', mid:'#5E6672', lx:248, ly:94, lr:11, pose:'stride', rx:108,
-      sky:'M0 112v-5h28v-5h20v5h30v-8h16v8h34v-4h22v4h170v5H0Z',
-      props:[['posts',116],['birds',196,52]], lab:'Hudson River Greenway at dusk, New York' },
-    { top:'#33303E', mid:'#5E6672', lx:120, ly:64, lr:8, hz:124, pose:'sprint', rx:200, ground:'solid',
-      sky:'M0 124V70h40v18h30V52h26v26h40V64h32v22h36V56h28v30h42V74h46v50H0Z',
-      props:[['dots','#E8C97A',.35,[[60,84,3],[110,66,2.6],[170,78,3.2],[230,70,2.6],[286,86,3]]],['steam',176]], lab:'Times Square at five in the morning, New York' }
-  ],
-  london: [
-    { top:'#5A6157', mid:'#7A8073', lx:236, ly:88, lr:11, pose:'stride', rx:104,
-      sky:'M0 112v-5h90v5h30l2-8h2l1-26h8l1 26h2l2 8h30v-4h70v4h82v5H0Z',
-      props:[['lamps',[70,180],100],['mist',92]], lab:'Thames Embankment in the fog, London' },
-    { top:'#6E7568', mid:'#7A8073', lx:88, ly:92, lr:11, pose:'stride', rx:196,
-      sky:'M0 112c20-12 42-12 62-4 16 6 34 6 52 0 22-8 46-8 66 0 18 7 38 7 56 0 20-8 44-6 64 4v0H0Z',
-      props:[['swans',150,124],['mist',96]], lab:'Serpentine morning in Hyde Park, London' },
-    { top:'#565C52', mid:'#7A8073', lx:204, ly:86, lr:10, pose:'sprint', rx:110,
-      sky:'M0 112v-6h70v6h40v-4h90v4h120v0Z',
-      props:[['arch',160,46],['boat',64,120],['birds',250,48]], lab:'Regents Canal towpath, London' },
-    { top:'#4E544B', mid:'#7A8073', lx:120, ly:78, lr:10, hz:118, pose:'uphill', rx:170, ground:'solid',
-      sky:'M0 118v-6h60v6h30v-14c0-8 6-13 14-13s14 5 14 13v14h60v-4h120v4Z',
-      props:[['mist',98],['birds',244,42]], lab:'Greenwich Park hill, London' }
-  ],
-  paris: [
-    { top:'#5C5260', mid:'#8E7E8A', lx:210, ly:92, lr:11, pose:'stride', rx:100,
-      sky:'M0 112v-4h40v4h36l12-48h3l12 48h70v-6h24v6h120v4H0Z',
-      props:[['arch',180,50],['lamps',[120,250],102]], lab:'Dawn on the Seine by Pont Alexandre III, Paris' },
-    { top:'#766A78', mid:'#8E7E8A', lx:160, ly:80, lr:10, pose:'stride', rx:210, ground:'solid',
-      sky:'M0 112c18-9 38-9 56-3 16 6 34 6 52 0 20-7 44-7 64 0 18 6 38 6 56 0l32 3v0H0Z',
-      props:[['arcs',160,108],['birds',64,46]], lab:'Luxembourg Gardens fountain loop, Paris' },
-    { top:'#4E4452', mid:'#8E7E8A', lx:236, ly:70, lr:10, hz:124, pose:'uphill', rx:130, ground:'solid',
-      sky:'M0 124v-8h70v8h30v-16c0-12 10-20 24-20s24 8 24 20v16h40v-6h112v6Z',
-      props:[['stairs'],['lamps',[80],108]], lab:'Montmartre steps to the basilica, Paris' }
-  ]
-};
-
-function sceneArtFor(district, idx, crop) {
-  const city = CITY_OF[district] || 'Seoul';
-  const pool = SCENES[SCENE_CITY[city] || 'seoul'];
-  const s = pool[(idx == null ? 0 : idx) % pool.length];
-  return makeSceneArt(s, crop);
-}
-
-// ══════════════════════════════════════════════════════════════
-// 데모 쇼룸 콘텐츠 (CSO — 마케팅 쇼룸. 가상 인물·가상 코스만, 실좌표·실존인물 금지)
-// 행 형식: [이름, 역할, 티어, 루트ID, 코스명, km, 분, 좋아요, 시간전, 씬IDX]
-// ══════════════════════════════════════════════════════════════
-const DEMO_FEED = {
-  Gangnam: [
-    ['Min-jun L.','pro','gold','hangang','Yeouido Loop',5.2,29,42,2,0],
-    ['Sora K.','pro','platinum','riverside','Banpo Riverside',6.4,33,61,5,1],
-    ['Daniel C.','founder','gold','griddiag','Teheran-ro Dash',6.1,31,28,9,3],
-    ['Ha-eun J.','student','silver','crescent','Jamwon Waterside',5.5,32,17,14,4],
-    ['Leo S.','pro','bronze','twinloop','Twin Bridges Eight',8.4,47,23,26,2]
-  ],
-  Hongdae: [
-    ['Ji-woo P.','student','silver','riverside','Gyeongui Line Forest',6.4,36,19,3,4],
-    ['Emma R.','pro','gold','parkloop','Yeonnam Park Loop',4.2,24,33,7,0],
-    ['Tae-yang K.','pro','bronze','griddiag','Hongdae Night Grid',6.1,33,12,11,1],
-    ['Mia C.','founder','platinum','seine','Han Riverside Cruise',7.0,38,54,22,2]
-  ],
-  Itaewon: [
-    ['Noah F.','pro','silver','namsan','Namsan Circuit',7.8,46,37,4,2],
-    ['Yuna B.','pro','gold','crescent','Hannam Crescent',5.5,30,26,8,0],
-    ['Lucas H.','founder','gold','twinloop','Itaewon Double Loop',8.4,46,31,16,3],
-    ['Seo-yeon A.','student','bronze','parkloop','Noksapyeong Park',4.2,26,9,20,1]
-  ],
-  Haeundae: [
-    ['Joon W.','pro','gold','crescent','Haeundae Beach Arc',5.5,29,44,3,0],
-    ['Min-seo K.','student','silver','riverside','Suyeong River Path',6.4,35,18,6,4],
-    ['Harin O.','pro','bronze','bridge','Gwangan Bridge View',4.8,26,21,12,1],
-    ['Ethan M.','founder','platinum','twinloop','Dalmaji Hill Eight',8.4,49,57,25,2]
-  ],
-  Gwangalli: [
-    ['Da-eun S.','pro','silver','crescent','Gwangalli Shoreline',5.5,31,25,2,1],
-    ['Marco V.','pro','gold','bridge','Diamond Bridge Run',4.8,25,39,7,0],
-    ['Hye-jin N.','student','bronze','parkloop','Millak Park Loop',4.2,27,11,13,3],
-    ['Owen T.','pro','gold','seine','Bay Out-and-Back',7.0,37,29,21,2]
-  ],
-  Shibuya: [
-    ['Yuki T.','pro','gold','kokyo','Imperial Palace Loop',5.0,26,52,2,0],
-    ['Haruto S.','founder','platinum','griddiag','Shibuya-Harajuku Line',6.1,30,66,6,1],
-    ['Aoi M.','student','silver','parkloop','Yoyogi Park Loop',4.2,23,21,10,2],
-    ['Ren I.','pro','bronze','crescent','Meiji Jingu Arc',5.5,31,14,18,3],
-    ['Sakura F.','pro','gold','seine','Shibuya River Path',7.0,36,33,27,2]
-  ],
-  Shinjuku: [
-    ['Kaito N.','pro','gold','parkloop','Shinjuku Gyoen Loop',4.2,22,41,3,2],
-    ['Hana O.','student','silver','griddiag','Westside Grid Dash',6.1,32,16,8,1],
-    ['Sho K.','pro','bronze','twinloop','Toyama Park Eight',8.4,45,19,15,0],
-    ['Mei A.','founder','gold','kokyo','Gyoen Twilight Loop',5.0,27,38,24,3]
-  ],
-  Ginza: [
-    ['Riku Y.','pro','gold','griddiag','Ginza Boulevard Line',6.1,29,35,4,1],
-    ['Akari W.','pro','silver','seine','Sumida River Out-Back',7.0,37,22,9,3],
-    ['Tom H.','pro','bronze','bridge','Kachidoki Crossing',4.8,27,13,14,0],
-    ['Nanami E.','founder','platinum','kokyo','Palace Dawn Patrol',5.0,25,71,23,2]
-  ],
-  Namba: [
-    ['Daiki T.','pro','gold','seine','Dotonbori Riverside',7.0,36,31,3,1],
-    ['Yui S.','student','silver','parkloop','Namba Parks Loop',4.2,25,17,7,2],
-    ['Kenji M.','pro','bronze','griddiag','Midosuji Line',6.1,32,12,12,0],
-    ['Alice Q.','founder','gold','twinloop','Double Canal Eight',8.4,47,28,19,3]
-  ],
-  Umeda: [
-    ['Hiro O.','pro','gold','griddiag','Umeda Sky Line',6.1,30,26,5,3],
-    ['Marin K.','pro','silver','parkloop','Nakanoshima Loop',4.2,23,20,9,0],
-    ['Felix J.','student','bronze','seine','Yodo River Path',7.0,39,10,16,1],
-    ['Ayane H.','founder','platinum','bridge','River Crossing Dawn',4.8,24,49,28,2]
-  ],
-  Manhattan: [
-    ['Ava G.','pro','gold','centralpark','Central Park Loop',9.7,52,74,2,0],
-    ['Liam B.','founder','platinum','seine','Hudson Greenway',7.0,36,88,6,2],
-    ['Maya R.','pro','silver','griddiag','Midtown Diagonal',6.1,30,27,11,3],
-    ['Jack D.','student','bronze','parkloop','Bryant Park Circuit',4.2,22,15,17,1],
-    ['Nora W.','pro','gold','crescent','East River Arc',5.5,28,36,25,2]
-  ],
-  Brooklyn: [
-    ['Eli K.','pro','gold','bridge','Brooklyn Bridge Run',4.8,24,63,3,1],
-    ['Zoe M.','pro','silver','parkloop','Prospect Park Loop',4.2,23,31,8,0],
-    ['Theo P.','student','bronze','crescent','Williamsburg Waterfront',5.5,31,18,13,2],
-    ['Iris C.','founder','gold','twinloop','Two Park Eight',8.4,46,42,21,3]
-  ],
-  'Santa Monica': [
-    ['Cole A.','pro','gold','crescent','Santa Monica Bay Arc',5.5,28,38,4,2],
-    ['Luna H.','pro','silver','seine','Ocean Front Walk',7.0,37,24,9,0],
-    ['Reed S.','student','bronze','parkloop','Palisades Park Loop',4.2,24,12,15,3],
-    ['Vera L.','founder','platinum','riverside','Beach Path Out-Back',6.4,33,51,23,1]
-  ],
-  Hollywood: [
-    ['Max E.','pro','gold','namsan','Runyon Canyon Switchback',7.8,48,45,5,1],
-    ['Posy N.','pro','silver','griddiag','Sunset Diagonal',6.1,31,19,10,3],
-    ['Kai V.','student','bronze','parkloop','Plummer Park Loop',4.2,25,9,16,0],
-    ['Stella J.','founder','gold','twinloop','Hills Double Loop',8.4,50,33,26,2]
-  ],
-  Chelsea: [
-    ['Charlotte W.','founder','platinum','seine','Thames Embankment',7.0,36,69,2,0],
-    ['Hugo M.','pro','gold','hyde','Hyde Park Serpentine',6.8,35,47,7,1],
-    ['Freya T.','pro','silver','parkloop','Battersea Park Loop',4.2,24,22,12,3],
-    ['Arthur D.','student','bronze','bridge','Albert Bridge Cross',4.8,27,13,18,2]
-  ],
-  'Notting Hill': [
-    ['Poppy S.','pro','gold','hyde','Kensington Gardens Loop',6.8,36,41,3,1],
-    ['George F.','pro','silver','griddiag','Portobello Line',6.1,32,18,8,2],
-    ['Isla R.','student','bronze','parkloop','Holland Park Circuit',4.2,25,11,14,0],
-    ['Jasper K.','founder','gold','crescent','Westway Arc',5.5,29,27,22,3]
-  ],
-  Shoreditch: [
-    ['Oscar B.','pro','gold','seine','Regents Canal Towpath',7.0,35,34,4,2],
-    ['Amelie C.','pro','silver','twinloop','Victoria Park Eight',8.4,45,26,9,1],
-    ['Felix W.','student','bronze','griddiag','Old Street Diagonal',6.1,33,10,15,3],
-    ['Margot H.','founder','platinum','parkloop','Shoreditch Park Loop',4.2,22,58,24,0]
-  ],
-  'Le Marais': [
-    ['Chloe D.','pro','gold','seine','Seine Riverside',7.0,36,55,2,0],
-    ['Louis P.','founder','platinum','kokyo','Place des Vosges Loop',5.0,26,72,6,1],
-    ['Margaux B.','pro','silver','griddiag','Rivoli Line',6.1,31,21,11,2],
-    ['Antoine G.','student','bronze','bridge','Pont Marie Crossing',4.8,27,12,17,0]
-  ],
-  'Saint-Germain': [
-    ['Camille R.','pro','gold','parkloop','Luxembourg Loop',4.2,23,48,3,1],
-    ['Theo L.','pro','silver','seine','Quai Out-and-Back',7.0,37,25,8,0],
-    ['Ines M.','student','bronze','crescent','Saint-Germain Arc',5.5,30,14,13,2],
-    ['Victor A.','founder','gold','twinloop','Two Banks Eight',8.4,46,37,20,1]
-  ]
-};
-
-function buildDemoPosts(district) {
-  return (DEMO_FEED[district] || []).map((r, i) => {
-    const km = r[5], min = r[6];
-    let pm = Math.floor(min / km), ps = Math.round((min / km - pm) * 60);
-    if (ps === 60) { pm++; ps = 0; }
-    return { id: 'demo-' + district + '-' + i, demo: true, district, course: r[4], km,
-      pace: pm + "'" + String(ps).padStart(2, '0') + '"',
-      likes_count: r[7], created_at: new Date(Date.now() - r[8] * 3600000).toISOString(),
-      users_profile: { display_name: r[0], role: r[1] }, tier: r[2], routeId: r[3], sceneIdx: r[9] };
-  });
-}
-
-// 구역별 데모 채팅 (영어, 프리미엄 멤버스클럽 어투 — 카피 최종본은 CMO 컨펌 대상)
-const DEMO_CHAT = {
-  Gangnam: [
-    ['Daniel C.','gold','Morning crew at Banpo ramp, 6 AM sharp. Two slots open.'],
-    ['Sora K.','platinum','Pace target? Easing back from Berlin — nothing under 5 thirty.'],
-    ['Daniel C.','gold','Five forty-five, conversational. Coffee at Anthracite after, on me.'],
-    ['Min-jun L.','silver','In. Bringing a first-timer — Worker tier, vetted.'],
-    ['Daniel C.','gold','Perfect. See you at the fountain.'],
-    ['Ha-eun J.','bronze','Is the ramp gate open before six these days?'],
-    ['Sora K.','platinum','Open from five. The guards know the crew.'],
-    ['Leo S.','bronze','Joining the tail group. Long week — keeping it honest at six ten.'],
-    ['Daniel C.','gold','All paces welcome on Fridays. That is the point.']
-  ],
-  Hongdae: [
-    ['Emma R.','gold','Gyeongui Line greenway, Thursday 7 AM. Track-to-coffee format.'],
-    ['Ji-woo P.','silver','Distance?'],
-    ['Emma R.','gold','Six and change. Flat, shaded, no signals until Yeonnam.'],
-    ['Tae-yang K.','bronze','First time with the club — meeting point?'],
-    ['Emma R.','gold','Old rail marker by the park entrance. Look for the gold caps.'],
-    ['Mia C.','platinum','Back from the Paris block. Bringing pastries for the finish.'],
-    ['Ji-woo P.','silver','That settles attendance.'],
-    ['Emma R.','gold','Confirmed eight so far. Cap at twelve.']
-  ],
-  Itaewon: [
-    ['Noah F.','silver','Namsan circuit tonight — stairs section included or skipped?'],
-    ['Lucas H.','gold','Included. We earn the view.'],
-    ['Yuna B.','gold','Pace on the climb?'],
-    ['Lucas H.','gold','Effort-based. Regroup at the tower plaza.'],
-    ['Seo-yeon A.','bronze','Student here — is seven flat on hills acceptable?'],
-    ['Noah F.','silver','Nobody is dropped on this route. House rule.'],
-    ['Yuna B.','gold','Headlamps? Path lights go off at ten.'],
-    ['Lucas H.','gold','Bring one. The descent is dark after the second bend.']
-  ],
-  Haeundae: [
-    ['Joon W.','gold','Beach arc at sunrise. Tide is out — hard sand the whole way.'],
-    ['Min-seo K.','silver','In. Meeting at the lifeguard tower?'],
-    ['Joon W.','gold','Tower three. White flag corner.'],
-    ['Ethan M.','platinum','Adding a Dalmaji hill finish for anyone keen.'],
-    ['Harin O.','bronze','How steep are we talking.'],
-    ['Ethan M.','platinum','Two switchbacks. Worth it for the view alone.'],
-    ['Min-seo K.','silver','Coffee at the top or the bottom?'],
-    ['Joon W.','gold','Top. There is a place that opens at six.']
-  ],
-  Gwangalli: [
-    ['Marco V.','gold','Bridge lights go off at midnight. Night arc at eleven?'],
-    ['Da-eun S.','silver','Eleven works. Boardwalk start?'],
-    ['Marco V.','gold','Boardwalk east end. The quiet side.'],
-    ['Owen T.','gold','Pace easy for me — recovering from Saturday.'],
-    ['Hye-jin N.','bronze','May I join? First night run.'],
-    ['Da-eun S.','silver','Of course. Stay inside the group, water at the turn.'],
-    ['Marco V.','gold','Eight confirmed. Reflective gear, please.'],
-    ['Owen T.','gold','Noted. See you at the sand line.']
-  ],
-  Shibuya: [
-    ['Yuki T.','gold','Palace loop, 6 AM. Counter-clockwise as always.'],
-    ['Haruto S.','platinum','In. Two laps for me — building for the autumn marathon.'],
-    ['Aoi M.','silver','Is the Sakurada gate side open that early?'],
-    ['Yuki T.','gold','Always. The police nod if you nod first.'],
-    ['Ren I.','bronze','First palace run. Etiquette I should know?'],
-    ['Haruto S.','platinum','Keep left, no stopping on the moat corners, quiet through the gardens.'],
-    ['Sakura F.','gold','Joining at lap two from Hanzomon.'],
-    ['Yuki T.','gold','Noted. Regroup at the fountain park after.'],
-    ['Aoi M.','silver','Reserved the usual kissaten for seven thirty.']
-  ],
-  Shinjuku: [
-    ['Kaito N.','gold','Gyoen outer loop before the gates open — five thirty start.'],
-    ['Hana O.','silver','Brutal hour. Worth it for the empty paths.'],
-    ['Sho K.','bronze','Count me in if the pace stays social.'],
-    ['Kaito N.','gold','Social until the last kilometer. Then we see.'],
-    ['Mei A.','gold','Back from the Kyoto block. Legs are fresh.'],
-    ['Hana O.','silver','Dangerous words.'],
-    ['Kaito N.','gold','Meeting at the southeast gate marker.'],
-    ['Sho K.','bronze','Confirmed. Bringing two from the Worker tier.']
-  ],
-  Ginza: [
-    ['Riku Y.','gold','Boulevard line at dawn — before the deliveries start.'],
-    ['Akari W.','silver','Five forty then. The crossings are clear until six.'],
-    ['Tom H.','bronze','Route ends at the river or back at the start?'],
-    ['Riku Y.','gold','Out to the river, back along the side streets.'],
-    ['Nanami E.','platinum','I will pace the return group.'],
-    ['Akari W.','silver','Kissaten after — the one with the copper kettles?'],
-    ['Riku Y.','gold','Naturally.'],
-    ['Tom H.','bronze','In. First Ginza run — looking forward.']
-  ],
-  Namba: [
-    ['Daiki T.','gold','Dotonbori towpath at six. Tourist-free until eight.'],
-    ['Yui S.','silver','Six it is. Which bridge for the start?'],
-    ['Daiki T.','gold','Ebisu. South side stairs.'],
-    ['Kenji M.','bronze','Easy pace for me — week three back from injury.'],
-    ['Alice Q.','gold','I will sit with you at the back. No one runs alone.'],
-    ['Yui S.','silver','Canal air is cool this week. Perfect conditions.'],
-    ['Daiki T.','gold','Confirmed seven. Regroup at the last bridge.'],
-    ['Kenji M.','bronze','Appreciated. See you at Ebisu.']
-  ],
-  Umeda: [
-    ['Hiro O.','gold','Nakanoshima loop tonight. River side, both banks.'],
-    ['Marin K.','silver','Distance?'],
-    ['Hiro O.','gold','Four flat. Add the long bridge for six.'],
-    ['Felix J.','bronze','Exchange student here — may I tag along?'],
-    ['Marin K.','silver','Welcome. Pace groups split at the rose garden.'],
-    ['Ayane H.','platinum','Taking the front group. Sub five.'],
-    ['Hiro O.','gold','Confirmed. Lights are good the whole way.'],
-    ['Felix J.','bronze','Perfect. Meeting at the east fountain?']
-  ],
-  Manhattan: [
-    ['Ava G.','gold','Reservoir loop at six. Bridle path if it rained overnight.'],
-    ['Liam B.','platinum','In for two laps. The Boston block starts Monday.'],
-    ['Maya R.','silver','Which gate?'],
-    ['Ava G.','gold','Engineers Gate. Ninetieth and Fifth.'],
-    ['Jack D.','bronze','Student pace question — is six thirty fine?'],
-    ['Liam B.','platinum','The loop holds every pace. Join us.'],
-    ['Nora W.','gold','Adding strides on the north hill for anyone interested.'],
-    ['Maya R.','silver','Coffee cart after?'],
-    ['Ava G.','gold','Always. The one by the boathouse.']
-  ],
-  Brooklyn: [
-    ['Eli K.','gold','Bridge at sunrise. Manhattan side start, six sharp.'],
-    ['Zoe M.','silver','The boardwalk will be empty — perfect.'],
-    ['Theo P.','bronze','How long all in?'],
-    ['Eli K.','gold','Five k with the approach. A pause at the towers, briefly.'],
-    ['Iris C.','gold','Prospect loop afterward for the long-run group.'],
-    ['Zoe M.','silver','Ambitious. I am in.'],
-    ['Theo P.','bronze','Meeting under the arch?'],
-    ['Eli K.','gold','Under the arch. Gold caps visible.']
-  ],
-  'Santa Monica': [
-    ['Cole A.','gold','Bay arc at seven. The marine layer should burn off mid-run.'],
-    ['Luna H.','silver','Pier start or Palisades start?'],
-    ['Cole A.','gold','Palisades. Stairs finish for volunteers.'],
-    ['Reed S.','bronze','First beach run with the club — path or sand?'],
-    ['Luna H.','silver','Path until the last mile. Then the hard sand.'],
-    ['Vera L.','platinum','I will bring the cold brew for the finish.'],
-    ['Cole A.','gold','Confirmed ten so far.'],
-    ['Reed S.','bronze','Looking forward. See everyone at the overlook.']
-  ],
-  Hollywood: [
-    ['Max E.','gold','Runyon switchbacks at six thirty. The heat comes early.'],
-    ['Posy N.','silver','East gate or fire road?'],
-    ['Max E.','gold','Fire road up, trail down. Knees will thank us.'],
-    ['Kai V.','bronze','Is the view worth the climb? Asking honestly.'],
-    ['Posy N.','silver','Every single time.'],
-    ['Stella J.','gold','Joining with two guests — both vetted.'],
-    ['Max E.','gold','Noted. Water check at the bench, as usual.'],
-    ['Kai V.','bronze','In. First switchback session.']
-  ],
-  Chelsea: [
-    ['Charlotte W.','platinum','Embankment at six. Fog on the river this morning — beautiful.'],
-    ['Hugo M.','gold','In. Albert Bridge turnaround?'],
-    ['Charlotte W.','platinum','Battersea side return. The lamps are still on.'],
-    ['Freya T.','silver','Pace?'],
-    ['Charlotte W.','platinum','Five forty, conversational. Strides at the end for the keen.'],
-    ['Arthur D.','bronze','Student here — first Embankment run.'],
-    ['Hugo M.','gold','You picked the right morning. Meet at the gold post box.'],
-    ['Freya T.','silver','Tea after at the usual place. They open early for us.']
-  ],
-  'Notting Hill': [
-    ['Poppy S.','gold','Kensington Gardens loop, seven. Round pond regroup.'],
-    ['George F.','silver','The parakeets will outnumber us at that hour.'],
-    ['Poppy S.','gold','As it should be.'],
-    ['Isla R.','bronze','May I join? Moving up from the Saturday social.'],
-    ['Poppy S.','gold','Welcome. Gates open at six — we start by the palace railings.'],
-    ['Jasper K.','gold','Adding Holland Park stairs after for anyone keen.'],
-    ['George F.','silver','Keen is a strong word. I will watch.'],
-    ['Jasper K.','gold','Your loss. The view from the orangery is unmatched.']
-  ],
-  Shoreditch: [
-    ['Oscar B.','gold','Towpath at six fifteen. Watch for cyclists past the market.'],
-    ['Amelie C.','silver','Victoria Park add-on after?'],
-    ['Oscar B.','gold','One lap of the park, then out by the canal gate.'],
-    ['Felix W.','bronze','How is the surface after the rain?'],
-    ['Oscar B.','gold','Fine under the bridges, one puddle stretch by the lock.'],
-    ['Margot H.','platinum','I will lead the return group — flat and steady.'],
-    ['Amelie C.','silver','Confirmed. Coffee at the roastery, eight sharp.'],
-    ['Felix W.','bronze','In. First towpath run — looking forward.']
-  ],
-  'Le Marais': [
-    ['Chloe D.','gold','Seine at dawn. Right bank, Pont Marie start.'],
-    ['Louis P.','platinum','In. The lamps along the quai are still lit at six.'],
-    ['Margaux B.','silver','Distance?'],
-    ['Chloe D.','gold','Seven, turning at Alexandre III. Photos forbidden, memories allowed.'],
-    ['Antoine G.','bronze','Student — is the cobblestone section hard on the ankles?'],
-    ['Louis P.','platinum','Stay on the lower quai. Smooth the whole way.'],
-    ['Margaux B.','silver','Croissants after at the place on Rue de Birague?'],
-    ['Chloe D.','gold','Obviously. They expect us.']
-  ],
-  'Saint-Germain': [
-    ['Camille R.','gold','Luxembourg loop at opening. Seven sharp at the Odeon gate.'],
-    ['Theo L.','silver','The fountain circuit or the full perimeter?'],
-    ['Camille R.','gold','Perimeter twice, fountain finish.'],
-    ['Ines M.','bronze','Joining for the first lap only — early lecture.'],
-    ['Camille R.','gold','Perfectly acceptable.'],
-    ['Victor A.','gold','Back from the Boston block. Legs are curious.'],
-    ['Theo L.','silver','Curious legs set honest paces.'],
-    ['Camille R.','gold','Espresso after at the counter. Standing room, as tradition demands.']
-  ]
-};
-
-function tierBadgeSvg(tier, size, small) {
-  if (!TIER_IDS.includes(tier)) return '';
-  return `<svg class="icon" width="${size}" height="${size}" aria-hidden="true"><use href="#b-${tier}${small ? '-sm' : ''}"/></svg>`;
-}
-
-function buildChatMsg(name, tier, text, mine) {
-  const d = document.createElement('div');
-  d.className = 'cmsg' + (mine ? ' mine' : '');
-  const cu = document.createElement('div'); cu.className = 'cmsg-u';
-  if (tier && TIER_IDS.includes(tier)) cu.innerHTML = tierBadgeSvg(tier, 12, true);
-  cu.appendChild(document.createTextNode(name));  // textContent 경로 — XSS 안전
-  const ct = document.createElement('div'); ct.className = 'cmsg-t';
-  ct.textContent = text;
-  d.append(cu, ct);
-  return d;
-}
-
-// ── 네비게이션 ────────────────────────────────────────────────
-let currentScreen = 's0';
-let prevScreen = 's2';
-
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  currentScreen = id;
-  const nav = document.getElementById('bottom-nav');
-  const inApp = ['s2', 's3', 's4'].includes(id);
-  nav.classList.toggle('on', inApp);
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  if (id === 's2') document.getElementById('bnav-map')?.classList.add('active');
-  if (id === 's4') document.getElementById('bnav-profile')?.classList.add('active');
-}
-
-function goBNavMap() {
-  if (DEMO_MODE || S.session) { loadMap(); show('s2'); } else { show('s0'); }
-}
-function goBNavProfile() {
-  prevScreen = currentScreen || 's2';
-  renderMyPage();
-  show('s4');
-}
-
-// ── GATE ──────────────────────────────────────────────────────
-function gateYes() {
-  if (S.session) { loadMap(); show('s2'); return; }
-  show('s1');
-  if (DEMO_MODE) document.getElementById('demo-notice').style.display = 'block'; // CSS default is none; show only in demo
-}
-function enterDemo() { DEMO_MODE = true; loadMap(); show('s2'); applyDemoBadge(); }
-function gateNo() {
-  const msg = document.createElement('div');
-  msg.style.cssText = 'background:#0A0908;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:rgba(201,168,76,0.35);font-size:0.55rem;letter-spacing:0.5em;text-transform:uppercase';
-  msg.textContent = "Come back when you're ready.";
-  document.body.replaceChildren(msg);
-}
-
-// ── 인증: Supabase Auth OTP ───────────────────────────────────
-let selRole = null;
-
-function pickRole(r, el) {
-  selRole = r;
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-  const hints = {
-    student: 'School email required (.edu or .ac.kr)',
-    pro: 'Company email required — personal/free email providers not accepted',
-    founder: 'Company email required — personal/free email providers not accepted'
-  };
-  const lbls = { student: 'School Email', pro: 'Company Email', founder: 'Company Email' };
-  document.getElementById('e-lbl').textContent = lbls[r];
-  document.getElementById('e-hint').textContent = hints[r];
-  document.getElementById('e-hint').style.color = '';
-  document.getElementById('email-step').classList.add('visible');
-  document.getElementById('otp-info').classList.remove('on');
-  document.getElementById('code-step').classList.remove('visible');
-}
-
-const FREE_DOMAINS = [
-  'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','msn.com',
-  'icloud.com','me.com','mac.com',
-  'naver.com','daum.net','hanmail.net','kakao.com','nate.com',
-  'protonmail.com','proton.me','tutanota.com','tutamail.com','tuta.io',
-  'guerrillamail.com','mailinator.com','trashmail.com','yopmail.com',
-  'aol.com','mail.com','zoho.com','gmx.com','gmx.net','inbox.com'
-];
-
-function validEmail(e) {
-  const d = (e.split('@')[1] || '').toLowerCase();
-  return !!(d && d.includes('.'));
-}
-function isFreeEmail(e, r) {
-  const d = (e.split('@')[1] || '').toLowerCase();
-  if (r === 'student') return !(d.endsWith('.edu') || d.endsWith('.ac.kr'));
-  return FREE_DOMAINS.includes(d);
-}
-
-// sendCode: EmailJS 제거 → Supabase Auth OTP
-async function sendCode() {
-  const e = document.getElementById('e-inp').value.trim();
-  const hint = document.getElementById('e-hint');
-  const btn = document.getElementById('send-btn');
-
-  if (!validEmail(e)) {
-    hint.style.color = '#9B2C2C';
-    hint.textContent = 'Enter a valid email address';
-    return;
-  }
-  if (isFreeEmail(e, selRole)) {
-    const confirmed = window.confirm(
-      'Warning: "' + e + '" appears to be a personal or free email.\n\n' +
-      (selRole === 'student'
-        ? 'A school email (.edu or .ac.kr) is required for Student verification.'
-        : 'A company email is required for Worker / Founder verification.') +
-      '\n\nSend anyway?'
-    );
-    if (!confirmed) return;
-  }
-
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-  S.pendingEmail = e;
-  S.pendingRole = selRole;
-
-  // DEMO_MODE: Supabase 없이 회원가입 플로우 시뮬레이션
-  if (DEMO_MODE) {
-    await new Promise(r => setTimeout(r, 800)); // 전송 느낌 연출
-    hint.style.color = '#A8892F';
-    hint.textContent = 'Demo: OTP sent to ' + e + ' (use code: 123456)';
-    btn.textContent = 'Resend Code';
-    btn.disabled = false;
-    document.getElementById('otp-info').classList.add('on');
-    document.getElementById('code-step').classList.add('visible');
-    document.getElementById('v-err').classList.remove('on');
-    return;
-  }
-
-  try {
-    const { error } = await db.auth.signInWithOtp({
-      email: e,
-      options: {
-        data: { role: selRole },
-        shouldCreateUser: true
-      }
-    });
-    if (error) throw error;
-
-    hint.style.color = '#A8892F';
-    hint.textContent = 'OTP sent to ' + e;
-    btn.textContent = 'Resend Code';
-    btn.disabled = false;
-    document.getElementById('otp-info').classList.add('on');
-    document.getElementById('code-step').classList.add('visible');
-    document.getElementById('v-err').classList.remove('on');
-  } catch (err) {
-    hint.style.color = '#9B2C2C';
-    hint.textContent = 'Send failed — ' + (err.message || 'please try again');
-    btn.textContent = 'Send Verification Code';
-    btn.disabled = false;
-  }
-}
-
-// doVerify: EmailJS 코드 비교 제거 → Supabase verifyOtp
-async function doVerify() {
-  const token = document.getElementById('c-inp').value.trim();
-  const verifyBtn = document.getElementById('verify-btn');
-
-  if (!token || !S.pendingEmail) {
-    document.getElementById('v-err').classList.add('on');
-    return;
-  }
-
-  verifyBtn.textContent = 'Verifying...';
-  verifyBtn.disabled = true;
-
-  // DEMO_MODE: 코드 '123456' 허용 → 데모 세션 생성
-  if (DEMO_MODE) {
-    await new Promise(r => setTimeout(r, 600)); // 검증 느낌 연출
-    if (token !== '123456') {
-      document.getElementById('v-err').classList.add('on');
-      verifyBtn.textContent = 'Verify & Enter';
-      verifyBtn.disabled = false;
-      return;
-    }
-    // 데모 세션 설정
-    S.session = { user: { id: 'demo-user', email: S.pendingEmail, created_at: new Date().toISOString() } };
-    S.profile = { user_id: 'demo-user', email: S.pendingEmail, role: S.pendingRole || 'pro', marketing_consent: false };
-    updateHeader();
-    loadMap();
-    show('s2');
-    return;
-  }
-
-  try {
-    const { data, error } = await db.auth.verifyOtp({
-      email: S.pendingEmail,
-      token,
-      type: 'email'
-    });
-    if (error) throw error;
-
-    S.session = data.session;
-    // users_profile role 업데이트 (트리거로 자동 생성된 행)
-    const emailConsentChecked = document.getElementById('emailConsent')?.checked || false;
-    await db.from('users_profile').upsert({
-      user_id: data.user.id,
-      email: data.user.email,
-      role: S.pendingRole || 'pro',
-      marketing_consent: emailConsentChecked
-    });
-
-    // profile 로드
-    const { data: profile } = await db.from('users_profile')
-      .select('*').eq('user_id', data.user.id).single();
-    S.profile = profile;
-
-    // 헤더 업데이트
-    updateHeader();
-    loadMap();
-    show('s2');
-  } catch (err) {
-    document.getElementById('v-err').classList.add('on');
-    verifyBtn.textContent = 'Verify & Enter';
-    verifyBtn.disabled = false;
-  }
-}
-
-function updateHeader() {
-  const roleLabel = { student: 'Student', pro: 'Worker', founder: 'Founder' };
-  if (S.session) {
-    const email = S.session.user.email || '';
-    const role = S.profile?.role || 'member';
-    document.getElementById('m-member-role').textContent = roleLabel[role] || role;
-    document.getElementById('m-member-name').textContent = email.split('@')[0];
-  } else if (DEMO_MODE) {
-    document.getElementById('m-member-role').textContent = 'Guest';
-    document.getElementById('m-member-name').textContent = 'preview';
-  }
-  applyDemoBadge();
-}
-
-function applyDemoBadge() {
-  const b = document.getElementById('demo-badge');
-  if (b) b.style.display = DEMO_MODE ? '' : 'none';
-}
-
-function goHome() {
-  if (db) db.auth.signOut();
-  S.session = null; S.profile = null;
-  show('s0');
-}
-
-// ── WORLD MAP ─────────────────────────────────────────────────
-function loadMap() { S.lvl = 0; S.path = []; updateHeader(); renderMap(); }
-
-function renderMap() {
-  const lvl = S.lvl, path = S.path;
-  document.getElementById('m-bc').textContent = ['World', ...path].join(' › ');
-  const back = document.getElementById('m-back');
-  back.classList.toggle('on', lvl > 0);
-  const lbls = ['Select a country', 'Select a city', 'Select a district'];
-  document.getElementById('m-ltitle').textContent = lbls[Math.min(lvl, 2)];
-
-  let data;
-  if (lvl === 0) data = WD;
-  else if (lvl === 1) data = WD[path[0]].cities;
-  else data = WD[path[0]].cities[path[1]].districts;
-
-  // 핀 = SVG 내부 <g> 렌더 (스펙 §3.3·§3.4 — HTML 오버레이 폐기, 좌표 정합 보장)
-  const pinsG = document.getElementById('map-pins');
-  let pinSource = null, activeName = null;
-  if (lvl === 0) pinSource = WD;
-  else { pinSource = WD[path[0]].cities; if (lvl >= 2) activeName = path[1]; }
-  let pinHtml = '';
-  if (pinSource) {
-    Object.entries(pinSource).forEach(([name, d]) => {
-      if (d.px == null) return;
-      pinHtml += `<g class="city-pin${name === activeName ? ' active' : ''}" data-name="${esc(name)}" transform="translate(${d.px},${d.py})" role="button" aria-label="${esc(name)}">
-        <circle r="58" fill="transparent"/>
-        <circle class="pin-halo" r="16" fill="none" stroke="#C9A84C" stroke-width="2" opacity=".3"/>
-        <circle class="pin-ring" r="16" fill="none" stroke="#C9A84C" stroke-width="2" opacity=".45"/>
-        <circle class="pin-core" r="9" fill="#C9A84C"/>
-        <text class="pin-name" y="${d.ldy || -20}" text-anchor="middle" font-family="Raleway,sans-serif" font-size="26" font-weight="500" letter-spacing="3" fill="#6B6459">${esc(name.toUpperCase())}</text>
-      </g>`;
-    });
-  }
-  pinsG.innerHTML = pinHtml;  // 정적 마크업 + esc() — 안전
-  pinsG.querySelectorAll('.city-pin').forEach(el => {
-    el.addEventListener('click', () => { if (S.lvl < 2) drill(el.getAttribute('data-name')); });
-  });
-
-  const list = document.getElementById('r-list');
-  list.innerHTML = '';
-  Object.entries(data).forEach(([name, d]) => {
-    const lk = d.likes || 0;
-    const c = document.createElement('div');
-    c.className = 'r-card';
-    const rName = document.createElement('span'); rName.className = 'r-name';
-    rName.textContent = name;  // textContent
-    const rMeta = document.createElement('div'); rMeta.className = 'r-meta';
-    const rLikes = document.createElement('span'); rLikes.className = 'r-likes';
-    rLikes.innerHTML = '<svg class="icon" width="12" height="12" aria-hidden="true"><use href="#i-heart"/></svg>';
-    rLikes.appendChild(document.createTextNode(String(lk)));
-    const rArr = document.createElement('span'); rArr.className = 'r-arr';
-    rArr.textContent = '›';
-    rMeta.append(rLikes, rArr); c.append(rName, rMeta);
-    c.onclick = lvl < 2 ? () => drill(name) : () => enterDistrict(name);
-    list.appendChild(c);
-  });
-}
-
-function drill(name) {
-  S.path.push(name); S.lvl++;
-  if (S.lvl === 3) { enterDistrict(name); return; }
-  renderMap();
-}
-
-function mapBack() {
-  if (S.lvl > 0) { S.path.pop(); S.lvl--; renderMap(); }
-}
-
-function enterDistrict(name) {
-  S.district = name;
-  loadFeed();
-  show('s3');
-}
-
-function feedBack() {
-  if (S.lvl === 3) { S.path.pop(); S.lvl = 2; }
-  renderMap(); show('s2');
-}
-
-// ── FEED: Supabase posts 테이블 SELECT ───────────────────────
-function loadFeed() {
-  document.getElementById('f-lname').textContent = S.district || 'Community';
-  document.getElementById('chat-ttl').textContent = (S.district || 'Community') + ' Chat';
-  renderFeed();
-}
-
-// 데모 게시글은 DEMO_FEED(구역별 큐레이션)에서 생성 — buildDemoPosts() 참조
-
-async function renderFeed() {
-  const list = document.getElementById('f-list');
-  list.innerHTML = '<div class="feed-loading">Loading...</div>';
-
-  let posts = null;
-
-  if (DEMO_MODE) {
-    posts = buildDemoPosts(S.district);
-    if (S.filter === 'pop') posts.sort((a, b) => b.likes_count - a.likes_count);
-    else if (S.filter === 'new') posts.sort((a, b) => b.created_at.localeCompare(a.created_at));
-    else posts.sort((a, b) => a.created_at.localeCompare(b.created_at));
-  } else {
-    try {
-      let query = db.from('posts')
-        .select(`
-          id, user_id, district, course, km, pace, photo_url, route_path, likes_count, created_at,
-          users_profile ( display_name, role )
-        `)
-        .eq('district', S.district);
-
-      if (S.filter === 'pop') query = query.order('likes_count', { ascending: false });
-      else if (S.filter === 'new') query = query.order('created_at', { ascending: false });
-      else query = query.order('created_at', { ascending: true });
-
-      query = query.limit(50);
-      const { data, error } = await query;
-      if (error) throw error;
-      posts = data;
-
-      if (S.session) {
-        const { data: likedData } = await db.from('likes')
-          .select('post_id')
-          .eq('user_id', S.session.user.id)
-          .in('post_id', (posts || []).map(p => p.id));
-        S.likedPosts = new Set((likedData || []).map(l => l.post_id));
-      }
-    } catch (err) {
-      list.innerHTML = '';
-      const errEl = document.createElement('div');
-      errEl.className = 'feed-loading';
-      errEl.textContent = 'Failed to load posts.';
-      list.appendChild(errEl);
-      toast('Feed load failed: ' + (err.message || 'unknown error'));
-      return;
-    }
-  }
-
-  list.innerHTML = '';
-  if (!posts || posts.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'feed-loading';
-    empty.textContent = 'No posts yet. Be the first!';
-    list.appendChild(empty);
-    return;
-  }
-
-  posts.forEach(p => {
-    const isLiked = S.likedPosts.has(p.id);
-    const cnt = p.likes_count || 0;
-    const displayName = p.users_profile?.display_name || 'Runner';
-
-    const card = document.createElement('div');
-    card.className = 'post';
-
-    const visuals = document.createElement('div'); visuals.className = 'post-visuals';
-
-    // 루트 아트워크 (스펙 §4 — 모든 게시글 적용)
-    const mapDiv = document.createElement('div'); mapDiv.className = 'post-map';
-    mapDiv.innerHTML = routeArtForPost(p, S.district);
-
-    // 사진 셀: 실사진 → signed URL / 없으면 씬 일러스트 (스펙 §5 — No Photo 블록 폐기)
-    const photoDiv = document.createElement('div'); photoDiv.className = 'post-photo';
-    if (p.photo_url && !DEMO_MODE) {
-      const img = document.createElement('img');
-      img.alt = '';
-      (async () => {
-        const { data: signedData } = await db.storage
-          .from('arc-photos')
-          .createSignedUrl(p.photo_url, 3600);
-        if (signedData?.signedUrl) img.src = signedData.signedUrl;
-      })();
-      photoDiv.appendChild(img);
-    } else {
-      const sceneIdx = p.sceneIdx != null ? p.sceneIdx : strHash(p.id || p.course);
-      photoDiv.innerHTML = sceneArtFor(S.district, sceneIdx, true);
-      if (p.demo) {
-        const db2 = document.createElement('div');
-        db2.className = 'demo-badge demo-badge-cell';
-        db2.textContent = 'Demo';
-        photoDiv.appendChild(db2);
-      }
-    }
-    visuals.append(mapDiv, photoDiv);
-
-    const footer = document.createElement('div'); footer.className = 'post-footer';
-    const userInfo = document.createElement('div'); userInfo.className = 'post-user-info';
-    const uname = document.createElement('span'); uname.className = 'post-username';
-    if (p.tier && TIER_IDS.includes(p.tier)) uname.innerHTML = tierBadgeSvg(p.tier, 14, true);
-    uname.appendChild(document.createTextNode(displayName));  // textContent 경로 — XSS 안전
-    const ucourse = document.createElement('span'); ucourse.className = 'post-course';
-    ucourse.textContent = p.course || 'My Run';
-    userInfo.append(uname, ucourse);
-
-    const statsRow = document.createElement('div'); statsRow.className = 'post-stats-row';
-
-    function mkStatInline(val, lbl) {
-      const ps = document.createElement('div'); ps.className = 'pstat-inline';
-      const v = document.createElement('span'); v.className = 'ps-val-sm';
-      v.textContent = val;
-      const l = document.createElement('span'); l.className = 'ps-lbl-sm';
-      l.textContent = lbl;
-      ps.append(v, l); return ps;
-    }
-
-    const likeBtn = document.createElement('button');
-    likeBtn.className = 'like-btn' + (isLiked ? ' on' : '');
-    likeBtn.innerHTML = '<svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-heart"/></svg>';
-    const likeCnt = document.createElement('span');
-    likeCnt.textContent = cnt;
-    likeBtn.appendChild(likeCnt);
-    likeBtn.onclick = () => toggleLike(p.id, likeBtn, likeCnt);
-
-    statsRow.append(mkStatInline((parseFloat(p.km) || 0) + 'km', 'dist'), mkStatInline(p.pace || '—', 'pace'), likeBtn);
-    footer.append(userInfo, statsRow);
-    card.append(visuals, footer);
-    list.appendChild(card);
-  });
-}
-
-function setFilter(f, el) {
-  S.filter = f;
-  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-  renderFeed();
-}
-
-// toggleLike: likes 테이블 upsert/delete
-async function toggleLike(postId, btn, cntEl) {
-  if (!S.session) { toast('Please sign in to like posts.'); return; }
-  btn.disabled = true;
-  const wasLiked = S.likedPosts.has(postId);
-
-  try {
-    if (wasLiked) {
-      const { error } = await db.from('likes')
-        .delete()
-        .eq('post_id', postId)
-        .eq('user_id', S.session.user.id);
-      if (error) throw error;
-      S.likedPosts.delete(postId);
-      btn.classList.remove('on');
-      cntEl.textContent = Math.max(0, parseInt(cntEl.textContent) - 1);
-    } else {
-      const { error } = await db.from('likes')
-        .insert({ post_id: postId, user_id: S.session.user.id });
-      if (error) throw error;
-      S.likedPosts.add(postId);
-      btn.classList.add('on');
-      cntEl.textContent = parseInt(cntEl.textContent) + 1;
-    }
-  } catch (err) {
-    if (err.message && err.message.includes('Rate limit')) {
-      toast('Too many likes. Please slow down.');
-    } else {
-      toast('Like failed. Please try again.');
-    }
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// ── CHAT: messages 테이블 (폴링 대신 수동 새로고침) ──────────
-async function openChat() {
-  const sendBtn = document.getElementById('chat-send-btn');
-  sendBtn.disabled = true;
-  const el = document.getElementById('chat-msgs');
-  document.getElementById('chat-ov').classList.add('on');
-
-  if (DEMO_MODE) {
-    el.innerHTML = '';
-    const msgs = DEMO_CHAT[S.district] || [];
-    if (!msgs.length) {
-      el.innerHTML = '<div class="chat-empty"><div class="chat-empty-diamond"></div><p>No messages yet — start the conversation.</p></div>';
-    } else {
-      const div = document.createElement('div'); div.className = 'chat-div';
-      const sp = document.createElement('span'); sp.textContent = 'Today';
-      div.appendChild(sp); el.appendChild(div);
-      msgs.forEach(m => el.appendChild(buildChatMsg(m[0], m[1], m[2], false)));
-      el.scrollTop = el.scrollHeight;
-    }
-    sendBtn.disabled = false;
-    return;
-  }
-
-  el.innerHTML = '<div class="feed-loading">Loading...</div>';
-
-  try {
-    const { data: msgs, error } = await db.from('messages')
-      .select('id, sender_name, content, sender_id, created_at')
-      .eq('district', S.district)
-      .order('created_at', { ascending: true })
-      .limit(50);
-    if (error) throw error;
-
-    el.innerHTML = '';
-    (msgs || []).forEach(m => {
-      const isMine = S.session && m.sender_id === S.session.user.id;
-      const d = document.createElement('div');
-      d.className = 'cmsg' + (isMine ? ' mine' : '');
-      const cu = document.createElement('div'); cu.className = 'cmsg-u';
-      cu.textContent = m.sender_name;  // textContent — XSS 안전
-      const ct = document.createElement('div'); ct.className = 'cmsg-t';
-      ct.textContent = m.content;       // textContent — XSS 안전
-      d.append(cu, ct);
-      el.appendChild(d);
-    });
-    el.scrollTop = el.scrollHeight;
-  } catch (err) {
-    el.innerHTML = '<div class="feed-loading">Failed to load messages.</div>';
-    toast('Chat load failed.');
-  } finally {
-    sendBtn.disabled = false;
-  }
-}
-
-function closeChat() { document.getElementById('chat-ov').classList.remove('on'); }
-
-// sendChat: messages 테이블 INSERT
-async function sendChat() {
-  const inp = document.getElementById('chat-inp');
-  const txt = inp.value.trim();
-  if (!txt) return;
-  if (txt.length > 500) { toast('Message too long (max 500 chars).'); return; }
-
-  if (DEMO_MODE) {
-    const el = document.getElementById('chat-msgs');
-    const d = document.createElement('div'); d.className = 'cmsg mine';
-    const cu = document.createElement('div'); cu.className = 'cmsg-u'; cu.textContent = 'You (Demo)';
-    const ct = document.createElement('div'); ct.className = 'cmsg-t'; ct.textContent = txt;
-    d.append(cu, ct);
-    el.appendChild(d);
-    el.scrollTop = el.scrollHeight;
-    inp.value = '';
-    return;
-  }
-
-  if (!S.session) { toast('Please sign in to chat.'); return; }
-
-  const sendBtn = document.getElementById('chat-send-btn');
-  sendBtn.disabled = true;
-  inp.value = '';
-
-  const senderName = S.session.user.email?.split('@')[0] || 'Runner';
-
-  try {
-    const { error } = await db.from('messages').insert({
-      district: S.district,
-      sender_id: S.session.user.id,
-      sender_name: senderName,
-      content: txt
-    });
-    if (error) throw error;
-    await openChat();  // 전송 후 목록 새로고침
-  } catch (err) {
-    toast('Send failed: ' + (err.message || 'please try again'));
-    sendBtn.disabled = false;
-  }
-}
-
-// ── POST MODAL ────────────────────────────────────────────────
-let photoBlob = null;  // WebP Blob (Storage 업로드용)
-
-function openPost() {
-  photoBlob = null;
-  pendingRoutePath = null;
-  document.getElementById('pm-rec-done').style.display = 'none';
-  document.getElementById('pm-img').style.display = 'none';
-  document.getElementById('pm-img').src = '';
-  document.querySelector('.pm-ph-hint').style.display = '';
-  ['ri-course', 'ri-km', 'ri-min', 'ri-pace'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pmodal').classList.add('on');
-}
-
-// ══════════════════════════════════════════════════════════════
-// GPS RECORD RUN — Phase 1, 기기 내 전용 (CLO 절대 제약: 좌표 서버 저장·전송 금지.
-// 서버에는 viewBox 0~100 정규화 모양 path 문자열만 첨부 — 지리참조 불가능.
-// CISO: Prominent Disclosure → 권한 요청, 시작·종료 90초 트림, 백그라운드 추적 금지)
-// ══════════════════════════════════════════════════════════════
-let pendingRoutePath = null;
-const GPS = { watch: null, pts: null, dist: 0, elapsed: 0, lastTick: 0, paused: false, timer: null, lastPt: null };
-
-function openGpsDisclosure() { document.getElementById('gps-disclosure').classList.add('on'); }
-function closeGpsDisclosure() { document.getElementById('gps-disclosure').classList.remove('on'); }
-
-function gpsConsentStart() {
-  closeGpsDisclosure();
-  GPS.pts = []; GPS.dist = 0; GPS.elapsed = 0; GPS.paused = false; GPS.lastPt = null;
-  GPS.lastTick = Date.now();
-  const opts = { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 };
-  const onPos = (pos) => {
-    if (GPS.paused || !GPS.pts) return;
-    const c = pos.coords || pos;
-    if (c.latitude == null || c.longitude == null) return;
-    if (c.accuracy != null && c.accuracy > 60) return;          // 저정밀 포인트 제외
-    const pt = { lat: c.latitude, lng: c.longitude, t: Date.now() };
-    const prev = GPS.lastPt;
-    if (prev) {
-      const d = haversineM(prev, pt);
-      const dt = (pt.t - prev.t) / 1000;
-      if (dt > 0 && d / dt > 9) return;                          // 9m/s 초과 스파이크 제거
-      GPS.dist += d;
-    }
-    GPS.lastPt = pt;
-    GPS.pts.push(pt);
-  };
-  const onErr = (err) => {
-    gpsStopWatch();
-    document.getElementById('gps-recorder').classList.remove('on');
-    GPS.pts = null; GPS.lastPt = null;
-    toast(err && err.code === 1 ? 'Location permission denied — enter your run manually.' : 'GPS unavailable — enter your run manually.');
-  };
-  const Cap = window.Capacitor;
-  if (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Geolocation) {
-    Cap.Plugins.Geolocation.watchPosition(opts, (pos, err) => { if (err) { onErr(err); return; } if (pos) onPos(pos); })
-      .then(id => { GPS.watch = { cap: true, id }; })
-      .catch(onErr);
-  } else if (navigator.geolocation) {
-    GPS.watch = { cap: false, id: navigator.geolocation.watchPosition(onPos, onErr, opts) };
-  } else { onErr({}); return; }
-  document.getElementById('gps-recorder').classList.add('on');
-  document.getElementById('gps-paused').classList.remove('on');
-  document.getElementById('gps-pause-btn').textContent = 'Pause';
-  GPS.timer = setInterval(gpsTick, 1000);
-  gpsTick();
-}
-
-function gpsTick() {
-  if (!GPS.pts) return;
-  const now = Date.now();
-  if (!GPS.paused) GPS.elapsed += now - GPS.lastTick;
-  GPS.lastTick = now;
-  const km = GPS.dist / 1000;
-  document.getElementById('gps-km').textContent = km.toFixed(2);
-  const sec = Math.floor(GPS.elapsed / 1000);
-  document.getElementById('gps-time').textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
-  document.getElementById('gps-pace').textContent = km > 0.05 ? fmtPace((GPS.elapsed / 60000) / km) : '—';
-}
-
-function fmtPace(minPerKm) {
-  if (!isFinite(minPerKm) || minPerKm <= 0) return '—';
-  let m = Math.floor(minPerKm), s = Math.round((minPerKm - m) * 60);
-  if (s === 60) { m++; s = 0; }
-  return m + "'" + String(s).padStart(2, '0') + '"';
-}
-
-function gpsTogglePause(auto) {
-  if (!GPS.pts) return;
-  GPS.paused = !GPS.paused;
-  GPS.lastPt = null;  // 재개 시 공백 구간 거리 누적 방지
-  document.getElementById('gps-pause-btn').textContent = GPS.paused ? 'Resume' : 'Pause';
-  document.getElementById('gps-paused').classList.toggle('on', auto === true && GPS.paused);
-}
-// 화면 잠금/이탈 → 자동 일시정지 (백그라운드 위치 추적 금지 — CISO·CLO)
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden && GPS.pts && !GPS.paused) gpsTogglePause(true);
-});
-
-function gpsStopWatch() {
-  if (GPS.timer) { clearInterval(GPS.timer); GPS.timer = null; }
-  const w = GPS.watch; GPS.watch = null;
-  if (!w) return;
-  try {
-    if (w.cap) window.Capacitor.Plugins.Geolocation.clearWatch({ id: w.id });
-    else navigator.geolocation.clearWatch(w.id);
-  } catch (e) {}
-}
-
-function gpsCancel() {
-  gpsStopWatch();
-  GPS.pts = null; GPS.lastPt = null;  // 원본 좌표 즉시 폐기
-  document.getElementById('gps-recorder').classList.remove('on');
-}
-
-function gpsFinish() {
-  gpsStopWatch();
-  document.getElementById('gps-recorder').classList.remove('on');
-  const pts = GPS.pts; GPS.pts = null; GPS.lastPt = null;
-  const km = GPS.dist / 1000;
-  const elapsedMin = GPS.elapsed / 60000;
-  if (!pts || pts.length < 2 || km < 0.05) {
-    if (pts) pts.length = 0;
-    toast('Run too short — nothing recorded.');
-    return;
-  }
-  // 시작·종료 90초 트림 (출발·도착 지점 보호 — CISO Privacy Zone 이행)
-  const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-  const trimmed = pts.filter(q => q.t >= t0 + 90000 && q.t <= t1 - 90000);
-  let routePath = null;
-  if (trimmed.length >= 4) routePath = normalizeRoute(trimmed);
-  // 원본 GPS 좌표 즉시 폐기 — 어떤 형태로도 보존·전송하지 않음 (CLO 절대 제약)
-  pts.length = 0; trimmed.length = 0;
-  pendingRoutePath = routePath;
-  document.getElementById('ri-km').value = km.toFixed(2);
-  document.getElementById('ri-min').value = Math.max(1, Math.round(elapsedMin));
-  document.getElementById('ri-pace').value = fmtPace(elapsedMin / km);
-  document.getElementById('pm-rec-done').style.display = routePath ? 'block' : 'none';
-  toast(routePath ? 'Run recorded — route shape attached.' : 'Run recorded. Route too short for a shape (start and end are trimmed).');
-}
-
-function haversineM(a, b) {
-  const R = 6371000, rad = Math.PI / 180;
-  const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
-  const s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  return 2 * R * Math.asin(Math.sqrt(s));
-}
-
-// 정규화: 지리참조 불가능한 0~100 모양 데이터로 변환 (14~86 안전영역, RDP → Catmull-Rom 베지어)
-function normalizeRoute(pts) {
-  const latMid = pts.reduce((s, q) => s + q.lat, 0) / pts.length;
-  const kx = Math.cos(latMid * Math.PI / 180);
-  const xs = pts.map(q => q.lng * kx), ys = pts.map(q => -q.lat);
-  const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
-  const minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
-  const span = Math.max(maxX - minX, maxY - minY) || 1e-9;
-  const sc = 72 / span;
-  const ox = 14 + (72 - (maxX - minX) * sc) / 2, oy = 14 + (72 - (maxY - minY) * sc) / 2;
-  const norm = pts.map((q, i) => [(xs[i] - minX) * sc + ox, (ys[i] - minY) * sc + oy]);
-  let eps = 0.6, simp = rdpSimplify(norm, eps);
-  while (simp.length > 48 && eps < 6) { eps *= 1.6; simp = rdpSimplify(norm, eps); }
-  if (simp.length < 2) return null;
-  let d = 'M' + simp[0][0].toFixed(1) + ' ' + simp[0][1].toFixed(1);
-  for (let i = 0; i < simp.length - 1; i++) {
-    const p0 = simp[Math.max(0, i - 1)], p1 = simp[i], p2 = simp[i + 1], p3 = simp[Math.min(simp.length - 1, i + 2)];
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
-    d += 'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
-  }
-  return (d.length <= 8000 && SAFE_PATH_RE.test(d)) ? d : null;
-}
-
-function rdpSimplify(pts, eps) {
-  if (pts.length < 3) return pts.slice();
-  const keep = new Array(pts.length).fill(false);
-  keep[0] = keep[pts.length - 1] = true;
-  const stack = [[0, pts.length - 1]];
-  while (stack.length) {
-    const seg = stack.pop(), s = seg[0], e = seg[1];
-    let maxD = 0, idx = -1;
-    const ax = pts[s][0], ay = pts[s][1], bx = pts[e][0], by = pts[e][1];
-    const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1e-9;
-    for (let i = s + 1; i < e; i++) {
-      const dd = Math.abs(dy * pts[i][0] - dx * pts[i][1] + bx * ay - by * ax) / len;
-      if (dd > maxD) { maxD = dd; idx = i; }
-    }
-    if (maxD > eps && idx > 0) { keep[idx] = true; stack.push([s, idx], [idx, e]); }
-  }
-  return pts.filter((_, i) => keep[i]);
-}
-
-function closePost() { document.getElementById('pmodal').classList.remove('on'); }
-
-// onPhoto: WebP + 800px 리사이즈 (CFO 요구: 목표 80KB 이하)
-function onPhoto(e) {
-  const f = e.target.files[0];
-  if (!f) return;
-
-  // 파일 타입 체크 (CISO: JPEG/PNG/WebP만)
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
-    toast('Only JPEG, PNG, WebP images are allowed.');
-    return;
-  }
-  // 5MB 상한 (CISO)
-  if (f.size > 5 * 1024 * 1024) {
-    toast('Image too large. Maximum 5MB.');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      const cv = document.getElementById('pm-canvas');
-      const MAX = 800;  // CFO: 800px 리사이즈
-      let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) {
-        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-        else { w = Math.round(w * MAX / h); h = MAX; }
-      }
-      cv.width = w; cv.height = h;
-      cv.getContext('2d').drawImage(img, 0, 0, w, h);
-      // WebP 변환 (CFO 요구)
-      cv.toBlob(blob => {
-        photoBlob = blob;
-        const url = URL.createObjectURL(blob);
-        const pi = document.getElementById('pm-img');
-        pi.src = url; pi.style.display = 'block';
-        document.querySelector('.pm-ph-hint').style.display = 'none';
-      }, 'image/webp', 0.82);
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(f);
-}
-
-// submitPost: Storage 업로드 + posts INSERT
-async function submitPost() {
-  if (!S.session) { toast('Please sign in to post.'); return; }
-
-  const course = document.getElementById('ri-course').value.trim() || 'My Run';
-  const km = parseFloat(document.getElementById('ri-km').value) || 5;
-  const min = parseInt(document.getElementById('ri-min').value) || 30;
-  const pm = Math.floor(min / km);
-  const ps = Math.round(((min / km) - pm) * 60);
-  const pace = document.getElementById('ri-pace').value.trim() || `${pm}'${String(ps).padStart(2, '0')}"`;
-
-  const subBtn = document.getElementById('pm-sub-btn');
-  subBtn.textContent = 'Uploading...';
-  subBtn.disabled = true;
-
-  let photoStoragePath = null;
-
-  try {
-    // 사진 업로드 (있는 경우만)
-    if (photoBlob) {
-      const fileName = `${S.session.user.id}/${Date.now()}.webp`;
-      const { error: storageError } = await db.storage
-        .from('arc-photos')
-        .upload(fileName, photoBlob, {
-          contentType: 'image/webp',
-          upsert: false
-        });
-      if (storageError) throw storageError;
-      photoStoragePath = fileName;
-    }
-
-    // posts 테이블 INSERT — route_path는 정규화 모양 데이터(지리좌표 아님)만
-    const { error: insertError } = await db.from('posts').insert({
-      user_id: S.session.user.id,
-      district: S.district,
-      course,
-      km,
-      pace,
-      photo_url: photoStoragePath,
-      route_path: pendingRoutePath || null
-    });
-    if (insertError) throw insertError;
-    pendingRoutePath = null;
-
-    closePost();
-    toast('Post shared!');
-    await renderFeed();
-  } catch (err) {
-    toast('Post failed: ' + (err.message || 'please try again'));
-  } finally {
-    subBtn.textContent = 'Post to Community';
-    subBtn.disabled = false;
-  }
-}
-
-// ── 온도 시스템 (localStorage 유지 — Supabase 미연동) ─────────
-const TEMP_KEY = 'arc_temp';
-function getTemp() { const v = parseFloat(LS.g(TEMP_KEY, 36.5)); return isNaN(v) ? 36.5 : Math.min(v, 99.9); }
-function updateTemp(delta) { LS.s(TEMP_KEY, Math.min(parseFloat((getTemp() + delta).toFixed(1)), 99.9)); }
-function getTempGrade(t) {
-  // 티어 색 교정 (스펙 §6.4): Bronze 회베이지→브론즈, Silver 갈색→실버그레이
-  if (t >= 80) return { label: 'Platinum Member', color: '#6B2D3E', tier: 'platinum' };
-  if (t >= 60) return { label: 'Gold Member', color: '#C9A84C', tier: 'gold' };
-  if (t >= 40) return { label: 'Silver Member', color: '#8C8C94', tier: 'silver' };
-  return { label: 'Bronze Member', color: '#A1815A', tier: 'bronze' };
-}
-
-// ── MYPAGE ────────────────────────────────────────────────────
-async function renderMyPage() {
-  const body = document.getElementById('mp-body');
-  body.innerHTML = '<div class="feed-loading">Loading profile...</div>';
-
-  let email = '—';
-  let roleRaw = 'member';
-  let totalKm = 0, totalPosts = 0, totalLikes = 0;
-  const recentRuns = [];
-
-  if (DEMO_MODE) {
-    email = 'demo@arc.club';
-    roleRaw = 'founder';
-    buildDemoPosts(S.district || 'Gangnam').forEach(p => {
-      totalPosts++;
-      totalKm += parseFloat(p.km) || 0;
-      totalLikes += parseInt(p.likes_count) || 0;
-      recentRuns.push(p);
-    });
-  } else if (S.session) {
-    email = S.session.user.email || '—';
-    roleRaw = S.profile?.role || 'member';
-
-    try {
-      const { data: myPosts } = await db.from('posts')
-        .select('id, course, km, pace, likes_count, created_at, district')
-        .eq('user_id', S.session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      (myPosts || []).forEach(p => {
-        totalPosts++;
-        totalKm += parseFloat(p.km) || 0;
-        totalLikes += parseInt(p.likes_count) || 0;
-        recentRuns.push(p);
-      });
-    } catch (e) {}
-  }
-
-  const roleLabel = { student: 'Student', pro: 'Worker', founder: 'Founder' };
-  const temp = getTemp();
-  const grade = getTempGrade(temp);
-  const barPct = Math.min((temp / 99.9) * 100, 100).toFixed(1);
-  const shown = recentRuns.slice(0, 3);
-
-  let html = `
-  <div class="temp-card" id="mp-temp-card">
-    <div class="mp-member-email">${esc(email)}</div>
-    <div class="mp-member-role">${esc(roleLabel[roleRaw] || roleRaw)}</div>
-    <div class="mp-temp-num">${temp.toFixed(1)}°</div>
-    <div class="temp-bar-bg">
-      <div class="temp-bar-fill" id="mp-temp-fill" style="width:${barPct}%"></div>
-    </div>
-    <div class="mp-temp-grade">${tierBadgeSvg(grade.tier, 28, false)}${esc(grade.label)}</div>
-  </div>
-
-  <div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Running Stats</div><div class="mp-div-line"></div></div>
-  <div class="stats-section">
-    <div class="mp-stats">
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Total Distance</span>
-        <span class="mp-stat-val">${totalKm.toFixed(1)}<span class="mp-stat-unit">km</span></span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Total Posts</span>
-        <span class="mp-stat-val">${totalPosts}</span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Likes Received</span>
-        <span class="mp-stat-val">${totalLikes}</span>
-      </div>
-      <div class="mp-stat">
-        <span class="mp-stat-lbl">Member Since</span>
-        <span class="mp-stat-val" style="font-size:0.9rem">${DEMO_MODE ? 'Jun 2024' : S.session ? new Date(S.session.user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—'}</span>
-      </div>
-    </div>
-  </div>`;
-
-  if (shown.length) {
-    html += `<div class="mp-divider"><div class="mp-div-line"></div><div class="mp-div-text">Recent Runs</div><div class="mp-div-line"></div></div>`;
-    shown.forEach(p => {
-      html += `
-      <div class="mp-run-card">
-        <div class="mp-run-top">
-          <span class="mp-run-course">${esc(p.course || 'My Run')}</span>
-          <span class="mp-run-km">${parseFloat(p.km).toFixed(1)}km</span>
-        </div>
-        <div class="mp-run-meta">${esc(p.district || '')} &nbsp;·&nbsp; ${esc(p.pace || '')}</div>
-      </div>`;
-    });
-  }
-
-  body.innerHTML = html;
-  const card = document.getElementById('mp-temp-card');
-  if (card) card.style.setProperty('--grade-color', grade.color);
-}
-
-// arcSettings: 세션 로그아웃 + localStorage 초기화
-function arcSettings() {
-  if (confirm('Sign out and reset your ARC data? This cannot be undone.')) {
-    if (db) db.auth.signOut();
-    S.session = null; S.profile = null;
-    // localStorage arc_ 키 제거
-    const toDelete = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith('arc_')) toDelete.push(k);
-    }
-    toDelete.forEach(k => localStorage.removeItem(k));
-    show('s0');
-  }
-}
-
-// ── 초기화 ────────────────────────────────────────────────────
-function wireConsent() {
-  // 인증 동의 체크박스 → 버튼 활성화 (이용약관 + 국외이전 필수 동의)
-  const cb = document.getElementById('consent-terms');
-  const cbOverseas = document.getElementById('consent-overseas');
-  const btn = document.getElementById('send-btn');
-  const inp = document.getElementById('e-inp');
-  const updateBtn = () => { btn.disabled = !(cb && cb.checked && cbOverseas && cbOverseas.checked && inp && validEmail(inp.value.trim())); };
-  if (cb) cb.addEventListener('change', updateBtn);
-  if (cbOverseas) cbOverseas.addEventListener('change', updateBtn);
-  if (inp) inp.addEventListener('input', updateBtn);
-}
-
-(async function init() {
-  applyDemoBadge();
-
-  // ?demo=true 딥링크 — Gate 생략, Seoul/Gangnam 데모 피드 직행 (CSO. 기본 진입은 Gate 유지)
-  if (DEMO_PARAM) {
-    DEMO_MODE = true;
-    wireConsent();
-    S.path = ['Korea', 'Seoul', 'Gangnam'];
-    S.lvl = 3;
-    updateHeader();
-    enterDistrict('Gangnam');
-    return;
-  }
-
-  if (DEMO_MODE) {
-    show('s0');
-    wireConsent();
-    return;
-  }
-
-  // Supabase 세션 복원
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    if (session) {
-      S.session = session;
-      const { data: profile } = await db.from('users_profile')
-        .select('*').eq('user_id', session.user.id).single();
-      S.profile = profile;
-      loadMap();
-      show('s2');
-      return;
-    }
-  } catch (e) {}
-
-  show('s0');
-  wireConsent();
-
-  // 세션 변경 리스너 (OTP 인증 완료 콜백)
-  try {
-    db.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session && !S.session) {
-        S.session = session;
-        const { data: profile } = await db.from('users_profile')
-          .select('*').eq('user_id', session.user.id).single();
-        S.profile = profile;
-        loadMap();
-        show('s2');
-      }
-      if (event === 'SIGNED_OUT') {
-        S.session = null; S.profile = null;
-      }
-    });
-  } catch(e) {}
-})();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
-</script>
+</div><!-- /#app -->
+
+<script src="./js/config.js"></script>
+<script src="./js/db.js"></script>
+<script src="./js/app.js"></script>
 </body>
 </html>
