@@ -527,6 +527,74 @@ CREATE POLICY notif_update_own ON public.notifications FOR UPDATE
 CREATE POLICY notif_delete_own ON public.notifications FOR DELETE
   TO authenticated USING (user_id = auth.uid());
 
+-- ════════════════════════════════════════════════════════════
+-- 10.9 UGC 모더레이션 (Apple Guideline 1.2 / Google UGC 정책 — 신고·차단)
+--   필수 4요소: 신고(reports) · 차단(blocks) · 무관용 EULA(terms.html) · 24h 조치(운영절차)
+-- ════════════════════════════════════════════════════════════
+
+-- 차단: blocker가 blocked를 차단 → 상대 멤버의 참가예정·밋업이 목록에서 숨겨짐
+CREATE TABLE IF NOT EXISTS public.blocks (
+  blocker_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  blocked_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (blocker_id, blocked_id),
+  CHECK (blocker_id <> blocked_id)
+);
+ALTER TABLE public.blocks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY blocks_select_own ON public.blocks FOR SELECT TO authenticated USING (blocker_id = auth.uid());
+CREATE POLICY blocks_insert_own ON public.blocks FOR INSERT TO authenticated WITH CHECK (blocker_id = auth.uid());
+CREATE POLICY blocks_delete_own ON public.blocks FOR DELETE TO authenticated USING (blocker_id = auth.uid());
+
+-- 신고: 밋업·멤버 신고 접수. 운영자가 service role(대시보드)로 24h 내 조회·조치.
+CREATE TABLE IF NOT EXISTS public.reports (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reporter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  target_type TEXT NOT NULL CHECK (target_type IN ('meetup','member')),
+  target_id   TEXT NOT NULL,                 -- meetup uuid 또는 member uuid
+  reason      TEXT NOT NULL CHECK (char_length(reason) BETWEEN 1 AND 500),
+  status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','reviewed','actioned','dismissed')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY reports_insert_own ON public.reports FOR INSERT TO authenticated WITH CHECK (reporter_id = auth.uid());
+CREATE POLICY reports_select_own ON public.reports FOR SELECT TO authenticated USING (reporter_id = auth.uid());
+
+-- RPC: 신고 접수
+CREATE OR REPLACE FUNCTION public.file_report(p_target_type TEXT, p_target_id TEXT, p_reason TEXT)
+RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_uid UUID := auth.uid();
+BEGIN
+  IF v_uid IS NULL THEN RETURN jsonb_build_object('ok', false, 'error', 'AUTH_REQUIRED'); END IF;
+  INSERT INTO public.reports (reporter_id, target_type, target_id, reason)
+  VALUES (v_uid, p_target_type, p_target_id, left(coalesce(NULLIF(p_reason,''),'(no reason)'), 500));
+  RETURN jsonb_build_object('ok', true);
+END $$;
+
+-- RPC: 차단 / 해제
+CREATE OR REPLACE FUNCTION public.block_member(p_blocked UUID)
+RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_uid UUID := auth.uid();
+BEGIN
+  IF v_uid IS NULL THEN RETURN jsonb_build_object('ok', false, 'error', 'AUTH_REQUIRED'); END IF;
+  IF v_uid = p_blocked THEN RETURN jsonb_build_object('ok', false, 'error', 'SELF'); END IF;
+  INSERT INTO public.blocks (blocker_id, blocked_id) VALUES (v_uid, p_blocked) ON CONFLICT DO NOTHING;
+  RETURN jsonb_build_object('ok', true);
+END $$;
+
+CREATE OR REPLACE FUNCTION public.unblock_member(p_blocked UUID)
+RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_uid UUID := auth.uid();
+BEGIN
+  DELETE FROM public.blocks WHERE blocker_id = v_uid AND blocked_id = p_blocked;
+  RETURN jsonb_build_object('ok', true);
+END $$;
+
+-- ⚠️ 차단 반영(서버측 필터): get_race_attendees / get_meetup_attendees / get_meetup_board 의
+--    멤버 노출 쿼리에 다음 조건을 추가해야 차단이 목록에 적용된다(배포 시 적용):
+--      AND p.user_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid())
+--    또한 attendee RPC가 차단 버튼용으로 user_id(opaque id)를 함께 반환하도록 확장 필요.
+--    데모(db-demo.js)는 이름 기준 클라이언트 필터링으로 동일 UX를 즉시 제공한다.
+
 -- ── 11. 운영 SQL 모음 (주석 보존 — 회장/CTO 수동 실행용) ────
 -- 코드 발급:        SELECT public.admin_create_invite_code('KWC-1', 130, NOW() + INTERVAL '90 days');
 -- 코드 유출 대응:   UPDATE public.invite_codes SET is_active = false WHERE code = 'XXXXXXXXXXXX';  -- SEC-04

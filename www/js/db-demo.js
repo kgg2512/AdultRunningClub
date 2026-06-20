@@ -118,8 +118,13 @@
     get consents() { return LS.g('consents', { required_pii: true, required_activity: true, required_disclosure: true, service_notif: true, marketing_email: false }); },
     set consents(v) { LS.s('consents', v); },
     get loggedIn() { return LS.g('loggedIn', false); },
-    set loggedIn(v) { LS.s('loggedIn', v); }
+    set loggedIn(v) { LS.s('loggedIn', v); },
+    get blocks() { return LS.g('blocks', []); },        // [{key, name}] 차단 멤버 (데모: 이름 기준)
+    set blocks(v) { LS.s('blocks', v); },
+    get reports() { return LS.g('reports', []); },       // [{type,id,reason,at}]
+    set reports(v) { LS.s('reports', v); }
   };
+  const isBlocked = name => store.blocks.some(b => b.key === name || b.name === name);
 
   /* ── 대회 보드 (preview-races 재사용 → board shape) ─────────── */
   let _racesCache = null;
@@ -220,8 +225,9 @@
       const board = await buildBoard();
       const r = board.find(x => x.id === raceId);
       const n = r ? Math.max(0, Number(r.going_count) - (r.i_am_going ? 1 : 0)) : 0;
-      const list = [];
+      let list = [];
       for (let i = 0; i < n; i++) list.push(MEMBERS[(i + (raceId.charCodeAt(raceId.length - 1) || 0)) % MEMBERS.length]);
+      list = list.filter(m => !isBlocked(m.full_name));   // 차단 멤버 숨김 (Apple 1.2)
       return { data: pageOf(list, offset), error: null };
     },
     async setGoing(raceId, on) {
@@ -243,8 +249,9 @@
     async meetupAttendees(meetupId, offset = 0) {
       const m = store.meetups.find(x => x.id === meetupId);
       const n = m ? Number(m.joined_count) : 0;
-      const list = [];
+      let list = [];
       for (let i = 0; i < n; i++) list.push(MEMBERS[(i + meetupId.length) % MEMBERS.length]);
+      list = list.filter(x => !isBlocked(x.full_name));   // 차단 멤버 숨김 (Apple 1.2)
       return { data: pageOf(list, offset), error: null };
     },
     async createMeetup({ hub_id, race_id, title, description, meet_at, location_text, capacity }) {
@@ -287,9 +294,27 @@
       return { error: null };
     },
     async deleteAccount() {
-      ['profile', 'meetups', 'notifs', 'going', 'consents', 'loggedIn'].forEach(k => LS.rm(k));
+      ['profile', 'meetups', 'notifs', 'going', 'consents', 'loggedIn', 'blocks', 'reports'].forEach(k => LS.rm(k));
       _racesCache = null;
       return { ok: true };
+    },
+
+    // UGC 모더레이션 (Apple 1.2 — 데모: 로컬 보존 + 이름 기준 차단)
+    async reportContent(targetType, targetId, reason) {
+      const r = store.reports; r.push({ type: targetType, id: String(targetId), reason: reason || '', at: nowISO() }); store.reports = r;
+      return { ok: true };
+    },
+    async blockMember(key, displayName) {
+      const b = store.blocks;
+      if (!b.some(x => x.key === key)) { b.push({ key, name: displayName || key }); store.blocks = b; }
+      return { ok: true };
+    },
+    async unblockMember(key) {
+      store.blocks = store.blocks.filter(x => x.key !== key);
+      return { ok: true };
+    },
+    async myBlocks() {
+      return store.blocks.map(b => ({ blocked_id: b.key, full_name: b.name }));
     },
 
     // 알림

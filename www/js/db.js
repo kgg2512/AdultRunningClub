@@ -220,6 +220,31 @@ window.DB = (() => {
     return data || { ok: true };
   }
 
+  // ── UGC 모더레이션 (Apple 1.2 — 신고·차단) ────────────────
+  async function reportContent(targetType, targetId, reason) {
+    if (!ready()) return NOT_READY_ACT;
+    const { data, error } = await client.rpc('file_report', { p_target_type: targetType, p_target_id: String(targetId), p_reason: reason || '' });
+    if (error) return { ok: false, error: 'RPC_ERROR', detail: error.message };
+    return data || { ok: false, error: 'UNKNOWN' };
+  }
+  async function blockMember(blockedUid) {
+    if (!ready()) return NOT_READY_ACT;
+    const { data, error } = await client.rpc('block_member', { p_blocked: blockedUid });
+    if (error) return { ok: false, error: 'RPC_ERROR', detail: error.message };
+    return data || { ok: false, error: 'UNKNOWN' };
+  }
+  async function unblockMember(blockedUid) {
+    if (!ready()) return NOT_READY_ACT;
+    const { data, error } = await client.rpc('unblock_member', { p_blocked: blockedUid });
+    if (error) return { ok: false, error: 'RPC_ERROR', detail: error.message };
+    return data || { ok: false, error: 'UNKNOWN' };
+  }
+  async function myBlocks() {
+    if (!ready()) return [];
+    const { data } = await client.from('blocks').select('blocked_id, created_at');
+    return data || [];
+  }
+
   // ── 알림함 (§4.6) ────────────────────────────────────────
   async function notifications(limit = 50) {
     const { data, error } = await client.from('notifications')
@@ -248,6 +273,7 @@ window.DB = (() => {
     raceBoard, raceAttendees, setGoing,
     hubs, meetupBoard, meetupAttendees, createMeetup, rsvpMeetup, cancelMeetup,
     myProfile, updateProfile, deleteAccount,
+    reportContent, blockMember, unblockMember, myBlocks,
     notifications, markRead, removeNotification, unreadCount
   };
 })();

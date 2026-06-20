@@ -448,6 +448,7 @@ async function renderRaceDetail(id) {
       main.appendChild(el('span', 'wg-row-name', a.full_name));
       main.appendChild(el('span', 'wg-row-org', a.organization || ''));
       li.appendChild(main);
+      attachMemberMod(li, a);
       list.appendChild(li);
     });
     state.attOffset += data.length;
@@ -466,6 +467,47 @@ async function shareText(text) {
     try { await navigator.clipboard.writeText(full); toast('링크를 복사했습니다'); }
     catch { toast('복사하지 못했습니다'); }
   } else toast('공유를 지원하지 않는 브라우저입니다');
+}
+
+/* ── UGC 모더레이션 (Apple 1.2 — 신고·차단) ──────────────────
+ * 멤버가 직접 공개되는 폐쇄형이지만 면제 없음. 신고+차단은 데모/실백엔드 동일 UX. */
+function memberKey(a) { return a.user_id || a.full_name; }   // 실백엔드 user_id / 데모 이름
+function attachMemberMod(li, a, onRemoved) {
+  if (state.preview) return;                                 // 프리뷰엔 멤버 없음
+  const mod = el('div', 'wg-row-mod');
+  const rep = el('button', 'wg-mini-btn', '신고'); rep.type = 'button';
+  rep.setAttribute('aria-label', a.full_name + ' 신고');
+  rep.onclick = async (e) => {
+    e.stopPropagation();
+    const ok = await confirmModal('멤버 신고', `${a.full_name}님을 신고하시겠습니까? 부적절한 콘텐츠·행위는 24시간 내 검토 후 조치됩니다.`);
+    if (!ok) return;
+    const r = await DB.reportContent('member', memberKey(a), '멤버 신고');
+    toast(r && r.ok !== false ? '신고가 접수되었습니다' : '신고에 실패했습니다. 다시 시도해 주세요.');
+  };
+  const blk = el('button', 'wg-mini-btn wg-mini-btn--danger', '차단'); blk.type = 'button';
+  blk.setAttribute('aria-label', a.full_name + ' 차단');
+  blk.onclick = async (e) => {
+    e.stopPropagation();
+    const ok = await confirmModal('멤버 차단', `${a.full_name}님을 차단하면 이 멤버의 참가 예정·밋업이 목록에 보이지 않습니다.`);
+    if (!ok) return;
+    const r = await DB.blockMember(memberKey(a), a.full_name);
+    if (r && r.ok !== false) { toast('차단했습니다'); li.remove(); if (onRemoved) onRemoved(); }
+    else toast('차단에 실패했습니다. 다시 시도해 주세요.');
+  };
+  mod.appendChild(rep); mod.appendChild(blk);
+  li.appendChild(mod);
+}
+function reportMeetupBtn(meetupId) {
+  const b = el('button', 'dt-btn dt-btn--danger', '신고');
+  b.type = 'button';
+  b.onclick = async () => {
+    if (state.preview) { toast(MSG_MEMBER_ONLY); return; }
+    const ok = await confirmModal('밋업 신고', '이 밋업을 신고하시겠습니까? 부적절한 콘텐츠는 24시간 내 검토 후 조치됩니다.');
+    if (!ok) return;
+    const r = await DB.reportContent('meetup', meetupId, '밋업 신고');
+    toast(r && r.ok !== false ? '신고가 접수되었습니다' : '신고에 실패했습니다. 다시 시도해 주세요.');
+  };
+  return b;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -637,6 +679,7 @@ async function renderMeetupDetail(id) {
   shareBtn.appendChild(el('span', null, '공유'));
   shareBtn.onclick = () => shareText(`[ARC] ${m.title} ${fmtMeet(m.meet_at)} — 같이 뛰실 분?`);
   acts.appendChild(shareBtn);
+  if (!m.i_am_host) acts.appendChild(reportMeetupBtn(m.id));   // UGC 신고 (Apple 1.2)
   if (m.i_am_host) {
     const cx = el('button', 'dt-btn dt-btn--danger', '밋업 취소');
     cx.type = 'button';
@@ -701,6 +744,7 @@ async function renderMeetupDetail(id) {
       main.appendChild(el('span', 'wg-row-name', a.full_name));
       main.appendChild(el('span', 'wg-row-org', a.organization || ''));
       li.appendChild(main);
+      attachMemberMod(li, a);
       list.appendChild(li);
     });
     off += data.length;
@@ -871,6 +915,28 @@ async function renderProfile() {
   };
   vr.appendChild(sel);
   box.appendChild(vr);
+
+  // 차단한 멤버 (Apple 1.2 — 차단 관리·해제)
+  box.appendChild(el('div', 'pf-sec', 'Blocked'));
+  const blocks = await DB.myBlocks();
+  if (!blocks.length) box.appendChild(el('div', 'pf-row', '차단한 멤버가 없습니다'));
+  else {
+    const ul = el('ul', 'pf-mini-list');
+    blocks.forEach(b => {
+      const li = el('li', 'pf-mini');
+      li.appendChild(el('span', null, b.full_name || '멤버'));
+      const un = el('button', 'wg-mini-btn', '차단 해제'); un.type = 'button';
+      un.onclick = async (e) => {
+        e.stopPropagation();
+        const r = await DB.unblockMember(b.blocked_id);
+        if (r && r.ok !== false) { toast('차단을 해제했습니다'); li.remove(); }
+        else toast('해제에 실패했습니다');
+      };
+      li.appendChild(un);
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  }
 
   // 내 참가 예정 대회 (board 캐시 i_am_going)
   box.appendChild(el('div', 'pf-sec', 'My Races'));

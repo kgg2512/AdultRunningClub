@@ -24,6 +24,7 @@ const INCLUDE = [
   'sw.js',
   'privacy.html',
   'terms.html',
+  'delete-account.html',
   'robots.txt',
   '.well-known'
 ];
