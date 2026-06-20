@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-package-lock.json
+# package-lock.json은 커밋한다 (CI 재현성 + setup-node npm 캐시 요구). 무시 금지.
 
 # Android build outputs
 android/app/build/

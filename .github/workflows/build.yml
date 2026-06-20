@@ -1,13 +1,12 @@
 name: Build & Deploy — Web + Android
 
 on:
-  push:
-    branches: [master]
+  # 수동 실행만. push/schedule 자동 트리거는 제거됨(2026-06-21).
+  # 이유: ① Android AAB는 회장 로컬(Android Studio)에서 빌드 ② CI 키스토어 시크릿 미설정
+  #       ③ schedule cron은 아직 존재하지 않는 Supabase를 핑하다 매번 실패 → 메일 폭탄.
+  # AAB 클라우드 빌드가 필요하면 Actions 탭에서 이 워크플로를 "Run workflow"로 직접 실행.
+  # Supabase 가동 후 keep-alive가 필요하면 별도 경량 ping 워크플로(curl 5줄)로 분리할 것.
   workflow_dispatch:
-  schedule:
-    # Supabase 무료 티어 pause 방지: 매 6일마다 anon endpoint ping
-    # (Supabase는 7일 비활성 시 자동 pause됨)
-    - cron: '0 9 */6 * *'
 
 jobs:
   # ─── 웹 상태 확인 ─────────────────────────────────────────────
