@@ -1,33 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ARC — Running Society
+  ARC — Members' Running Network
   Info.plist Usage Description 추가 항목
   배포 경로: ios/App/App/Info.plist 에 <dict> 내부에 병합
   (cap add ios 실행 후 Xcode에서 추가하거나 직접 편집)
+
+  V3는 GPS·사진·푸시를 사용하지 않는다 → 위치 사용설명·백그라운드 모드(location/remote-notification) 제거.
+  미사용 권한 사용설명 문자열이 남으면 App Store 반려/혼선 사유.
 -->
 <plist version="1.0">
 <dict>
-
-  <!-- 위치 권한 (러닝 GPS 트래킹) -->
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>러닝 경로를 기록하고 근처 ARC 멤버를 찾기 위해 위치를 사용합니다.</string>
-
-  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-  <string>백그라운드 러닝 트래킹을 위해 위치를 사용합니다. 러닝 중에만 활성화됩니다.</string>
-
-  <!-- 알림 권한 (이벤트 알림) — iOS는 코드에서 요청, plist 불필요하나 명시적 기재 -->
-  <!-- NSUserNotificationsUsageDescription 은 자동 처리됨 -->
-
-  <!-- 배경 모드 (러닝 GPS 지속) -->
-  <key>UIBackgroundModes</key>
-  <array>
-    <string>location</string>
-    <string>remote-notification</string>
-  </array>
-
-  <!-- Face ID / Biometrics (로그인 옵션, 선택적) -->
-  <!-- key>NSFaceIDUsageDescription</key>
-  <string>빠른 로그인을 위해 Face ID를 사용합니다.</string -->
 
   <!-- 앱 화면 방향 고정 (세로) -->
   <key>UISupportedInterfaceOrientations</key>

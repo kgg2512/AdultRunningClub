@@ -1,10 +1,10 @@
 {
-  "name": "arc-running-society",
+  "name": "arc-running-network",
   "version": "1.0.0",
-  "description": "ARC — Running Society. Seoul's premier luxury running members club.",
+  "description": "ARC — Members' Running Network. Closed members' running network: race calendar, Who's Going, hub meetups. By invitation only.",
   "private": true,
   "scripts": {
-    "sync": "cp index.html www/index.html && echo 'www/index.html synced'",
+    "sync": "node scripts/sync-www.js",
     "build": "npm run sync && npx cap sync android",
     "build:android:release": "npm run build && cd android && ./gradlew bundleRelease",
     "build:android:debug": "npm run build && cd android && ./gradlew bundleDebug",
@@ -19,11 +19,8 @@
     "@capacitor/android": "^6.2.0",
     "@capacitor/app": "^6.0.2",
     "@capacitor/core": "^6.2.0",
-    "@capacitor/geolocation": "^6.0.2",
     "@capacitor/haptics": "^6.0.2",
     "@capacitor/ios": "^6.2.0",
-    "@capacitor/local-notifications": "^6.1.0",
-    "@capacitor/push-notifications": "^6.0.2",
     "@capacitor/status-bar": "^6.0.2"
   },
   "devDependencies": {

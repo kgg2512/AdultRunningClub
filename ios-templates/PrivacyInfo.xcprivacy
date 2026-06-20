@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  ARC — Running Society
+  ARC — Members' Running Network
   iOS Privacy Manifest (PrivacyInfo.xcprivacy)
   Required by Apple App Store Review since iOS 17 / Xcode 15
   배포 경로: ios/App/App/PrivacyInfo.xcprivacy  (cap add ios 실행 후 복사)
+
+  V3 수집 데이터 현실: 이메일·실명·소속(+한줄소개·밋업 텍스트)=계정/앱기능.
+  GPS·사진·푸시 토큰 없음 → PreciseLocation·DeviceID 선언 제거.
+  ⚠️ App Store Connect의 App Privacy "라벨"과 이 파일이 100% 일치해야 함.
 -->
 <plist version="1.0">
 <dict>
   <!-- 수집하는 데이터 유형 선언 -->
   <key>NSPrivacyCollectedDataTypes</key>
   <array>
-    <!-- 위치 데이터 (러닝 GPS 트래킹) -->
+    <!-- 이메일 주소 (계정 생성/로그인) -->
     <dict>
       <key>NSPrivacyCollectedDataType</key>
-      <string>NSPrivacyCollectedDataTypePreciseLocation</string>
+      <string>NSPrivacyCollectedDataTypeEmailAddress</string>
       <key>NSPrivacyCollectedDataTypeLinked</key>
-      <false/>
+      <true/>
       <key>NSPrivacyCollectedDataTypeTracking</key>
       <false/>
       <key>NSPrivacyCollectedDataTypePurposes</key>
@@ -24,12 +28,25 @@
         <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
       </array>
     </dict>
-    <!-- 기기 ID (푸시 알림 토큰) -->
+    <!-- 이름 (멤버 실명 — 멤버 간 공개) -->
     <dict>
       <key>NSPrivacyCollectedDataType</key>
-      <string>NSPrivacyCollectedDataTypeDeviceID</string>
+      <string>NSPrivacyCollectedDataTypeName</string>
       <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
       <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+    <!-- 기타 사용자 콘텐츠 (소속·한줄소개·밋업 제목/설명) -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
       <key>NSPrivacyCollectedDataTypeTracking</key>
       <false/>
       <key>NSPrivacyCollectedDataTypePurposes</key>
@@ -43,7 +60,7 @@
   <key>NSPrivacyTracking</key>
   <false/>
 
-  <!-- 사용하는 Required Reason APIs -->
+  <!-- 사용하는 Required Reason APIs (Capacitor/WebKit 일반 사용 범위) -->
   <key>NSPrivacyAccessedAPITypes</key>
   <array>
     <!-- UserDefaults 접근 (앱 설정 저장) -->

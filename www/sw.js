@@ -1,10 +1,18 @@
-const CACHE_NAME = 'arc-v3';
+// ARC V3 — Service Worker (V2 이식, CACHE_NAME 갱신 + js/ 프리캐시 — TECH_SPEC §1.2)
+const CACHE_NAME = 'arc-v3-2';   // T-14: 프리뷰 모드 추가 — 캐시 무효화
 const ASSETS = [
-  '/AdultRunningClub/',
-  '/AdultRunningClub/index.html',
-  '/AdultRunningClub/offline.html',
-  '/AdultRunningClub/manifest.webmanifest',
-  '/AdultRunningClub/privacy.html'
+  './',
+  './index.html',
+  './js/config.js',
+  './js/db.js',
+  './js/app.js',
+  './assets/preview-races.json',
+  './assets/preview-races.js',
+  './manifest.webmanifest',
+  './privacy.html',
+  './terms.html',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
@@ -29,14 +37,16 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const { request } = e;
+  // Supabase API 호출은 캐시하지 않음 (데이터 신선도)
+  if (request.url.includes('supabase.co')) return;
+  if (request.mode === 'navigate') {
+    // 네비게이션: 네트워크 우선 → 오프라인 시 캐시된 앱 셸
+    e.respondWith(
+      fetch(request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
   e.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).catch(() => {
-        if (request.mode === 'navigate') {
-          return caches.match('/AdultRunningClub/offline.html');
-        }
-      });
-    })
+    caches.match(request).then(cached => cached || fetch(request).catch(() => cached))
   );
 });

@@ -1,6 +1,6 @@
 {
   "appId": "com.g2company.arc",
-  "appName": "ARC — Running Society",
+  "appName": "ARC",
   "webDir": "www",
   "server": {
     "allowMixedContent": false,
@@ -17,14 +17,6 @@
     "webContentsDebuggingEnabled": false
   },
   "plugins": {
-    "LocalNotifications": {
-      "smallIcon": "ic_stat_arc_notify",
-      "iconColor": "#C9A84C",
-      "sound": "default"
-    },
-    "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
-    },
     "SplashScreen": {
       "launchShowDuration": 2000,
       "backgroundColor": "#0A0908",
