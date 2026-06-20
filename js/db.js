@@ -121,7 +121,7 @@ const DB = (() => {
     const rows = Object.entries(map).map(([consent_type, agreed]) => ({
       user_id: u, consent_type, agreed: !!agreed,
       agreed_at: new Date().toISOString(),
-      revoked_at: agreed ? null : null
+      revoked_at: null   // 온보딩 일괄 기록 = 최초 결정 시점, 철회 없음 (라이브 철회는 setConsent)
     }));
     return client.from('consents').upsert(rows, { onConflict: 'user_id,consent_type' });
   }
