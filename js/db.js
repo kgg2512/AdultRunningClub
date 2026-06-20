@@ -5,7 +5,7 @@
  * ==========================================================*/
 'use strict';
 
-const DB = (() => {
+window.DB = (() => {
   // ── 로컬 스토리지 헬퍼 (V2 LS 이식) ───────────────────────
   const LS = {
     g: (k, d) => { try { const v = localStorage.getItem(k); return v != null ? JSON.parse(v) : d; } catch { return d; } },
