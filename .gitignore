@@ -29,3 +29,4 @@ supabase/.temp/
 
 # QA 검증 산출물 (스크린샷 — 재생성 가능, 무게 큼. 검증 스크립트는 추적)
 screenshots/verify/
+screenshots/qa/
