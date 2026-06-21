@@ -139,6 +139,24 @@ function nav(hash) {
   else location.hash = hash;
 }
 
+/* ── 로그아웃·탈퇴 공통: 세션/멤버 상태 + 민감 화면 DOM 정리 (C1·C2) ──
+ * route guard가 게이트로 보내 노출은 없지만, 숨겨진 화면 DOM의 잔존 개인정보까지
+ * 명시적으로 비워 DOM 검사·확장프로그램·뒤로가기 캐시로도 새지 않게 한다. */
+function clearMemberState() {
+  state.authed = false; state.member = false;
+  state.races = []; state.hubs = []; state.meetups = [];
+  state.consents = {}; state.profile = null;
+  state.calQ = ''; state.calRegion = '전체'; state.hubFilter = null;
+  state.pendingRaceLink = null; state.attOffset = 0;
+  // 멤버 화면 본문 DOM 비우기 (개인정보 잔존 제거)
+  ['profile-body', 'cal-list', 'meetup-list', 'alerts-list', 'race-body', 'mt-body'].forEach(id => {
+    const n = document.getElementById(id);
+    if (n) n.textContent = '';
+  });
+  const dot = document.getElementById('bnav-dot');
+  if (dot) dot.hidden = true;
+}
+
 /* ── 모달 ────────────────────────────────────────────────── */
 function confirmModal(title, body) {
   return new Promise(resolve => {
@@ -978,7 +996,7 @@ async function renderProfile() {
   lo.type = 'button';
   lo.onclick = async () => {
     await DB.signOut();
-    state.authed = state.member = false;
+    clearMemberState();            // 세션/멤버 데이터 + 민감 화면 DOM 완전 정리 (C1)
     nav('#/join');
   };
   box.appendChild(lo);
@@ -991,8 +1009,7 @@ async function renderProfile() {
     if (!b) return;
     const r = await DB.deleteAccount();
     if (!r.ok) { toast('탈퇴 처리에 실패했습니다'); return; }
-    state.authed = state.member = false;
-    state.races = []; state.meetups = [];
+    clearMemberState();            // 세션/멤버 데이터 + 민감 화면 DOM 완전 정리 (C2)
     toast('탈퇴가 완료되었습니다');
     nav('#/join');
   };
@@ -1321,7 +1338,22 @@ async function boot() {
   }
 
   if (!DB.ready()) {
-    $('#setup-note').hidden = false;
+    // 실유저가 ?demo 없이 미설정 라이브에 접속 → 데드엔드 방지 (E2):
+    // 안내 + '미리보기로 둘러보기'(읽기전용 프리뷰) 진입로 제공. (?demo면 db-demo가 별도 배너 주입)
+    const note = $('#setup-note');
+    note.hidden = false;
+    if (!window.__ARC_DEMO && !document.getElementById('preview-cta')) {
+      note.textContent = '';
+      const t = el('b', null, '멤버 전용 서비스 준비 중');
+      note.appendChild(t);
+      note.appendChild(document.createElement('br'));
+      note.appendChild(document.createTextNode('초대코드가 있으면 아래에 입력하세요. 둘러보려면 미리보기를 이용할 수 있습니다.'));
+      const cta = el('button', 'ob-link', '2026 마라톤 일정 미리보기 →');
+      cta.id = 'preview-cta'; cta.type = 'button';
+      cta.style.cssText = 'color:var(--gold);border:1px solid rgba(201,168,76,.4);padding:11px 0;margin-top:10px;text-decoration:none;letter-spacing:.1em';
+      cta.onclick = () => { location.href = location.pathname + '?preview=true'; };
+      note.appendChild(cta);
+    }
     showJoinStep('j1');
     if (location.hash && location.hash !== '#/join') location.hash = '#/join';
     window.addEventListener('hashchange', route);

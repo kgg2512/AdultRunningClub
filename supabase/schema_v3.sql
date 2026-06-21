@@ -314,21 +314,28 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
          count(ra.id) AS going_count,
          bool_or(ra.user_id = auth.uid()) AS i_am_going
     FROM public.races r
+    -- 차단 반영(B-2 수정): going_count 집계에서 내가 차단한 멤버 제외 (본인은 항상 포함)
     LEFT JOIN public.race_attendance ra ON ra.race_id = r.id
+      AND (ra.user_id = auth.uid()
+           OR ra.user_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid()))
    WHERE public.is_arc_member()
      AND (r.race_date IS NULL OR r.race_date >= CURRENT_DATE - INTERVAL '1 day')  -- DEV-1: 일정 미정 포함
    GROUP BY r.id
    ORDER BY r.race_date NULLS LAST;                                              -- DEV-1: 미정은 맨 뒤
 $$;
 
+-- 시그니처 변경(user_id 추가)으로 기존 함수 DROP 후 재생성 (재실행 안전)
+DROP FUNCTION IF EXISTS public.get_race_attendees(UUID, INT);
 CREATE OR REPLACE FUNCTION public.get_race_attendees(p_race_id UUID, p_offset INT DEFAULT 0)
-RETURNS TABLE (full_name TEXT, organization TEXT, cohort TEXT)
+RETURNS TABLE (user_id UUID, full_name TEXT, organization TEXT, cohort TEXT)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT up.full_name, up.organization, up.cohort
+  SELECT up.user_id, up.full_name, up.organization, up.cohort
     FROM public.race_attendance ra
     JOIN public.users_profile up ON up.user_id = ra.user_id
    WHERE public.is_arc_member() AND ra.race_id = p_race_id
      AND up.profile_visibility = 'members'
+     -- 차단 반영(B-2 수정): 내가 차단한 멤버는 목록에서 제외 (Apple 1.2 / Google UGC)
+     AND up.user_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid())
    ORDER BY ra.created_at
    LIMIT 20 OFFSET GREATEST(p_offset, 0);
 $$;
@@ -354,18 +361,23 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
      AND (p_hub_id IS NULL OR m.hub_id = p_hub_id)
      AND m.status <> 'canceled'
      AND m.meet_at > NOW() - INTERVAL '12 hours'
+     -- 차단 반영(B-2 수정): 내가 차단한 멤버가 주최한 밋업은 목록에서 숨김
+     AND m.host_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid())
    GROUP BY m.id, h.name, up.full_name
    ORDER BY m.meet_at;
 $$;
 
+DROP FUNCTION IF EXISTS public.get_meetup_attendees(UUID, INT);
 CREATE OR REPLACE FUNCTION public.get_meetup_attendees(p_meetup_id UUID, p_offset INT DEFAULT 0)
-RETURNS TABLE (full_name TEXT, organization TEXT, cohort TEXT)
+RETURNS TABLE (user_id UUID, full_name TEXT, organization TEXT, cohort TEXT)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT up.full_name, up.organization, up.cohort
+  SELECT up.user_id, up.full_name, up.organization, up.cohort
     FROM public.meetup_rsvp r
     JOIN public.users_profile up ON up.user_id = r.user_id
    WHERE public.is_arc_member() AND r.meetup_id = p_meetup_id AND r.status = 'joined'
      AND up.profile_visibility = 'members'
+     -- 차단 반영(B-2 수정): 내가 차단한 멤버 제외
+     AND up.user_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid())
    ORDER BY r.created_at
    LIMIT 20 OFFSET GREATEST(p_offset, 0);
 $$;
@@ -589,11 +601,13 @@ BEGIN
   RETURN jsonb_build_object('ok', true);
 END $$;
 
--- ⚠️ 차단 반영(서버측 필터): get_race_attendees / get_meetup_attendees / get_meetup_board 의
---    멤버 노출 쿼리에 다음 조건을 추가해야 차단이 목록에 적용된다(배포 시 적용):
---      AND p.user_id NOT IN (SELECT blocked_id FROM public.blocks WHERE blocker_id = auth.uid())
---    또한 attendee RPC가 차단 버튼용으로 user_id(opaque id)를 함께 반환하도록 확장 필요.
+-- ✅ 차단 반영 완료(B-2 수정 2026-06-22): get_race_attendees / get_meetup_attendees /
+--    get_meetup_board / get_race_board 에 차단 필터(blocked_id NOT IN ...) 적용 완료.
+--    또한 attendee RPC가 차단 버튼용 user_id(UUID)를 반환하도록 시그니처 확장 완료
+--    → 클라이언트 block_member(p_blocked UUID) 호출이 정상 타입으로 동작.
 --    데모(db-demo.js)는 이름 기준 클라이언트 필터링으로 동일 UX를 즉시 제공한다.
+--    ⚠️ 기존 배포 DB가 있다면 이 RETURNS TABLE 시그니처 변경은 DROP FUNCTION 후 재생성 필요
+--       (PostgreSQL은 OUT 파라미터 변경 시 CREATE OR REPLACE 거부). 신규 설치는 무관.
 
 -- ── 11. 운영 SQL 모음 (주석 보존 — 회장/CTO 수동 실행용) ────
 -- 코드 발급:        SELECT public.admin_create_invite_code('KWC-1', 130, NOW() + INTERVAL '90 days');

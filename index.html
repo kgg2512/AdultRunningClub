@@ -17,6 +17,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<!-- 한글 본문 — Pretendard(오픈소스, dynamic-subset woff2). 라틴 장식 — Cormorant/Raleway.
+     폰트 로드 실패(오프라인/CDN차단/앱 webview)에도 CSS 변수 폴백 체인이 한글 system 폰트로 안전 폴백. -->
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -43,8 +48,11 @@
   --shadow-sm:0 1px 3px rgba(13,11,8,0.06),0 1px 2px rgba(13,11,8,0.03);
   --shadow-md:0 4px 16px rgba(13,11,8,0.08),0 2px 6px rgba(13,11,8,0.04);
   --shadow-lg:0 12px 40px rgba(13,11,8,0.10);
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --sans:'Raleway',system-ui,sans-serif;
+  /* 한글 안전 폴백 스택 (Pretendard 로드 실패/앱 webview 대비 — OS별 한글 기본 폰트) */
+  --kr:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR',system-ui,sans-serif;
+  /* 라틴 장식 세리프 — 한글 글리프는 라틴 폰트에 없으므로 자동으로 --kr 스택(한글)으로 폴백된다(글리프 단위 폴백). */
+  --serif:'Cormorant Garamond',Georgia,'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',serif;
+  --sans:'Pretendard Variable',Pretendard,'Raleway',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;
   --fs-display:3rem;
   --fs-h1:2.25rem;
   --fs-h2:1.5rem;
