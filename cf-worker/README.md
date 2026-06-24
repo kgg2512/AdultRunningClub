@@ -34,13 +34,13 @@ compatibility_date = "2024-01-01"
 
 ```bash
 wrangler secret put EMAILJS_PUBLIC_KEY
-# 입력: xBoQd6PMFec8hCvVD
+# 입력: <EmailJS 대시보드의 Public Key — 문서/소스에 평문 금지>
 
 wrangler secret put EMAILJS_SERVICE_ID
-# 입력: service_ayss3t8
+# 입력: <EmailJS Service ID>
 
 wrangler secret put EMAILJS_TEMPLATE_ID
-# 입력: inz0rw3
+# 입력: <EmailJS Template ID>
 
 wrangler secret put ALLOWED_ORIGIN
 # 입력: https://kgg2512.github.io
