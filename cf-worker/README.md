@@ -44,10 +44,32 @@ wrangler secret put EMAILJS_TEMPLATE_ID
 
 wrangler secret put ALLOWED_ORIGIN
 # 입력: https://kgg2512.github.io
+
+wrangler secret put EMAILJS_PRIVATE_KEY
+# 입력: <EmailJS Private Key — 아래 "보안: STRICT MODE" 참고>
 ```
 
 > Cloudflare Dashboard에서 직접 등록도 가능:
 > Workers & Pages → arc-email-proxy → Settings → Variables and Secrets
+
+---
+
+## ⚠️ 보안: STRICT MODE (abuse 방어 — 필수 권장)
+
+EmailJS의 `public key`는 설계상 클라이언트 노출용 값이라, 과거 git 히스토리에
+`service_id`+`template_id`+`public_key`가 남아 있으면 **누구나 그 3개로 ARC EmailJS 계정에서
+이메일을 발송(쿼터 소진/스팸)할 수 있다.** CF Worker로 옮겨도 히스토리 노출분은 그대로다.
+
+이를 무력화하려면 **Private Key(accessToken)를 강제**한다:
+
+1. EmailJS Dashboard → **Account → Security**
+2. **"Use Private Key"** (= non-browser API 호출에 private key 강제) **활성화**
+3. 같은 화면의 **Private Key** 값 복사 → `wrangler secret put EMAILJS_PRIVATE_KEY` 로 등록
+4. (선택) 노출된 public key/service/template을 새로 발급해 교체하면 더 깨끗 — 단 strict mode가
+   켜지면 public key 단독 발송이 막히므로 교체 없이도 노출은 무력화됨.
+
+> `email-proxy.js`는 `EMAILJS_PRIVATE_KEY` secret이 있으면 자동으로 `accessToken`을 함께 전송한다.
+> (미설정 시 기존 동작 유지 — 단 그 경우 위 abuse 위험이 남는다.)
 
 ---
 

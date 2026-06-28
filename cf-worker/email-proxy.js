@@ -9,6 +9,12 @@
  *   EMAILJS_PUBLIC_KEY  — EmailJS account public key
  *   EMAILJS_SERVICE_ID  — EmailJS service ID
  *   EMAILJS_TEMPLATE_ID — EmailJS template ID
+ *   EMAILJS_PRIVATE_KEY — EmailJS account private key (STRICT MODE / abuse 방어).
+ *                         EmailJS Dashboard → Account → Security 에서 "Use Private Key"
+ *                         (non-browser API에 private key 강제) 활성화 후, 발급된 private key를
+ *                         `wrangler secret put EMAILJS_PRIVATE_KEY` 로 등록.
+ *                         이게 설정되면 과거 git 히스토리에 노출된 public key/service/template id
+ *                         만으로는 발송이 불가능해져 노출이 무력화됨. (미설정 시 기존 동작 유지)
  *   ALLOWED_ORIGIN      — e.g. "https://kgg2512.github.io" (CORS)
  */
 
@@ -67,6 +73,10 @@ export default {
       service_id: env.EMAILJS_SERVICE_ID,
       template_id: env.EMAILJS_TEMPLATE_ID,
       user_id: env.EMAILJS_PUBLIC_KEY,
+      // STRICT MODE: private key가 설정돼 있으면 accessToken으로 전달.
+      // EmailJS가 "Use Private Key"로 강제돼 있을 때 필수이며, 이게 있으면
+      // public key 단독(=git 히스토리 노출분)으로는 발송이 거부된다.
+      ...(env.EMAILJS_PRIVATE_KEY ? { accessToken: env.EMAILJS_PRIVATE_KEY } : {}),
       template_params: {
         to_email,
         code,
