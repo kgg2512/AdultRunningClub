@@ -8,6 +8,11 @@ on:
   # Supabase 가동 후 keep-alive가 필요하면 별도 경량 ping 워크플로(curl 5줄)로 분리할 것.
   workflow_dispatch:
 
+# 보안(T-13 공급망·CI 무결성): GITHUB_TOKEN 최소권한. 이 워크플로는 아티팩트 업로드만 하고
+# 레포에 쓰지 않으므로 contents: read로 충분(기본 read-all 대비 write 권한 제거).
+permissions:
+  contents: read
+
 jobs:
   # ─── 웹 상태 확인 ─────────────────────────────────────────────
   web-status:

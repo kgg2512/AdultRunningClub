@@ -2,6 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<!-- 보안: 콘텐츠 보안 정책(T-11 XSS 완화). 인라인 <script> 미사용이라 script-src는 'unsafe-inline' 없이 잠금 →
+     주입된 인라인 스크립트는 실행 불가. style만 'unsafe-inline'(인라인 style 속성·<style> 블록). 외부=Supabase SDK(jsdelivr)+Google Fonts.
+     ※ meta 전달 CSP는 frame-ancestors를 브라우저가 무시(HTTP 헤더 전용) — 웹은 GitHub Pages라 헤더 불가, 클릭재킹은 앱(Capacitor)엔 무관. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="robots" content="noindex">
 <!-- 폐쇄형 멤버 네트워크 — 참가예정·멤버 정보 외부 색인 금지 (CLO 금지2 / DELTA §8.2-8) -->

@@ -16,7 +16,30 @@
  *                         이게 설정되면 과거 git 히스토리에 노출된 public key/service/template id
  *                         만으로는 발송이 불가능해져 노출이 무력화됨. (미설정 시 기존 동작 유지)
  *   ALLOWED_ORIGIN      — e.g. "https://kgg2512.github.io" (CORS)
+ *
+ * 보안(T-06 rate limiting / 비용폭탄 방어): CORS는 브라우저만 강제하므로 curl 등 비브라우저
+ *   클라이언트엔 무의미하다(서버 게이트 아님). 아래 per-IP 슬라이딩 윈도우 + 전역 캡으로 EmailJS
+ *   쿼터 고갈·이메일 폭탄을 실제로 제한한다. CF-Connecting-IP는 Cloudflare가 세팅하는 신뢰 헤더.
+ *   ※ in-isolate 메모리라 isolate 수명 내에서만 유지(경계 초과 시 KV/Durable Object로 승격) —
+ *     그래도 단일 소스 반복 버스트라는 최빈 남용 패턴은 차단한다. 배포 시 Turnstile 병행 권장.
  */
+
+// per-IP 슬라이딩 윈도우 (isolate 로컬)
+const RL_WINDOW_MS = 10 * 60 * 1000;   // 10분
+const RL_MAX_PER_IP = 5;               // IP당 10분 5회
+const RL_GLOBAL_MAX = 200;             // 전역 10분 200회(폭주 백스톱)
+const _hits = new Map();               // ip -> number[] (timestamps)
+let _global = [];
+
+function rateLimited(ip, now) {
+  _global = _global.filter((t) => now - t < RL_WINDOW_MS);
+  if (_global.length >= RL_GLOBAL_MAX) return true;
+  const arr = (_hits.get(ip) || []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= RL_MAX_PER_IP) { _hits.set(ip, arr); return true; }
+  arr.push(now); _hits.set(ip, arr); _global.push(now);
+  if (_hits.size > 5000) _hits.clear();   // 메모리 상한(장기 실행 방어)
+  return false;
+}
 
 export default {
   async fetch(request, env) {
@@ -37,6 +60,15 @@ export default {
       return new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json', ...corsHeaders(allowedOrigin) },
+      });
+    }
+
+    // ── Rate limit (T-06): per-IP 슬라이딩 윈도우 + 전역 캡 ────────────────
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    if (rateLimited(ip, Date.now())) {
+      return new Response(JSON.stringify({ error: 'Too many requests' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': '600', ...corsHeaders(allowedOrigin) },
       });
     }
 
